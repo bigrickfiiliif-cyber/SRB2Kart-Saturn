@@ -347,10 +347,11 @@ void I_ThreadPoolInit(void)
 	}
 
 #ifdef __3DS__
-	// New 3DS: one render worker on core 2 (shared with the higher-priority
-	// audio mixer), the main thread helps while waiting. Old 3DS: inline.
+	// The renderer is built without pool tasks on 3DS (see 3ds/Makefile):
+	// fine-grained tasks cost more than core 2 gains on the ARM11. Keep the
+	// pinned worker available for experiments with -threadpool.
 	thread_count = 1;
-	if (!N3DS_IsNew3DS() || M_CheckParm("-singlethreaded"))
+	if (!N3DS_IsNew3DS() || !M_CheckParm("-threadpool"))
 #else
 	if (M_CheckParm("-singlethreaded"))
 #endif

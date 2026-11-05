@@ -56,6 +56,17 @@ LDFLAGS  := -specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(TARGET).map -Wl,--gc-section
 LIBS     := -L$(PORTLIBS)/lib -L$(CTRULIB)/lib -lcurl -lmbedtls -lmbedx509 -lmbedcrypto \
             -lxmp -lvorbisidec -logg -lpng -lz -lctru -lm
 
+# Renderer hot paths, built without the thread-pool code: with HAVE_THREADS
+# the span drawer uses thread_local state (a function call per access with
+# -mtp=soft) and planes are split into tiny lambda tasks that copy the whole
+# span context. On the ARM11 that overhead costs more than a second core
+# gains, so use the engine's direct single-threaded paths instead.
+RENDER_SERIAL := $(BUILD)/r_plane.cpp.o $(BUILD)/r_things.cpp.o $(BUILD)/r_draw.cpp.o
+$(RENDER_SERIAL): CXXFLAGS += -UHAVE_THREADS
+# Column/span drawers (r_draw_span/column.cpp are #included here): unroll.
+RENDER_HOT := $(BUILD)/r_draw.cpp.o
+$(RENDER_HOT): CXXFLAGS += -O3
+
 # ---- rules ---------------------------------------------------------------------
 .PHONY: all clean cia
 all: $(TARGET).3dsx
