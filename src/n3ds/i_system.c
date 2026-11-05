@@ -673,15 +673,11 @@ const char *I_ClipboardPaste(void)
 
 const char *I_LocateWad(void)
 {
-	static char waddir[] = N3DS_GAMEDIR;
-	FILE *f = fopen(N3DS_GAMEDIR "/srb2.srb", "rb");
-	if (f)
-	{
-		fclose(f);
-		I_ChDir(waddir);
-		return waddir;
-	}
-	return NULL;
+	// d_main frees the returned string, so it must come from malloc.
+	// Always point the engine at the 3DS data folder, so a missing file is
+	// reported as "expected in sdmc:/3ds/srb2kart" rather than "/".
+	I_ChDir(N3DS_GAMEDIR);
+	return strdup(N3DS_GAMEDIR);
 }
 
 size_t I_GetFreeMem(size_t *total)
