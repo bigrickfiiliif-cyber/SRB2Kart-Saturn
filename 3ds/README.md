@@ -31,12 +31,10 @@ Saturn netcode/resync included) plus a native libctru platform layer in
 sdmc:/3ds/srb2kart-saturn.3dsx      <- the program (or install the .cia)
 sdmc:/3ds/srb2kart/
     srb2.srb
-    patch.dta
     gfx.kart
     textures.kart
     chars.kart
     maps.kart
-    patch.kart
     sounds.kart
     music.kart
     (extra.kart, extra2.kart, extra3.kart, if you have them)
