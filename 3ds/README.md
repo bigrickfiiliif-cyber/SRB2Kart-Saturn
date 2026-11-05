@@ -82,14 +82,23 @@ All buttons can be rebound in the game's control menu (they show up as JOY1–JO
 
 ## Performance
 
+**Emulators (Azahar/Citra):** emulators count emulated CPU cycles and run the
+old-3DS clock (268 MHz) by default, so FPS shown there is much lower than on
+a real New 3DS at 804 MHz. The log line `CPU clock: ~266 MHz` in an emulator
+is expected. To get closer to New 3DS speed in the emulator, enable New 3DS
+mode and raise the emulated CPU clock (about 300%) in its settings.
+
+
 What the port does out of the box:
 
 * **Multi-core rendering (New 3DS):** Saturn's parallel software renderer
   (floors, ceilings, sprites) runs with a worker thread pinned to CPU core 2.
   The main thread on core 0 helps while it waits. The log says
   "Render worker running on CPU core 2" when that works.
-* **Steady 30 FPS:** `fpscap` defaults to 30 (two vblanks per frame) with
-  vsync on, so the picture doesn't judder between 35 and 60.
+* **No needless vsync waits:** frames are only held back when they would
+  otherwise tear. Frame output is converted on CPU core 2.
+* **Frame rate:** `fpscap` stays at 60 (refresh rate). If your 3DS can't hold
+  60 on a map, `fpscap 30` gives a steady 30 instead of jumping between the two.
 * **Cheaper defaults:** skybox off, `drawdist 2048`, less weather, no water
   ripples, no splats, no texture precaching (saves RAM). These only change
   how the game looks on your screen, so online games stay in sync with PC
@@ -103,7 +112,7 @@ More tweaks if it is still too slow:
 
 * `vid_mode 1` (320×200) renders about a third fewer pixels.
 * Lower `drawdist` further (`1024`).
-* `fpscap 60` if you get well above 30 on light maps.
+* `fpscap 30` for steady pacing on heavy maps.
 
 ## Building
 

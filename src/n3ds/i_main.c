@@ -77,8 +77,8 @@ static void InitLogging(void)
 // All of them are client-side visuals, so netgames stay in sync with PC.
 static void N3DS_SetDefaults(void)
 {
-	cv_fpscap.defaultvalue          = "30";   // steady 30 instead of a jittery 35-60
-	cv_fpscapbg.defaultvalue        = "30";
+	// fpscap stays at "Match refresh rate" (60). On a New 3DS in 804 MHz mode
+	// 60 is within reach; use "fpscap 30" for steady pacing if it isn't.
 	cv_skybox.defaultvalue          = "Off";  // skyboxes render the scene twice
 	cv_drawdist.defaultvalue        = "2048";
 	cv_drawdist_precip.defaultvalue = "512";
