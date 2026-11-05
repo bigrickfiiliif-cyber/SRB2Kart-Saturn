@@ -11,11 +11,34 @@ jobs:
     container: devkitpro/devkitarm:latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Build 3dsx
         run: make -C 3ds -j$(nproc)
+
+      # makerom / bannertool are not part of devkitPro; build them from source.
+      - name: Build CIA tools (makerom, bannertool)
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential git ca-certificates
+          mkdir -p /opt/ciatools/bin
+          git clone --depth 1 https://github.com/3DSGuy/Project_CTR /tmp/Project_CTR
+          make -C /tmp/Project_CTR/makerom deps -j$(nproc)
+          make -C /tmp/Project_CTR/makerom -j$(nproc)
+          cp "$(find /tmp/Project_CTR/makerom -type f -name makerom -perm -u+x | head -n1)" /opt/ciatools/bin/
+          git clone --depth 1 --recursive https://github.com/diasurgical/bannertool /tmp/bannertool
+          make -C /tmp/bannertool -j$(nproc)
+          cp "$(find /tmp/bannertool -type f -name bannertool -perm -u+x | head -n1)" /opt/ciatools/bin/
+          /opt/ciatools/bin/makerom 2>&1 | head -n 3 || true
+
+      - name: Build CIA
+        run: |
+          export PATH=/opt/ciatools/bin:$PATH
+          make -C 3ds cia
+
       - uses: actions/upload-artifact@v4
         with:
           name: srb2kart-saturn-3ds
           path: |
             3ds/srb2kart-saturn.3dsx
+            3ds/srb2kart-saturn.cia
             3ds/README.md
