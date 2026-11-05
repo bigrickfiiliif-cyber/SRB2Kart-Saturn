@@ -13,7 +13,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
-#if defined (__unix__) || defined (UNIXCOMMON)
+#if (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__3DS__)
 #include <sys/types.h>
 #include <pwd.h>
 #elif defined (__WIN32)
@@ -64,7 +64,7 @@ static boolean RegisterProtocols(const char *path)
 	hKey = OpenKey(HKEY_CURRENT_USER,"Software\\Classes\\srb2kart\\shell\\open\\command");
 	SetStringValue(hKey, "", va("\"%s\" \"%%1\"", path));
 	RegCloseKey(hKey);
-#elif defined (__unix__) || defined (UNIXCOMMON)
+#elif (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__3DS__)
 	FILE *desktopfile = NULL;
 	FILE *mimefile = NULL;
 	struct passwd *pw = getpwuid(getuid());
@@ -157,7 +157,7 @@ static void DeleteProtocols(void)
 	RegDeleteValue(hKey, _T(""));
 	RegCloseKey(hKey);
 	RegDeleteKey(HKEY_CURRENT_USER, _T("Software\\Classes\\srb2kart"));
-#elif defined (__unix__) || defined (UNIXCOMMON)
+#elif (defined (__unix__) || defined (UNIXCOMMON)) && !defined (__3DS__)
 	struct passwd *pw = getpwuid(getuid());
 	const char *homedir = pw->pw_dir;
 	remove(va("%s/.local/share/applications/srb2kart-handler.desktop", homedir));
@@ -286,6 +286,10 @@ void D_DownloadReplay(const char *url, const char *path)
 	if (cc != CURLE_OK) I_OutputMsg("libcurl: %s\n", curl_errbuf);
 
 	M_SetCURLArgs(curl, curl_errbuf);
+
+#ifdef __3DS__
+	curl_easy_setopt(curl, CURLOPT_CAINFO, "romfs:/cacert.pem");
+#endif
 
 	cc = curl_easy_perform(curl);
 	if (cc != CURLE_OK)

@@ -242,6 +242,11 @@ static struct HMS_buffer *HMS_connect(const char *format, ...)
 	cc = curl_easy_setopt(curl, CURLOPT_URL, url);
 	if (cc != CURLE_OK) I_OutputMsg("libcurl: %s\n", buffer->errbuf);
 
+#ifdef __3DS__
+	// No system CA store on the 3DS; a Mozilla bundle ships in the romfs.
+	curl_easy_setopt(curl, CURLOPT_CAINFO, "romfs:/cacert.pem");
+#endif
+
 	cc = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	if (cc != CURLE_OK) I_OutputMsg("libcurl: %s\n", buffer->errbuf);
 

@@ -307,7 +307,13 @@ void I_ThreadPoolInit(void)
 		thread_count -= 1;
 	}
 
+#ifdef __3DS__
+	// No worker threads: std::thread can't pick a CPU core on the 3DS and the
+	// spare core is reserved for audio. Work runs inline on the main thread.
+	if (true)
+#else
 	if (M_CheckParm("-singlethreaded"))
+#endif
 	{
 		g_main_threadpool = std::make_unique<ThreadPool>();
 	}

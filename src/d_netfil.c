@@ -1413,6 +1413,10 @@ void CURLPrepareFile(const char* url, int dfilenum)
 		cc = curl_easy_setopt(http_handle, CURLOPT_URL, va("%s/%s", url, curl_realname));
 		if (cc != CURLE_OK) I_OutputMsg("libcurl: %s\n", curl_errbuf);
 
+#ifdef __3DS__
+		curl_easy_setopt(http_handle, CURLOPT_CAINFO, "romfs:/cacert.pem");
+#endif
+
 		// Only allow HTTP and HTTPS
 #if (LIBCURL_VERSION_MAJOR <= 7) && (LIBCURL_VERSION_MINOR < 85)
 		cc = curl_easy_setopt(http_handle, CURLOPT_PROTOCOLS, CURLPROTO_HTTP|CURLPROTO_HTTPS);
