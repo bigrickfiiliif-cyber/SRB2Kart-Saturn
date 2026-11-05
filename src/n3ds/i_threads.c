@@ -25,6 +25,12 @@ static volatile int threads_running = 1;
 static void *identity(void **anchor, void *(*create)(void))
 {
 	void *id = __atomic_load_n(anchor, __ATOMIC_ACQUIRE);
+
+	// The console locks before I_StartupSystem runs; at that point only the
+	// main thread exists, so creating the guard here is safe.
+	if (!anchor_mutex)
+		anchor_mutex = N3DS_MutexCreate();
+
 	if (!id)
 	{
 		N3DS_MutexLock(anchor_mutex);
@@ -82,7 +88,8 @@ int I_thread_is_stopped(void)
 void I_start_threads(void)
 {
 	thread_list_mutex = N3DS_MutexCreate();
-	anchor_mutex = N3DS_MutexCreate();
+	if (!anchor_mutex)
+		anchor_mutex = N3DS_MutexCreate();
 	if (!thread_list_mutex || !anchor_mutex)
 		abort();
 }

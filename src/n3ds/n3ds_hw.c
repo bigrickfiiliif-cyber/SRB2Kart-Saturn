@@ -520,22 +520,50 @@ void N3DS_ThreadJoin(void *thread)
 	threadFree((Thread)thread);
 }
 
+// Recursive mutex: the engine was written against SDL mutexes, which are
+// recursive, and e.g. the console locks its state again from inside a locked
+// section. A plain LightLock would deadlock the thread on itself.
+typedef struct
+{
+	LightLock     lock;
+	void *volatile owner; // TLS pointer of the owning thread (unique per thread)
+	int           count;
+} n3ds_mutex_t;
+
 void *N3DS_MutexCreate(void)
 {
-	LightLock *l = (LightLock *)malloc(sizeof(LightLock));
-	if (l)
-		LightLock_Init(l);
-	return l;
+	n3ds_mutex_t *m = (n3ds_mutex_t *)calloc(1, sizeof(n3ds_mutex_t));
+	if (m)
+		LightLock_Init(&m->lock);
+	return m;
 }
 
-void N3DS_MutexLock(void *m)
+void N3DS_MutexLock(void *p)
 {
-	LightLock_Lock((LightLock *)m);
+	n3ds_mutex_t *m = (n3ds_mutex_t *)p;
+	void *self = getThreadLocalStorage();
+
+	if (m->owner == self)
+	{
+		m->count++;
+		return;
+	}
+	LightLock_Lock(&m->lock);
+	m->owner = self;
+	m->count = 1;
 }
 
-void N3DS_MutexUnlock(void *m)
+void N3DS_MutexUnlock(void *p)
 {
-	LightLock_Unlock((LightLock *)m);
+	n3ds_mutex_t *m = (n3ds_mutex_t *)p;
+
+	if (m->owner != getThreadLocalStorage() || m->count <= 0)
+		return; // not ours; ignore like SDL would report an error
+	if (--m->count == 0)
+	{
+		m->owner = NULL;
+		LightLock_Unlock(&m->lock);
+	}
 }
 
 void *N3DS_CondCreate(void)
@@ -546,9 +574,17 @@ void *N3DS_CondCreate(void)
 	return c;
 }
 
-void N3DS_CondWait(void *c, void *m)
+void N3DS_CondWait(void *c, void *p)
 {
-	CondVar_Wait((CondVar *)c, (LightLock *)m);
+	n3ds_mutex_t *m = (n3ds_mutex_t *)p;
+	int saved = m->count;
+
+	// fully release while waiting, then restore the recursion depth
+	m->owner = NULL;
+	m->count = 0;
+	CondVar_Wait((CondVar *)c, &m->lock);
+	m->owner = getThreadLocalStorage();
+	m->count = saved;
 }
 
 void N3DS_CondSignal(void *c)
