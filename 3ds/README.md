@@ -19,7 +19,14 @@ Saturn netcode/resync included) plus a native libctru platform layer in
 
 ## Requirements
 
-* A 3DS with custom firmware (Luma3DS) and the Homebrew Launcher, or FBI to install the CIA.
+* A 3DS with custom firmware (Luma3DS), plus either the Homebrew Launcher
+  (.3dsx) or FBI to install the CIA.
+
+**Which file?** The CI artifact contains both. The **.cia** is recommended
+on the New 3DS: it gets 178 MB of RAM (the .3dsx gets about 96 MB) and is
+guaranteed the 804 MHz clock + L2 cache. Copy it to the SD card, install it
+with FBI, and start it from the HOME Menu. The game data still goes into
+`sdmc:/3ds/srb2kart/`.
 * **DSP firmware dump** for sound: run the *DSP1* homebrew once, which writes
   `sdmc:/3ds/dspfirm.cdc`. Without it the game runs, but with no sound.
 * The **SRB2Kart v1.6 data files** from the official release
