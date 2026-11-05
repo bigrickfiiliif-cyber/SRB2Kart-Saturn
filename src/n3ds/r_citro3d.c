@@ -425,13 +425,14 @@ void GL_UpdateTexture(GLMipmap_t *pTexInfo)
 
 	t = &textures[id-1];
 
-	// Swizzle (and nearest-resample to POT). Row 0 of the source = t 0.
+	// Swizzle (and nearest-resample to POT).
 	if (fmt == GPU_RGBA8)
 	{
 		u32 *out = (u32 *)t->tex.data;
 		for (y = 0; y < ph; y++)
 		{
-			const RGBA_t *row = img + (u32)((y * h) / ph) * w;
+			// PICA textures start at the bottom row: flip vertically
+			const RGBA_t *row = img + (u32)(((ph - 1 - y) * h) / ph) * w;
 			u32 tilerow = (y >> 3) * (pw >> 3);
 			for (x = 0; x < pw; x++)
 			{
@@ -446,7 +447,8 @@ void GL_UpdateTexture(GLMipmap_t *pTexInfo)
 		u16 *out = (u16 *)t->tex.data;
 		for (y = 0; y < ph; y++)
 		{
-			const RGBA_t *row = img + (u32)((y * h) / ph) * w;
+			// PICA textures start at the bottom row: flip vertically
+			const RGBA_t *row = img + (u32)(((ph - 1 - y) * h) / ph) * w;
 			u32 tilerow = (y >> 3) * (pw >> 3);
 			for (x = 0; x < pw; x++)
 			{
@@ -692,12 +694,12 @@ void GL_SetStates(void)
 
 void GL_GClipRect(INT32 minx, INT32 miny, INT32 maxx, INT32 maxy, float nearclip, float farclip)
 {
-	// GL viewport (minx, H-maxy, w, h), rotated onto the 240x400 framebuffer
+	// Logical 400x240 rect (top-left origin) onto the sideways 240x400
+	// framebuffer: physical x runs along logical y, physical y along x.
 	INT32 gw = maxx - minx, gh = maxy - miny;
-	INT32 gy = screen_height - maxy;
 
 	begin_frame();
-	C3D_SetViewport((u32)gy, (u32)(screen_width - maxx), (u32)gh, (u32)gw);
+	C3D_SetViewport((u32)miny, (u32)minx, (u32)gh, (u32)gw);
 
 	NEAR_CLIPPING_PLANE = nearclip;
 	FAR_CLIPPING_PLANE = farclip;

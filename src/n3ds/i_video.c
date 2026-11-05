@@ -107,6 +107,12 @@ INT32 VID_SetMode(INT32 modenum)
 {
 	if (modenum < 0 || modenum >= NUMMODES)
 		modenum = 0;
+#ifdef HWRENDER
+	// The GPU always renders at the native 400x240; lower modes only exist
+	// to speed up the software renderer.
+	if (rendermode == render_opengl)
+		modenum = 0;
+#endif
 
 	vid.width = modes[modenum][0];
 	vid.height = modes[modenum][1];
