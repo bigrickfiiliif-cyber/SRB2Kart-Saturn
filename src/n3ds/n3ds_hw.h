@@ -25,6 +25,7 @@ void     N3DS_SysInit(void);
 void     N3DS_SysExit(void);
 int      N3DS_IsNew3DS(void);
 int      N3DS_CpuMHz(void);                // measured clock (268 or ~804)
+extern int32_t n3ds_speedup_init_rc, n3ds_speedup_cfg_rc;
 int      N3DS_AptMainLoop(void);           // 0 when the system asks us to quit
 uint64_t N3DS_Ticks(void);                 // ARM11 system ticks
 uint64_t N3DS_TicksPerSecond(void);

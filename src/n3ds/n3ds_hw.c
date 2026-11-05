@@ -89,6 +89,7 @@ void N3DS_LinearFree(void *p)
 }
 
 static int is_new3ds = 0;
+static void request_speedup(void);
 static aptHookCookie apt_cookie;
 static volatile int audio_paused_by_apt = 0;
 
@@ -118,8 +119,12 @@ void N3DS_SysInit(void)
 	APT_CheckNew3DS(&n3ds);
 	is_new3ds = n3ds ? 1 : 0;
 
-	// 804 MHz + L2 cache on New 3DS. No-op on old models.
+	// 804 MHz + L2 cache on New 3DS. No-op on old models. osSetSpeedupEnable
+	// also re-applies it after returning from HOME / applets; request it once
+	// more ourselves to capture the result codes for the log.
 	osSetSpeedupEnable(true);
+	if (is_new3ds)
+		request_speedup();
 
 	// Let us use ~30% of the system core (core 1) for the audio thread.
 	APT_SetAppCpuTimeLimit(30);
@@ -140,24 +145,40 @@ void N3DS_SysExit(void)
 	irrstExit();
 }
 
-// Rough CPU clock estimate: time a fixed ARM loop against the system tick
-// (which always runs at 268 MHz). Tells us whether the New 3DS 804 MHz mode
-// actually got enabled for this launch method.
+// CPU clock estimate: a chain of dependent ADDs (1 cycle each on ARM11,
+// branch cost amortised over 64 of them), timed against the system tick,
+// which always runs at 268 MHz.
 int N3DS_CpuMHz(void)
 {
-	const u32 iters = 4000000;
+	const u32 iters = 200000;
+	u32 n = iters, acc = 0;
 	u64 t0, t1;
-	u32 n = iters;
 
 	t0 = svcGetSystemTick();
 	__asm__ volatile(
-		"1: subs %0, %0, #1\n"
+		"1:\n"
+		".rept 64\n"
+		"   add %1, %1, #1\n"
+		".endr\n"
+		"   subs %0, %0, #1\n"
 		"   bne 1b\n"
-		: "+r"(n) : : "cc");
+		: "+r"(n), "+r"(acc) : : "cc");
 	t1 = svcGetSystemTick();
 
-	// ARM11: subs + taken bne = 2 cycles per iteration
-	return (int)((u64)iters * 2 * (SYSCLOCK_ARM11 / 1000000) / (t1 - t0 ? t1 - t0 : 1));
+	return (int)((u64)iters * 66 * (SYSCLOCK_ARM11 / 1000000) / (t1 - t0 ? t1 - t0 : 1));
+}
+
+// Result codes of the New 3DS speed-up request, for the log.
+s32 n3ds_speedup_init_rc = 0, n3ds_speedup_cfg_rc = 0;
+
+static void request_speedup(void)
+{
+	n3ds_speedup_init_rc = ptmSysmInit();
+	if (R_SUCCEEDED(n3ds_speedup_init_rc))
+	{
+		n3ds_speedup_cfg_rc = PTMSYSM_ConfigureNew3DSCPU(3); // 804 MHz + L2
+		ptmSysmExit();
+	}
 }
 
 int N3DS_IsNew3DS(void)

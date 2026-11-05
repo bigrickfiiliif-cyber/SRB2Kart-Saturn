@@ -473,7 +473,10 @@ INT32 I_StartupSystem(void)
 	{
 		int mhz = N3DS_CpuMHz();
 		I_OutputMsg("CPU clock: ~%d MHz%s\n", mhz,
-			(N3DS_IsNew3DS() && mhz < 500) ? " (804 MHz mode NOT active - try the CIA build)" : "");
+			(N3DS_IsNew3DS() && mhz < 500) ? " (804 MHz mode NOT active)" : "");
+		if (N3DS_IsNew3DS())
+			I_OutputMsg("ptm:sysm init 0x%08X, ConfigureNew3DSCPU 0x%08X\n",
+				(unsigned)n3ds_speedup_init_rc, (unsigned)n3ds_speedup_cfg_rc);
 	}
 	I_OutputMsg("Frame output: %s\n", N3DS_VideoAsync() ? "async on CPU core 2" : "synchronous");
 	return 0;
@@ -702,6 +705,16 @@ int I_OpenURL(const char *url)
 	return -1;
 }
 
+static void Command_N3DSCpu_f(void)
+{
+	int mhz = N3DS_CpuMHz();
+	CONS_Printf("CPU clock: ~%d MHz%s\n", mhz, mhz < 500 ? " (268 MHz mode)" : " (804 MHz mode)");
+	if (N3DS_IsNew3DS())
+		CONS_Printf("ptm:sysm init 0x%08X, ConfigureNew3DSCPU 0x%08X\n",
+			(unsigned)n3ds_speedup_init_rc, (unsigned)n3ds_speedup_cfg_rc);
+}
+
 void I_RegisterSysCommands(void)
 {
+	COM_AddCommand("n3ds_cpu", Command_N3DSCpu_f);
 }
