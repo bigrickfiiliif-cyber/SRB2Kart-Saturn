@@ -748,7 +748,13 @@ static inline ssize_t SOCK_SendToAddr(SOCKET_TYPE socket, mysockaddr_t *sockaddr
 	return sendto(socket, (char *)&doomcom->data, doomcom->datalength, 0, &sockaddr->any, d);
 }
 
+#ifdef __3DS__
+// soc:u refuses UDP broadcasts (LAN server discovery) with EACCES/EPERM;
+// treat that as "nobody there" instead of a fatal error.
+#define ALLOWEDERROR(x) ((x) == ECONNREFUSED || (x) == EWOULDBLOCK || (x) == EHOSTUNREACH || (x) == ENETUNREACH || (x) == EADDRNOTAVAIL || (x) == EACCES || (x) == EPERM)
+#else
 #define ALLOWEDERROR(x) ((x) == ECONNREFUSED || (x) == EWOULDBLOCK || (x) == EHOSTUNREACH || (x) == ENETUNREACH || (x) == EADDRNOTAVAIL)
+#endif
 
 static void SOCK_Send(void)
 {

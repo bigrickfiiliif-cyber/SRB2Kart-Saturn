@@ -23,6 +23,11 @@
 #include "../cxxutil.hpp"
 #include "../m_argv.h"
 
+#ifdef __3DS__
+#include "../n3ds/n3ds_hw.h"
+#include "../doomdef.h" // CONS_Printf
+#endif
+
 using namespace srb2;
 
 static void do_work(ThreadPool::Task& work)
@@ -152,6 +157,33 @@ ThreadPool::ThreadPool(size_t threads)
 			}
 		}
 
+#ifdef __3DS__
+		{
+			// std::thread can't choose a CPU core here; pin the worker to the
+			// New 3DS's extra core so it really runs in parallel with the
+			// main thread (core 0).
+			struct Args
+			{
+				std::shared_ptr<std::atomic<bool>> alive;
+				std::shared_ptr<std::mutex> mutex;
+				std::shared_ptr<std::condition_variable> condvar;
+				std::shared_ptr<Queue> mine;
+				std::vector<std::shared_ptr<Queue>> others;
+			};
+			Args* args = new Args {pool_alive_, worker_ready_mutexes_[i], worker_ready_condvars_[i], my_queue, other_queues};
+			void* handle = N3DS_ThreadCreate([](void* p) {
+				std::unique_ptr<Args> a {static_cast<Args*>(p)};
+				pool_executor(a->alive, a->mutex, a->condvar, a->mine, a->others);
+			}, args, 256 * 1024, 1, 2);
+			if (!handle)
+			{
+				delete args;
+				throw std::runtime_error("could not start render worker");
+			}
+			n3ds_threads_.push_back(handle);
+			continue;
+		}
+#endif
 		std::thread thread;
 		try
 		{
@@ -292,6 +324,13 @@ void ThreadPool::shutdown()
 	{
 		t.join();
 	}
+#ifdef __3DS__
+	for (void* t : n3ds_threads_)
+	{
+		N3DS_ThreadJoin(t);
+	}
+	n3ds_threads_.clear();
+#endif
 }
 
 std::unique_ptr<ThreadPool> srb2::g_main_threadpool;
@@ -308,9 +347,10 @@ void I_ThreadPoolInit(void)
 	}
 
 #ifdef __3DS__
-	// No worker threads: std::thread can't pick a CPU core on the 3DS and the
-	// spare core is reserved for audio. Work runs inline on the main thread.
-	if (true)
+	// New 3DS: one render worker on core 2 (shared with the higher-priority
+	// audio mixer), the main thread helps while waiting. Old 3DS: inline.
+	thread_count = 1;
+	if (!N3DS_IsNew3DS() || M_CheckParm("-singlethreaded"))
 #else
 	if (M_CheckParm("-singlethreaded"))
 #endif
@@ -319,7 +359,21 @@ void I_ThreadPoolInit(void)
 	}
 	else
 	{
+#ifdef __3DS__
+		try
+		{
+			g_main_threadpool = std::make_unique<ThreadPool>(thread_count);
+			CONS_Printf("Render worker running on CPU core 2\n");
+		}
+		catch (...)
+		{
+			// core 2 not granted to us (e.g. some homebrew launch methods)
+			CONS_Printf("CPU core 2 unavailable, rendering single-threaded\n");
+			g_main_threadpool = std::make_unique<ThreadPool>();
+		}
+#else
 		g_main_threadpool = std::make_unique<ThreadPool>(thread_count);
+#endif
 	}
 }
 

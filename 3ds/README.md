@@ -80,14 +80,30 @@ Extra command-line options, separated by spaces or newlines. For example:
 
 All buttons can be rebound in the game's control menu (they show up as JOY1–JOY11 / HAT1).
 
-## Performance tips
+## Performance
 
-* `vid_mode 1` (320×200) renders about a third fewer pixels than 400×240.
-* Lower `drawdist`, turn off `skybox`, and cap the frame rate at the game tic rate (`fpscap 35`)
-  to get a steady picture.
-* Prefer the CIA: on the New 3DS it gets 178 MB of RAM instead of the
-  ~124 MB of a 3dsx started from the Homebrew Launcher. Big maps or addons
-  can run out of memory otherwise.
+What the port does out of the box:
+
+* **Multi-core rendering (New 3DS):** Saturn's parallel software renderer
+  (floors, ceilings, sprites) runs with a worker thread pinned to CPU core 2.
+  The main thread on core 0 helps while it waits. The log says
+  "Render worker running on CPU core 2" when that works.
+* **Steady 30 FPS:** `fpscap` defaults to 30 (two vblanks per frame) with
+  vsync on, so the picture doesn't judder between 35 and 60.
+* **Cheaper defaults:** skybox off, `drawdist 2048`, less weather, no water
+  ripples, no splats, no texture precaching (saves RAM). These only change
+  how the game looks on your screen, so online games stay in sync with PC
+  players.
+
+If you ran an older build before, **delete `sdmc:/3ds/srb2kart/kartconfig.cfg`
+once**. Otherwise the old values stored in it override the new defaults
+(`parallelsoftware` in particular).
+
+More tweaks if it is still too slow:
+
+* `vid_mode 1` (320×200) renders about a third fewer pixels.
+* Lower `drawdist` further (`1024`).
+* `fpscap 60` if you get well above 30 on light maps.
 
 ## Building
 
@@ -124,5 +140,5 @@ cd 3ds && make cia
   netgames against PC players.
 * MIDI and GME (VGM/SPC) music are not supported. The standard music.kart is
   Ogg only.
-* `parallelsoftware` is off by default, and the thread pool runs inline.
+* On old 3DS models, or when core 2 isn't available, the thread pool runs inline (single-threaded).
 * The bottom screen shows the boot log, then a control overview.

@@ -505,7 +505,9 @@ void *N3DS_ThreadCreate(n3ds_thread_fn fn, void *arg, size_t stack, int prio_off
 	if (prio > 0x3F) prio = 0x3F;
 
 	t = threadCreate(thread_trampoline, st, stack ? stack : 64 * 1024, prio, core, false);
-	if (!t && core != 0)
+	// Background helpers (network) may fall back to our own core; render
+	// workers must not, or they would just compete with the main thread.
+	if (!t && core == 1)
 		t = threadCreate(thread_trampoline, st, stack ? stack : 64 * 1024, prio, 0, false);
 	if (!t)
 		free(st);

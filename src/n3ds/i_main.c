@@ -13,6 +13,10 @@
 #include "../m_argv.h"
 #include "../m_misc.h"
 #include "../i_system.h"
+#include "../command.h"
+#include "../r_main.h"
+#include "../r_fps.h"
+#include "../d_netcmd.h"
 
 #include "n3ds_hw.h"
 
@@ -68,10 +72,29 @@ static void InitLogging(void)
 }
 #endif
 
+// Performance-oriented defaults for the 3DS. These only replace the
+// *defaults*: anything in kartconfig.cfg or set in the menus still wins.
+// All of them are client-side visuals, so netgames stay in sync with PC.
+static void N3DS_SetDefaults(void)
+{
+	cv_fpscap.defaultvalue          = "30";   // steady 30 instead of a jittery 35-60
+	cv_fpscapbg.defaultvalue        = "30";
+	cv_skybox.defaultvalue          = "Off";  // skyboxes render the scene twice
+	cv_drawdist.defaultvalue        = "2048";
+	cv_drawdist_precip.defaultvalue = "512";
+	cv_lessprecip.defaultvalue      = "On";
+	cv_ripplewater.defaultvalue     = "Off";
+#ifdef WALLSPLATS
+	cv_splats.defaultvalue          = "Off";
+#endif
+	cv_precachetextures.defaultvalue = "Off"; // saves a lot of RAM
+}
+
 int main(int argc, char **argv)
 {
 	N3DS_SysInit();
 	N3DS_VideoInit();
+	N3DS_SetDefaults();
 
 	printf("\x1b[36mSRB2Kart Saturn\x1b[0m for Nintendo 3DS\n");
 	printf("Data folder: %s\n\n", N3DS_GAMEDIR);

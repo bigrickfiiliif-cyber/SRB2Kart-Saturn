@@ -37,6 +37,10 @@ static CV_PossibleValue_t fpscap_cons_t[] = {
 #ifdef DEVELOP
 	// Lower values are actually pretty useful for debugging interp problems!
 	{1, "MIN"},
+#elif defined (__3DS__)
+	// 30 = every second vblank on the 3DS LCD: steady pacing when 60 is
+	// out of reach.
+	{30, "MIN"},
 #else
 	{TICRATE, "MIN"},
 #endif

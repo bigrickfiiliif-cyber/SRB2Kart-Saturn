@@ -59,6 +59,9 @@ private:
 	std::vector<std::shared_ptr<std::condition_variable>> worker_ready_condvars_;
 	std::vector<std::shared_ptr<Queue>> work_queues_;
 	std::vector<std::thread> threads_;
+#ifdef __3DS__
+	std::vector<void*> n3ds_threads_; // libctru threads pinned to a CPU core
+#endif
 	size_t next_queue_index_ = 0;
 	std::shared_ptr<std::atomic<uint32_t>> cur_sema_;
 
@@ -137,7 +140,7 @@ void ThreadPool::schedule(T&& thunk)
 	// worker_ready_condvars_[qi]->notify_one();
 
 	next_queue_index_ += 1;
-	if (next_queue_index_ >= threads_.size())
+	if (next_queue_index_ >= work_queues_.size())
 	{
 		next_queue_index_ = 0;
 	}
