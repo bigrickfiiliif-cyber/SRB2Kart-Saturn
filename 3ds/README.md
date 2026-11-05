@@ -10,7 +10,7 @@ Saturn netcode/resync included) plus a native libctru platform layer in
 
 | Part | Implementation |
 |---|---|
-| Video | Software renderer → top-screen framebuffer (RGB565), 400×240 1:1 or 320×200 stretched |
+| Video | **GPU renderer (default):** Saturn's hardware renderer with a citro3d/PICA200 driver (`src/n3ds/r_citro3d.c`). **Software renderer** (`-software` in args.txt): CPU rendering to the top screen, 400×240 or 320×200 |
 | Audio | Own software mixer → NDSP, 32 voices, 32728 Hz; mixer thread runs on core 2 (New 3DS) |
 | Music | Ogg Vorbis via Tremor (LOOPPOINT/LOOPMS/LENGTHMS loop tags), MOD/XM/S3M/IT via libxmp |
 | Input | Buttons, Circle Pad, C-stick, ZL/ZR, touch screen, system keyboard (swkbd) |
@@ -149,7 +149,12 @@ cd 3ds && make cia
 
 ## Technical notes / differences from the PC version
 
-* No OpenGL renderer (the 3DS GPU, a PICA200, has no OpenGL); software renderer only.
+* The 3DS has no OpenGL. The GPU renderer reuses Saturn's hardware renderer
+  (`src/hardware`) and implements its driver interface (`hw_gl.h`) with
+  citro3d. Not supported on the GPU path yet: GLSL shaders (lighting uses the
+  fixed-function fallback), stencil portals, the sky dome, 3D models, and
+  screen effects (wipes, VHS). If something looks wrong, add `-software` to
+  `args.txt` to use the CPU renderer.
 * `int32_t` is retargeted to `int` (newlib defines it as `long` on ARM), and
   the build uses `-fsigned-char` and no `-ffast-math`, so game logic gives
   bit-for-bit the same results as the PC builds. That is a requirement for

@@ -24,7 +24,9 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_SDL
+#if defined (__3DS__)
+#include "../../n3ds/gl_shim.h"
+#elif defined (HAVE_SDL)
 #define _MATH_DEFINES_DEFINED
 
 #include "SDL_opengl.h" //Alam_GBC: Simple, yes?
@@ -76,14 +78,16 @@ void GL_SetStates(void);
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
 
-#ifdef USE_WGL_SWAP
+#if defined (USE_WGL_SWAP) && !defined (__3DS__)
 typedef BOOL (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
 typedef int (APIENTRY *PFNWGLEXTGETSWAPINTERVALPROC) (void);
 extern PFNWGLEXTSWAPCONTROLPROC wglSwapIntervalEXT;
 extern PFNWGLEXTGETSWAPINTERVALPROC wglGetSwapIntervalEXT;
 #endif
 
-#ifdef STATIC_OPENGL
+#if defined (__3DS__)
+// no GL entry points on 3DS
+#elif defined (STATIC_OPENGL)
 #define pglClear glClear
 #define pglGetIntegerv glGetIntegerv
 #define pglGetString glGetString

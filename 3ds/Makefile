@@ -24,14 +24,17 @@ CORESRC  := $(call list,$(SRCROOT)/Sourcefile) \
             $(call list,$(SRCROOT)/core/Sourcefile) \
             $(SRCROOT)/md5.c \
             $(SRCROOT)/comptime.c
+# Hardware renderer (polygon renderer) without the OpenGL driver; the GPU
+# driver for the 3DS is src/n3ds/r_citro3d.c.
+HWSRC    := $(filter-out %/r_opengl.c,$(call list,$(SRCROOT)/hardware/Sourcefile))
 PLATSRC  := $(wildcard $(SRCROOT)/n3ds/*.c) $(wildcard $(SRCROOT)/n3ds/*.cpp)
-SOURCES  := $(CORESRC) $(PLATSRC)
-OFILES   := $(patsubst $(SRCROOT)/%,$(BUILD)/%.o,$(SOURCES))
+SOURCES  := $(CORESRC) $(HWSRC) $(PLATSRC)
+OFILES   := $(patsubst $(SRCROOT)/%,$(BUILD)/%.o,$(SOURCES)) $(BUILD)/vshader_shbin.o
 DEPS     := $(OFILES:.o=.d)
 
 # ---- flags ---------------------------------------------------------------------
 ARCH     := -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
-DEFINES  := -D__3DS__ -DN3DS -DUNIXCOMMON -DNOHW -DHAVE_PNG -DHAVE_ZLIB \
+DEFINES  := -D__3DS__ -DN3DS -DUNIXCOMMON -DHWRENDER -DHAVE_PNG -DHAVE_ZLIB \
             -DDOSATURNJOIN -DDOSATURNPAK -DHAVE_THREADS -DNOMUMBLE \
             -DHAVE_CURL -DCOMPVERSION -D_GNU_SOURCE
 # arm-none-eabi newlib makes int32_t a 'long'; the engine assumes int32_t==int
@@ -54,7 +57,7 @@ CXXFLAGS := $(CFLAGS) -std=gnu++17
 CFLAGS   += -std=gnu11
 LDFLAGS  := -specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(TARGET).map -Wl,--gc-sections
 LIBS     := -L$(PORTLIBS)/lib -L$(CTRULIB)/lib -lcurl -lmbedtls -lmbedx509 -lmbedcrypto \
-            -lxmp -lvorbisidec -logg -lpng -lz -lctru -lm
+            -lxmp -lvorbisidec -logg -lpng -lz -lcitro3d -lctru -lm
 
 # Renderer hot paths, built without the thread-pool code: with HAVE_THREADS
 # the span drawer uses thread_local state (a function call per access with
@@ -75,6 +78,18 @@ $(BUILD)/comptime.h:
 	@mkdir -p $(BUILD)
 	@printf 'const char* compbranch = "3ds";\nconst char* comprevision = "%s";\n' \
 	  "$$(cd .. && git rev-parse --short HEAD 2>/dev/null || echo unknown)" > $@
+
+# PICA200 vertex shader -> .shbin -> embedded object + header
+$(BUILD)/vshader.shbin: $(SRCROOT)/n3ds/vshader.v.pica
+	@mkdir -p $(BUILD)
+	@echo PICASSO $<
+	@picasso -o $@ $<
+
+$(BUILD)/vshader_shbin.o $(BUILD)/vshader_shbin.h: $(BUILD)/vshader.shbin
+	@cd $(BUILD) && bin2s -a 4 -H vshader_shbin.h vshader.shbin > vshader_shbin.s
+	@$(CC) -x assembler-with-cpp $(ARCH) -c $(BUILD)/vshader_shbin.s -o $(BUILD)/vshader_shbin.o
+
+$(BUILD)/n3ds/r_citro3d.c.o: $(BUILD)/vshader_shbin.h
 
 $(BUILD)/%.c.o: $(SRCROOT)/%.c | $(BUILD)/comptime.h
 	@mkdir -p $(dir $@)

@@ -17,6 +17,9 @@
 #include "../r_main.h"
 #include "../r_fps.h"
 #include "../d_netcmd.h"
+#ifdef HWRENDER
+#include "../hardware/hw_main.h"
+#endif
 
 #include "n3ds_hw.h"
 
@@ -88,6 +91,15 @@ static void N3DS_SetDefaults(void)
 	cv_splats.defaultvalue          = "Off";
 #endif
 	cv_precachetextures.defaultvalue = "Off"; // saves a lot of RAM
+	cv_skydome.defaultvalue         = "Off";  // not implemented on the PICA200 path
+#ifdef HWRENDER
+	// Features the 3DS GPU driver doesn't implement (yet): GLSL shaders,
+	// stencil portals, screen textures (wipes/post effects), 3D models.
+	cv_glshaders.defaultvalue        = "Off";
+	cv_glportals.defaultvalue        = "Off";
+	cv_glscreentextures.defaultvalue = "Off";
+	cv_glmdls.defaultvalue           = "Off";
+#endif
 }
 
 int main(int argc, char **argv)

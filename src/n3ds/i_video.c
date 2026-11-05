@@ -20,7 +20,20 @@
 #include "n3ds_hw.h"
 #include "n3ds_glue.h"
 
+#ifdef HWRENDER
+#include "../hardware/hw_main.h"
+#include "../hardware/hw_gl.h"
+#include "../hardware/r_opengl/r_opengl.h"
+#include "r_citro3d.h"
+static boolean gl_first_init = false;
+#endif
+
 rendermode_t rendermode = render_none;
+
+#ifdef HWRENDER
+unsigned msaa = 0;      // no MSAA on the PICA200 path
+boolean a2c = false;
+#endif
 
 extern UINT8 graphics_started;
 boolean allow_fullscreen = false;
@@ -99,6 +112,19 @@ INT32 VID_SetMode(INT32 modenum)
 	vid.height = modes[modenum][1];
 	vid.modenum = modenum;
 	vid.recalc = true;
+
+#ifdef HWRENDER
+	if (rendermode == render_opengl && vid.glstate == VID_GL_LIBRARY_LOADED)
+	{
+		GL_SetModelView(vid.width, vid.height);
+		GL_SetStates();
+		if (!gl_first_init)
+		{
+			gl_first_init = true;
+			HWR_Startup();
+		}
+	}
+#endif
 	return 1;
 }
 
@@ -153,6 +179,23 @@ void I_StartupGraphics(void)
 
 	rendermode = render_soft;
 
+#ifdef HWRENDER
+	// The GPU (PICA200) renderer is the default; "-software" in args.txt
+	// selects the CPU renderer instead.
+	if (!M_CheckParm("-software"))
+	{
+		rendermode = render_opengl;
+		vid.glstate = GL_Init() ? VID_GL_LIBRARY_LOADED : VID_GL_LIBRARY_ERROR;
+		if (vid.glstate == VID_GL_LIBRARY_ERROR)
+		{
+			CONS_Alert(CONS_ERROR, "Could not start the GPU renderer, falling back to software.\n");
+			rendermode = render_soft;
+		}
+		else
+			CONS_Printf("Using the GPU renderer (citro3d).\n");
+	}
+#endif
+
 	VID_SetMode(0);
 	vid.width = BASEVIDWIDTH;
 	vid.height = BASEVIDHEIGHT;
@@ -206,6 +249,15 @@ void I_FinishUpdate(void)
 			SCR_DisplayLocalPing();
 	}
 
+#ifdef HWRENDER
+	if (rendermode == render_opengl)
+	{
+		N3DS_GPU_EndFrame();
+		N3DS_FirstFrameShown();
+		return;
+	}
+#endif
+
 	if (vid.screens[0])
 		N3DS_VideoSubmit(vid.screens[0], vid.width, vid.height, vid.width, palette565, cv_vidwait.value);
 	else
@@ -224,7 +276,10 @@ void I_UpdateNoVsync(void)
 void I_ReadScreen(UINT8 *restrict scr, INT32 scale)
 {
 	if (rendermode != render_soft)
-		I_Error("I_ReadScreen: called while in non-software mode");
+	{
+		memset(scr, 0, (size_t)(vid.width / scale) * (vid.height / scale));
+		return;
+	}
 
 	if (scale == 1)
 		VID_BlitLinearScreen(vid.screens[0], scr, vid.width, vid.height, vid.width, vid.width);
