@@ -211,7 +211,19 @@ static FILE* fopen_utf8(const char* filename, const char* mode)
 
 #else
 
+#ifdef __3DS__
+// Lump reads go through stdio; newlib's default 1 KB buffer means a separate
+// slow SD access for every kilobyte. Give WAD handles a bigger buffer.
+static FILE *fopen_utf8(const char *filename, const char *mode)
+{
+	FILE *f = fopen(filename, mode);
+	if (f)
+		setvbuf(f, NULL, _IOFBF, 32 * 1024);
+	return f;
+}
+#else
 #define fopen_utf8 fopen
+#endif
 
 #endif
 
@@ -355,6 +367,65 @@ static inline void W_LoadDehackedLumps(UINT16 wadnum)
   * \param resblock resulting MD5 checksum
   * \return 0 if MD5 checksum was made, and is at resblock, 1 if error was found
   */
+#if defined (__3DS__) && !defined (NOMD5)
+// Hashing every WAD/kart/pk3 on every boot reads 100+ MB from the 3DS's slow
+// SD card. Cache the digests by (path, size, mtime) in md5cache.txt in the
+// game folder; a changed file gets a new size/mtime and is hashed again.
+#include <sys/stat.h>
+#define MD5CACHE_FILE "sdmc:/3ds/srb2kart/md5cache.txt"
+
+static boolean W_MD5CacheLookup(const char *filename, const struct stat *st, void *resblock)
+{
+	char line[MAX_WADPATH + 96], path[MAX_WADPATH + 1], hex[33];
+	unsigned long long size, mtime;
+	boolean found = false;
+	FILE *f = fopen(MD5CACHE_FILE, "r");
+
+	if (!f)
+		return false;
+
+	while (!found && fgets(line, sizeof line, f))
+	{
+		// format: <md5hex> <size> <mtime> <path>
+		char *p;
+		if (sscanf(line, "%32s %llu %llu", hex, &size, &mtime) != 3)
+			continue;
+		p = strchr(line, ' '); if (!p) continue; p = strchr(p + 1, ' '); if (!p) continue;
+		p = strchr(p + 1, ' '); if (!p) continue; p++;
+		strlcpy(path, p, sizeof path);
+		path[strcspn(path, "\r\n")] = '\0';
+
+		if (size == (unsigned long long)st->st_size && mtime == (unsigned long long)st->st_mtime
+			&& !strcmp(path, filename) && strlen(hex) == 32)
+		{
+			int i;
+			for (i = 0; i < 16; i++)
+			{
+				unsigned v;
+				sscanf(&hex[i*2], "%2x", &v);
+				((UINT8 *)resblock)[i] = (UINT8)v;
+			}
+			found = true;
+		}
+	}
+	fclose(f);
+	return found;
+}
+
+static void W_MD5CacheStore(const char *filename, const struct stat *st, const void *resblock)
+{
+	FILE *f = fopen(MD5CACHE_FILE, "a");
+	int i;
+	if (!f)
+		return;
+	for (i = 0; i < 16; i++)
+		fprintf(f, "%02x", ((const UINT8 *)resblock)[i]);
+	fprintf(f, " %llu %llu %s\n", (unsigned long long)st->st_size,
+		(unsigned long long)st->st_mtime, filename);
+	fclose(f);
+}
+#endif
+
 static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 {
 #ifdef NOMD5
@@ -362,6 +433,13 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 	memset(resblock, 0x00, 16);
 #else
 	FILE *fhandle;
+#ifdef __3DS__
+	struct stat st;
+	boolean have_stat = (stat(filename, &st) == 0);
+
+	if (have_stat && W_MD5CacheLookup(filename, &st, resblock))
+		return 0;
+#endif
 
 	if ((fhandle = fopen(filename, "rb")) != NULL)
 	{
@@ -369,11 +447,21 @@ static inline INT32 W_MakeFileMD5(const char *filename, void *resblock)
 
 		CONS_Debug(DBG_SETUP, "Making MD5 for %s\n", filename);
 
+#ifdef __3DS__
+		// big reads: each SD access has a high fixed cost on the 3DS
+		setvbuf(fhandle, NULL, _IOFBF, 256 * 1024);
+#endif
+
 		if (md5_stream(fhandle, resblock) == 1)
 		{
 			fclose(fhandle);
 			return 1;
 		}
+
+#ifdef __3DS__
+		if (have_stat)
+			W_MD5CacheStore(filename, &st, resblock);
+#endif
 
 		CONS_Debug(DBG_SETUP, "MD5 calc for %s took %f seconds\n",
 			filename, (float)(I_GetPreciseTime() - t)/I_GetPrecisePrecision());
