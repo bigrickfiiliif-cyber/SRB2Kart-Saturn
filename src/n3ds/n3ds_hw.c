@@ -117,9 +117,16 @@ void N3DS_SleepNs(int64_t ns)
 
 size_t N3DS_FreeMem(size_t *total)
 {
+	// libctru hands the whole heap to newlib at startup, so the kernel's
+	// "free" figure is meaningless; ask malloc instead.
+	extern u32 __ctru_heap_size;
+	struct mallinfo mi = mallinfo();
+	size_t heap = __ctru_heap_size;
+	size_t used = (size_t)mi.uordblks;
+
 	if (total)
-		*total = osGetMemRegionSize(MEMREGION_APPLICATION);
-	return osGetMemRegionFree(MEMREGION_APPLICATION);
+		*total = heap;
+	return used < heap ? heap - used : 0;
 }
 
 static u32 *soc_buffer = NULL;
