@@ -69,6 +69,26 @@ void N3DS_SysExit(void)
 	irrstExit();
 }
 
+// Rough CPU clock estimate: time a fixed ARM loop against the system tick
+// (which always runs at 268 MHz). Tells us whether the New 3DS 804 MHz mode
+// actually got enabled for this launch method.
+int N3DS_CpuMHz(void)
+{
+	const u32 iters = 4000000;
+	u64 t0, t1;
+	u32 n = iters;
+
+	t0 = svcGetSystemTick();
+	__asm__ volatile(
+		"1: subs %0, %0, #1\n"
+		"   bne 1b\n"
+		: "+r"(n) : : "cc");
+	t1 = svcGetSystemTick();
+
+	// ARM11: subs + taken bne = 2 cycles per iteration
+	return (int)((u64)iters * 2 * (SYSCLOCK_ARM11 / 1000000) / (t1 - t0 ? t1 - t0 : 1));
+}
+
 int N3DS_IsNew3DS(void)
 {
 	return is_new3ds;
@@ -211,6 +231,9 @@ static int video_started = 0;
 static int bottom_console = 0;
 static PrintConsole bottom_con;
 
+static void present_worker_start(void);
+static void present_worker_stop(void);
+
 static int blit_w = 0, blit_h = 0;
 static uint16_t xsrc[N3DS_TOP_W];
 static uint32_t yoff[N3DS_TOP_H];
@@ -229,12 +252,14 @@ void N3DS_VideoInit(void)
 	bottom_console = 1;
 
 	video_started = 1;
+	present_worker_start();
 }
 
 void N3DS_VideoExit(void)
 {
 	if (!video_started)
 		return;
+	present_worker_stop();
 	gfxExit();
 	video_started = 0;
 	bottom_console = 0;
@@ -269,16 +294,9 @@ static void setup_scale(int w, int h, int pitch)
 
 // The top framebuffer is 240x400, stored column-major and rotated:
 // screen pixel (x, y) lives at fb[x * 240 + (239 - y)].
-void N3DS_VideoBlit8(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal)
+static void blit_to_fb(uint16_t *fb, const uint8_t *src, int w, int h, int pitch, const uint16_t *pal)
 {
-	u16 fbw, fbh;
-	uint16_t *fb;
 	int x, y;
-
-	if (!video_started || !src)
-		return;
-
-	fb = (uint16_t *)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &fbw, &fbh);
 
 	if (w == N3DS_TOP_W && h == N3DS_TOP_H)
 	{
@@ -311,14 +329,151 @@ void N3DS_VideoBlit8(const uint8_t *src, int w, int h, int pitch, const uint16_t
 	}
 }
 
+// Old behaviour waited for the next vblank after every frame, which cost up
+// to 16.7 ms per frame (measured 12 ms avg). The engine paces frames itself
+// (fpscap), so we only need to avoid tearing: with double buffering the
+// buffer we are about to overwrite is on screen until the vblank after the
+// previous swap. Wait only if that vblank can't have happened yet.
+static uint64_t last_swap_tick = 0;
+#define REFRESH_TICKS (SYSCLOCK_ARM11 / 59)
+
+static void wait_if_too_soon(void)
+{
+	if (last_swap_tick && svcGetSystemTick() - last_swap_tick < REFRESH_TICKS)
+		gspWaitForVBlank();
+}
+
+static void swap_now(void)
+{
+	gfxFlushBuffers();
+	gfxSwapBuffers();
+	last_swap_tick = svcGetSystemTick();
+}
+
+static void present_sync(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal, int vsync)
+{
+	u16 fbw, fbh;
+	if (vsync)
+		wait_if_too_soon();
+	blit_to_fb((uint16_t *)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &fbw, &fbh), src, w, h, pitch, pal);
+	swap_now();
+}
+
+// --- present worker -------------------------------------------------------
+// On the New 3DS the palette conversion + rotation + cache flush (~3-4 ms)
+// runs on CPU core 2 while the main thread already renders the next frame.
+
+static Thread      present_thread = NULL;
+static LightEvent  present_go, present_done;
+static volatile int present_run = 0;
+static uint8_t    *present_src = NULL;          // staging copy of the frame
+static uint16_t    present_pal[256];
+static int         present_w, present_h, present_vsync;
+
+static void present_thread_fn(void *arg)
+{
+	(void)arg;
+	for (;;)
+	{
+		LightEvent_Wait(&present_go);
+		if (!present_run)
+			break;
+		present_sync(present_src, present_w, present_h, present_w, present_pal, present_vsync);
+		LightEvent_Signal(&present_done);
+	}
+	LightEvent_Signal(&present_done);
+}
+
+static void present_worker_start(void)
+{
+	int prio = 0x30;
+
+	if (!is_new3ds)
+		return;
+
+	present_src = (uint8_t *)malloc(N3DS_TOP_W * N3DS_TOP_H);
+	if (!present_src)
+		return;
+
+	LightEvent_Init(&present_go, RESET_ONESHOT);
+	LightEvent_Init(&present_done, RESET_ONESHOT);
+	LightEvent_Signal(&present_done); // idle
+
+	present_run = 1;
+	svcGetThreadPriority(&prio, CUR_THREAD_HANDLE);
+	present_thread = threadCreate(present_thread_fn, NULL, 16 * 1024, prio, 2, false);
+	if (!present_thread)
+	{
+		present_run = 0;
+		free(present_src);
+		present_src = NULL;
+	}
+}
+
+static void present_worker_stop(void)
+{
+	if (!present_thread)
+		return;
+	LightEvent_Wait(&present_done); // let the last frame finish
+	present_run = 0;
+	LightEvent_Signal(&present_go);
+	threadJoin(present_thread, U64_MAX);
+	threadFree(present_thread);
+	present_thread = NULL;
+	free(present_src);
+	present_src = NULL;
+}
+
+int N3DS_VideoAsync(void)
+{
+	return present_thread != NULL;
+}
+
+void N3DS_VideoSubmit(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal, int vsync)
+{
+	int y;
+
+	if (!video_started || !src)
+		return;
+
+	if (!present_thread || w > N3DS_TOP_W || h > N3DS_TOP_H)
+	{
+		present_sync(src, w, h, pitch, pal, vsync);
+		return;
+	}
+
+	// wait for the previous frame to be out, then hand over a copy
+	LightEvent_Wait(&present_done);
+	if (pitch == w)
+		memcpy(present_src, src, (size_t)w * h);
+	else
+		for (y = 0; y < h; y++)
+			memcpy(present_src + y * w, src + y * pitch, w);
+	memcpy(present_pal, pal, sizeof present_pal);
+	present_w = w;
+	present_h = h;
+	present_vsync = vsync;
+	LightEvent_Signal(&present_go);
+}
+
+// Legacy two-step API (synchronous).
+void N3DS_VideoBlit8(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal)
+{
+	u16 fbw, fbh;
+	if (!video_started || !src)
+		return;
+	if (present_thread)
+		LightEvent_Wait(&present_done), LightEvent_Signal(&present_done);
+	blit_to_fb((uint16_t *)gfxGetFramebuffer(GFX_TOP, GFX_LEFT, &fbw, &fbh), src, w, h, pitch, pal);
+}
+
 void N3DS_VideoPresent(int vsync)
 {
 	if (!video_started)
 		return;
-	gfxFlushBuffers();
-	gfxSwapBuffers();
 	if (vsync)
-		gspWaitForVBlank();
+		wait_if_too_soon();
+	swap_now();
 }
 
 // ================================================================= audio ====

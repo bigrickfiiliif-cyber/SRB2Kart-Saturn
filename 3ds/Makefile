@@ -64,7 +64,7 @@ LIBS     := -L$(PORTLIBS)/lib -L$(CTRULIB)/lib -lcurl -lmbedtls -lmbedx509 -lmbe
 RENDER_SERIAL := $(BUILD)/r_plane.cpp.o $(BUILD)/r_things.cpp.o $(BUILD)/r_draw.cpp.o
 $(RENDER_SERIAL): CXXFLAGS += -UHAVE_THREADS
 # Column/span drawers (r_draw_span/column.cpp are #included here): unroll.
-RENDER_HOT := $(BUILD)/r_draw.cpp.o
+RENDER_HOT := $(BUILD)/r_draw.cpp.o $(BUILD)/r_segs.cpp.o $(BUILD)/r_bsp.cpp.o $(BUILD)/r_plane.cpp.o $(BUILD)/r_things.cpp.o
 $(RENDER_HOT): CXXFLAGS += -O3
 
 # ---- rules ---------------------------------------------------------------------

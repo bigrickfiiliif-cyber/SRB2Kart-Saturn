@@ -24,6 +24,7 @@ extern "C" {
 void     N3DS_SysInit(void);
 void     N3DS_SysExit(void);
 int      N3DS_IsNew3DS(void);
+int      N3DS_CpuMHz(void);                // measured clock (268 or ~804)
 int      N3DS_AptMainLoop(void);           // 0 when the system asks us to quit
 uint64_t N3DS_Ticks(void);                 // ARM11 system ticks
 uint64_t N3DS_TicksPerSecond(void);
@@ -79,6 +80,10 @@ void N3DS_VideoExit(void);
 // 400x240 if needed (nearest neighbour). pal is RGB565.
 void N3DS_VideoBlit8(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal);
 void N3DS_VideoPresent(int vsync);
+// Blit + present in one go. On New 3DS the conversion runs on CPU core 2 in
+// parallel with the next frame (the source is copied, so it can be reused).
+void N3DS_VideoSubmit(const uint8_t *src, int w, int h, int pitch, const uint16_t *pal, int vsync);
+int  N3DS_VideoAsync(void);
 void N3DS_SetBottomScreen(int on);         // backlight / console on bottom screen
 void N3DS_ConsolePrint(const char *txt);   // bottom screen log
 

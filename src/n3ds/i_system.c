@@ -470,6 +470,12 @@ INT32 I_StartupSystem(void)
 		I_OutputMsg("Network unavailable (soc:u init failed), playing offline.\n");
 
 	I_OutputMsg("Running on %s\n", N3DS_IsNew3DS() ? "New Nintendo 3DS" : "Nintendo 3DS (old model, expect low speed)");
+	{
+		int mhz = N3DS_CpuMHz();
+		I_OutputMsg("CPU clock: ~%d MHz%s\n", mhz,
+			(N3DS_IsNew3DS() && mhz < 500) ? " (804 MHz mode NOT active - try the CIA build)" : "");
+	}
+	I_OutputMsg("Frame output: %s\n", N3DS_VideoAsync() ? "async on CPU core 2" : "synchronous");
 	return 0;
 }
 

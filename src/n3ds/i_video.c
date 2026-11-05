@@ -207,9 +207,9 @@ void I_FinishUpdate(void)
 	}
 
 	if (vid.screens[0])
-		N3DS_VideoBlit8(vid.screens[0], vid.width, vid.height, vid.width, palette565);
-
-	N3DS_VideoPresent(cv_vidwait.value);
+		N3DS_VideoSubmit(vid.screens[0], vid.width, vid.height, vid.width, palette565, cv_vidwait.value);
+	else
+		N3DS_VideoPresent(cv_vidwait.value);
 	N3DS_FirstFrameShown();
 }
 
