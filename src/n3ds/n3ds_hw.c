@@ -2,6 +2,7 @@
 // libctru hardware layer. See n3ds_hw.h.
 
 #include <3ds.h>
+#include <3ds/allocator/mappable.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,77 @@
 // renderer / Lua / I_Error buffers) and a 32 MB linear heap (we only need a
 // few MB for framebuffers + audio). Give the rest to the normal heap.
 u32 __stacksize__ = 1024 * 1024;
-u32 __ctru_linear_heap_size = 8 * 1024 * 1024;
+
+// Heap layout. libctru's own split is wrong for us: the newlib heap lives in
+// a fixed 96 MB virtual window (OS_HEAP_AREA_BEGIN..END), so in the CIA's
+// 178 MB mode "everything minus 8 MB linear" (~160 MB) can't be mapped and
+// svcControlMemory fails -> svcBreak at boot. We cap the normal heap to the
+// window and leave the rest as linear heap, which the zone allocator uses as
+// overflow (N3DS_LinearAlloc).
+extern char *fake_heap_start;
+extern char *fake_heap_end;
+extern u32 __ctru_heap, __ctru_linear_heap;
+extern u32 __ctru_heap_size, __ctru_linear_heap_size;
+
+#define MIN_LINEAR_HEAP (8u << 20)
+#define LINEAR_RESERVE  (4u << 20) // kept free for gfx/audio/system applets
+
+void __system_allocateHeaps(void)
+{
+	Result rc;
+	Handle reslimit = 0;
+	s64 maxCommit = 0, currentCommit = 0;
+	ResourceLimitType type = RESLIMIT_COMMIT;
+	u32 remaining, heap_max = OS_HEAP_AREA_END - OS_HEAP_AREA_BEGIN;
+
+	rc = svcGetResourceLimit(&reslimit, CUR_PROCESS_HANDLE);
+	if (R_FAILED(rc))
+		svcBreak(USERBREAK_PANIC);
+	svcGetResourceLimitLimitValues(&maxCommit, reslimit, &type, 1);
+	svcGetResourceLimitCurrentValues(&currentCommit, reslimit, &type, 1);
+	svcCloseHandle(reslimit);
+
+	remaining = (u32)(maxCommit - currentCommit) & ~0xFFF;
+	if (remaining < MIN_LINEAR_HEAP + (16u << 20))
+		svcBreak(USERBREAK_PANIC);
+
+	__ctru_heap_size = remaining - MIN_LINEAR_HEAP;
+	if (__ctru_heap_size > heap_max)
+		__ctru_heap_size = heap_max;
+	__ctru_heap_size &= ~0xFFF;
+	__ctru_linear_heap_size = remaining - __ctru_heap_size;
+
+	rc = svcControlMemory(&__ctru_heap, OS_HEAP_AREA_BEGIN, 0x0, __ctru_heap_size, MEMOP_ALLOC, MEMPERM_READ | MEMPERM_WRITE);
+	if (R_FAILED(rc))
+		svcBreak(USERBREAK_PANIC);
+
+	rc = svcControlMemory(&__ctru_linear_heap, 0x0, 0x0, __ctru_linear_heap_size, MEMOP_ALLOC_LINEAR, MEMPERM_READ | MEMPERM_WRITE);
+	if (R_FAILED(rc))
+		svcBreak(USERBREAK_PANIC);
+
+	mappableInit(OS_MAP_AREA_BEGIN, OS_MAP_AREA_END);
+
+	fake_heap_start = (char *)__ctru_heap;
+	fake_heap_end = fake_heap_start + __ctru_heap_size;
+}
+
+void *N3DS_LinearAlloc(size_t size)
+{
+	if (linearSpaceFree() < size + LINEAR_RESERVE)
+		return NULL;
+	return linearAlloc(size);
+}
+
+int N3DS_IsLinear(const void *p)
+{
+	u32 a = (u32)p;
+	return a >= __ctru_linear_heap && a < __ctru_linear_heap + __ctru_linear_heap_size;
+}
+
+void N3DS_LinearFree(void *p)
+{
+	linearFree(p);
+}
 
 static int is_new3ds = 0;
 static aptHookCookie apt_cookie;
@@ -115,18 +186,17 @@ void N3DS_SleepNs(int64_t ns)
 		svcSleepThread(ns);
 }
 
+// Heap + linear overflow, as the zone allocator sees it.
 size_t N3DS_FreeMem(size_t *total)
 {
-	// libctru hands the whole heap to newlib at startup, so the kernel's
-	// "free" figure is meaningless; ask malloc instead.
-	extern u32 __ctru_heap_size;
 	struct mallinfo mi = mallinfo();
-	size_t heap = __ctru_heap_size;
 	size_t used = (size_t)mi.uordblks;
+	size_t lin = linearSpaceFree();
+	size_t heapfree = used < __ctru_heap_size ? __ctru_heap_size - used : 0;
 
 	if (total)
-		*total = heap;
-	return used < heap ? heap - used : 0;
+		*total = __ctru_heap_size + __ctru_linear_heap_size;
+	return heapfree + (lin > LINEAR_RESERVE ? lin - LINEAR_RESERVE : 0);
 }
 
 static u32 *soc_buffer = NULL;

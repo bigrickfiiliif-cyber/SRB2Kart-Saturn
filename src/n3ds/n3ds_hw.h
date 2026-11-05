@@ -30,6 +30,10 @@ uint64_t N3DS_Ticks(void);                 // ARM11 system ticks
 uint64_t N3DS_TicksPerSecond(void);
 void     N3DS_SleepNs(int64_t ns);
 size_t   N3DS_FreeMem(size_t *total);
+// Linear heap used as overflow for the zone allocator (see z_zone.cpp).
+void    *N3DS_LinearAlloc(size_t size);
+void     N3DS_LinearFree(void *p);
+int      N3DS_IsLinear(const void *p);
 int      N3DS_NetInit(void);               // returns 0 on success
 void     N3DS_NetExit(void);
 void     N3DS_ErrorScreen(const char *title, const char *msg); // blocks until START

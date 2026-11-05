@@ -29,6 +29,9 @@
 #include <stdalign.h>
 
 #include "core/memory.h"
+#ifdef __3DS__
+#include "n3ds/n3ds_hw.h"
+#endif
 #include "doomdef.h"
 #include "doomstat.h"
 #include "r_patch.h"
@@ -184,6 +187,13 @@ void Z_Free(void *ptr)
 #endif
 	block->prev->next = block->next;
 	block->next->prev = block->prev;
+#ifdef __3DS__
+	if (N3DS_IsLinear(block))
+	{
+		N3DS_LinearFree(block);
+		return;
+	}
+#endif
 	free(block);
 }
 
@@ -201,11 +211,22 @@ static void *xm(size_t size)
 		I_Error("You are allocating memory too large!");
 	p = malloc(padedsize);
 
+#ifdef __3DS__
+	// The newlib heap is capped at 96 MB; the rest of the app's RAM is linear
+	// heap. Use it before throwing away cached graphics.
+	if (p == NULL)
+		p = N3DS_LinearAlloc(padedsize);
+#endif
+
 	if (p == NULL)
 	{
 		// Oh crumbs: we're out of heap. Try purging the cache and reallocating.
 		Z_FreeTags(PU_PURGELEVEL, INT32_MAX);
 		p = malloc(padedsize);
+#ifdef __3DS__
+		if (p == NULL)
+			p = N3DS_LinearAlloc(padedsize);
+#endif
 
 		if (p == NULL)
 		{
