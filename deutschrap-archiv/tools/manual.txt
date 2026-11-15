@@ -1,0 +1,99 @@
+# Artist|Title|Year|Typ|Label|Genres|Producer|Gäste|Notiz
+Kool Savas|Der beste Tag meines Lebens|2002|Album|Optik Records / Subword|Battle Rap,Boom Bap|Melbeatz||Major-Debüt von King Kool Savas.
+Kool Savas|Tot oder lebendig|2008|Album|Optik Records|Battle Rap,Boom Bap|Melbeatz, Kool Savas||
+Kool Savas|Die John Bello Story|2005|Mixtape|Optik Records|Battle Rap|Melbeatz, Kool Savas||
+Kool Savas & Azad|One|2005|Album|Optik Records / Bozz Music|Battle Rap,Straßenrap,Boom Bap|Melbeatz, Azad||Kollabo-Album zweier Ikonen.
+Melbeatz|Rapper's Delight|2004|Producer-Album|Optik Records|Boom Bap|Melbeatz||Produzentinnen-Album mit Gästen aus allen Lagern.
+Azad|Leben|2001|Album|3p|Straßenrap,Boom Bap|Azad||
+Azad|Faust des Nordwestens|2004|Album|Bozz Music|Straßenrap,Boom Bap|Azad||
+Azad|Game Over|2006|Album|Bozz Music|Straßenrap|Azad||
+Azad|Der Bozz|2009|Album|Bozz Music|Straßenrap|Azad||
+Samy Deluxe|Samy Deluxe|2001|Album|EMI / Capitol|Boom Bap,Conscious|Samy Deluxe, Tropf||Solo-Debüt mit "Weck mich auf".
+Samy Deluxe|Verdammtnochma!|2004|Album|EMI / Capitol|Boom Bap,Conscious|Samy Deluxe||
+Samy Deluxe|Dis wo ich herkomm|2009|Album|EMI|Conscious,Boom Bap|Samy Deluxe||
+Dynamite Deluxe|Deluxe Soundsystem|2000|Album|EMI|Boom Bap|Tropf||Klassiker der Hamburger Schule.
+Dynamite Deluxe|TNT|2008|Album|EMI|Boom Bap|Tropf, Samy Deluxe||
+Beginner|Blast Action Heroes|2003|Album|Universal|Boom Bap,Party/Pop-Rap|DJ Mad, Denyo||Mit "Fäule" und "Danke".
+Jan Delay|Searching for the Jan Soul Rebels|2001|Album|Universal|Reggae/Dancehall|DJ Mad||
+Jan Delay|Mercedes-Dance|2006|Album|Universal|Funk/Soul|Tropf||
+Fettes Brot|Amnesie|2001|Album|Fettes Brot Schallplatten|Party/Pop-Rap|Fettes Brot||
+Fettes Brot|Am Wasser gebaut|2005|Album|Fettes Brot Schallplatten|Party/Pop-Rap|Fettes Brot||Mit "Emanuela".
+Fettes Brot|Strom und Drang|2008|Album|Fettes Brot Schallplatten|Party/Pop-Rap,Electro-Rap|Fettes Brot||
+Fünf Sterne Deluxe|Neo.Now|2000|Album|Yo Mama|Party/Pop-Rap,Experimental|||
+Deichkind|Bitte ziehen Sie durch|2000|Album|Sony|Boom Bap,Party/Pop-Rap|Buddy||Mit "Bon Voyage".
+Deichkind|Noch fünf Minuten Mutti|2002|Album|Sony|Party/Pop-Rap|Buddy||
+Deichkind|Aufstand im Schlaraffenland|2006|Album|Universal|Electro-Rap,Party/Pop-Rap|||Wende zum Electro: "Remmidemmi".
+Deichkind|Arbeit nervt|2008|Album|Universal|Electro-Rap|Buddy||
+Eins Zwo|Zwei|2001|Album|Yo Mama / Columbia|Boom Bap|DJ Rabauke||
+Blumentopf|Eins A|2001|Album|Four Music|Boom Bap,Jazz Rap|Sepalot||
+Blumentopf|Gern geschehen|2003|Album|Four Music|Boom Bap,Jazz Rap|Sepalot||
+Blumentopf|Musikmaschine|2006|Album|Four Music|Boom Bap,Party/Pop-Rap|Sepalot||
+Creutzfeld & Jakob|Gottes Werk & Creutzfelds Beitrag|2000|Album|Put da Needle to da Records|Boom Bap,Underground|||Ruhrpott-Klassiker.
+Kinderzimmer Productions|Wir sind da wo oben ist|2002|Album|Hausmarke|Jazz Rap,Boom Bap|Quasimodo||
+Kinderzimmer Productions|Asphalt Inferno|2006|Album|Hausmarke|Jazz Rap,Boom Bap|Quasimodo||
+Dendemann|Die Pfütze des Eisbergs|2006|Album|Yo Mama|Boom Bap,Experimental|Sepalot||
+Torch|Blauer Samt|2000|Album|V2|Boom Bap,Conscious|Torch, Toni L||Mit "Wir waren mal Stars".
+Curse|Feuerwasser|2000|Album|Jive / Zomba|Conscious,Boom Bap|||
+Curse|Von Innen nach Außen|2001|Album|Jive / Zomba|Conscious,Boom Bap|||
+Curse|Innere Sicherheit|2003|Album|Jive / Zomba|Conscious|||
+Curse|Sinnflut|2005|Album|Jive / Zomba|Conscious|||
+Curse|Freiheit|2008|Album|Sony|Conscious|||
+Afrob|Made in Germany|2001|Album|Four Music|Boom Bap|||
+Afrob|Hammer|2005|Album|Four Music|Boom Bap,Straßenrap|DJ Desue||
+Max Herre|Max Herre|2004|Album|Four Music|Conscious,Funk/Soul|||Mit "Zu elektrisch".
+Massive Töne|MT3|2002|Album|Columbia|Boom Bap,Party/Pop-Rap|DJ 5ter Ton||
+Die Fantastischen Vier|Viel|2004|Album|Four Music|Party/Pop-Rap|And.Ypsilon||
+Die Fantastischen Vier|Fornika|2007|Album|Four Music|Party/Pop-Rap|And.Ypsilon||
+Moses Pelham|Geteiltes Leid 2|2004|Album|3p|Conscious|Moses Pelham, Martin Haas||
+Brothers Keepers|Lightkultur|2001|Sampler|Downbeat / Warner|Conscious,Political|Tropf||Antirassismus-Projekt mit "Adriano (Letzte Warnung)".
+Snaga & Pillath|Aus Liebe zum Spiel|2003|Album|Universal|Boom Bap,Straßenrap|||
+Bushido & Fler|Carlo Cokxxx Nutten|2002|Album|Ersguterjunge / Aggro Berlin|Gangsta Rap,Straßenrap|Bushido||Kultalbum von Bushido & Fler, lange indiziert.
+Bushido|Vom Bordstein bis zur Skyline|2003|Album|Aggro Berlin|Gangsta Rap,Straßenrap|Bushido||Debüt auf Aggro Berlin, 2005 indiziert.
+Bushido|Electro Ghetto|2004|Album|Ersguterjunge / Universal|Gangsta Rap|Bushido||
+Bushido|Staatsfeind Nr. 1|2005|Album|Ersguterjunge / Universal|Gangsta Rap|Bushido, Beatzarre, Djorkaeff||
+Bushido & Baba Saad|Carlo Cokxxx Nutten II|2005|Album|Ersguterjunge|Gangsta Rap|Bushido||
+Bushido|Von der Skyline zum Bordstein zurück|2006|Album|Ersguterjunge / Universal|Gangsta Rap|Bushido, Beatzarre, Djorkaeff||
+Bushido|7|2007|Album|Ersguterjunge / Universal|Gangsta Rap|Bushido, Beatzarre, Djorkaeff||
+Bushido|Heavy Metal Payback|2008|Album|Ersguterjunge / Universal|Gangsta Rap|Bushido, Beatzarre, Djorkaeff||
+Sido|Maske|2004|Album|Aggro Berlin|Straßenrap,Porno/Provokation|Beatzarre, Djorkaeff||Mit "Mein Block" und "Arschficksong".
+Sido|Ich|2006|Album|Aggro Berlin|Straßenrap|Beatzarre, Djorkaeff, DJ Desue||
+Sido|Ich und meine Maske|2008|Album|Aggro Berlin|Straßenrap,Party/Pop-Rap|DJ Desue, Paul NZA, Beatzarre, Djorkaeff||
+Fler|Neue Deutsche Welle|2005|Album|Aggro Berlin|Gangsta Rap,Straßenrap|Beatzarre, Djorkaeff||
+Fler|Trendsetter|2006|Album|Aggro Berlin|Gangsta Rap|Beatzarre, Djorkaeff, DJ Desue||
+Fler|Fler|2009|Album|Aggro Berlin|Gangsta Rap|Beatzarre, Djorkaeff||
+B-Tight|Neger Neger|2007|Album|Aggro Berlin|Straßenrap,Porno/Provokation|Beatzarre, Djorkaeff||
+Tony D|Fremdkörper|2008|Album|Aggro Berlin|Straßenrap|DJ Desue||
+Kitty Kat|Miyo!|2009|Album|Aggro Berlin|Straßenrap|DJ Desue, Paul NZA||
+Aggro Berlin|Aggro Ansage Nr. 1|2002|Sampler|Aggro Berlin|Straßenrap|Bushido||Erster Label-Sampler.
+Aggro Berlin|Aggro Ansage Nr. 2|2003|Sampler|Aggro Berlin|Straßenrap|Beatzarre, Djorkaeff||
+Aggro Berlin|Aggro Ansage Nr. 3|2003|Sampler|Aggro Berlin|Straßenrap|Beatzarre, Djorkaeff||
+Aggro Berlin|Aggro Ansage Nr. 4|2004|Sampler|Aggro Berlin|Straßenrap|Beatzarre, Djorkaeff||
+Aggro Berlin|Aggro Ansage Nr. 5|2005|Sampler|Aggro Berlin|Straßenrap|Beatzarre, Djorkaeff||
+Aggro Berlin|Aggro Ansage Nr. 8|2008|Sampler|Aggro Berlin|Straßenrap|DJ Desue, Beatzarre, Djorkaeff||
+Kollegah|Zuhältertape|2005|Mixtape|Selfmade Records|Battle Rap,Gangsta Rap|||Kultiges Free-Tape.
+Kollegah|Alphagene|2007|Album|Selfmade Records|Battle Rap,Gangsta Rap|||
+Kollegah|Kollegah|2008|Album|Selfmade Records|Battle Rap,Gangsta Rap|||
+Kollegah & Farid Bang|Jung, brutal, gutaussehend|2009|Album|Selfmade Records|Battle Rap,Gangsta Rap|||
+Favorite|Harlekin|2008|Album|Selfmade Records|Battle Rap|||
+Farid Bang|Asphalt Massaka|2008|Album|Banger Musik|Gangsta Rap|||
+Eko Fresh|Ich bin jung und brauche das Geld|2003|Album|Optik Records / Subword|Battle Rap,Party/Pop-Rap|Melbeatz, Kool Savas||
+Eko Fresh|Hart(z) IV|2005|Album|German Dream|Straßenrap|||
+Eko Fresh|Ekrem|2006|Album|German Dream|Straßenrap|||
+Massiv|Blut gegen Blut|2008|Album|Horrorkore Entertainment / Sony|Gangsta Rap,Straßenrap|||
+Xatar|Alles oder Nix|2008|Album|Alles oder Nix Records|Gangsta Rap,Straßenrap|||
+K.I.Z|Das RapDeutschlandKettensägenMassaker|2005|Album|Royal Bunker|Battle Rap,Porno/Provokation|Drunken Masters||
+K.I.Z|Hahnenkampf|2007|Album|Royal Bunker / Universal|Battle Rap,Porno/Provokation|Drunken Masters||
+K.I.Z|Sexismus gegen Rechts|2009|Album|Royal Bunker / Universal|Battle Rap,Porno/Provokation|Drunken Masters||
+Prinz Porno|Zeitlos|2005|Album|Royal Bunker|Battle Rap|||
+Prinz Pi|!Donnerwetter!|2006|Album|Keine Liebe Records|Conscious,Battle Rap|||
+Casper|Hin zur Sonne|2008|Album|Selfmade Records|Emo-Rap,Conscious|||
+Marteria|Base Ventura|2007|Album|Columbia|Party/Pop-Rap|||
+Ferris MC|Fertich!|2004|Album|Yo Mama|Battle Rap,Party/Pop-Rap|Tropf||
+Chakuza|City Cobra|2007|Album|Ersguterjunge|Straßenrap|Bushido||Österreicher bei Ersguterjunge.
+Chakuza|Unter der Sonne|2008|Album|Ersguterjunge|Straßenrap|||
+Raf Camora|Therapie vor dem Album|2008|EP|Soundwavez|Straßenrap,Reggae/Dancehall|||
+Bass Sultan Hengzt|Rap braucht kein Abitur|2005|Album|Bassboxxx|Battle Rap,Straßenrap|||
+Frauenarzt & Manny Marc|Atzen Musik Vol. 1|2008|Album|Atzenmusik|Electro-Rap,Party/Pop-Rap|Manny Marc||
+Bligg|0816|2008|Album|Universal|Mundart-Rap,Party/Pop-Rap|||Mit "Rosalie".
+Greis|Eis|2003|Album|Equipe Music|Mundart-Rap,Conscious|||Berndeutsch.
+Kollegah|Boss der Bosse|2006|Mixtape|Selfmade Records|Battle Rap,Gangsta Rap|||Zweites Free-Tape vor dem Album-Debüt.

@@ -1,0 +1,276 @@
+# Name|Land|Genres
+Kool Savas|DE|Battle Rap,Boom Bap
+Azad|DE|Straßenrap,Boom Bap
+Samy Deluxe|DE|Boom Bap,Conscious
+Dynamite Deluxe|DE|Boom Bap
+Beginner|DE|Boom Bap,Party/Pop-Rap
+Jan Delay|DE|Funk/Soul,Reggae/Dancehall
+Eizi Eiz|DE|Boom Bap
+Denyo|DE|Boom Bap,Party/Pop-Rap
+Fettes Brot|DE|Party/Pop-Rap
+Fünf Sterne Deluxe|DE|Party/Pop-Rap,Experimental
+Deichkind|DE|Electro-Rap,Party/Pop-Rap
+Eins Zwo|DE|Boom Bap
+Blumentopf|DE|Boom Bap,Jazz Rap
+Main Concept|DE|Boom Bap
+Creutzfeld & Jakob|DE|Boom Bap,Underground
+Lakmann|DE|Boom Bap,Underground
+Kinderzimmer Productions|DE|Jazz Rap,Boom Bap
+Dendemann|DE|Boom Bap,Experimental
+Torch|DE|Boom Bap,Conscious
+Toni L|DE|Boom Bap
+Curse|DE|Conscious,Boom Bap
+Afrob|DE|Boom Bap
+Max Herre|DE|Conscious,Funk/Soul
+Freundeskreis|DE|Conscious,Jazz Rap
+Massive Töne|DE|Boom Bap,Party/Pop-Rap
+Die Fantastischen Vier|DE|Party/Pop-Rap
+Thomas D|DE|Conscious,Experimental
+Ferris MC|DE|Battle Rap,Party/Pop-Rap
+Tone|DE|Boom Bap
+Moses Pelham|DE|Conscious
+Sabrina Setlur|DE|Party/Pop-Rap
+D-Flame|DE|Reggae/Dancehall,Boom Bap
+Brothers Keepers|DE|Conscious,Political
+Sisters Keepers|DE|Conscious
+MC Rene|DE|Boom Bap
+Spax|DE|Boom Bap
+Cora E.|DE|Boom Bap
+Tefla & Jaleel|DE|Party/Pop-Rap
+Die Firma|DE|Boom Bap,Conscious
+Snaga & Pillath|DE|Boom Bap,Straßenrap
+RAG|DE|Boom Bap
+Too Strong|DE|Boom Bap
+Stieber Twins|DE|Boom Bap
+Eko Fresh|DE|Battle Rap,Straßenrap
+Valezka|DE|Party/Pop-Rap
+Ercandize|DE|Battle Rap
+Franky Kubrick|DE|Battle Rap,Boom Bap
+Jonesmann|DE|Boom Bap
+Bushido|DE|Gangsta Rap,Straßenrap
+Fler|DE|Gangsta Rap,Straßenrap
+Sido|DE|Straßenrap,Porno/Provokation
+B-Tight|DE|Straßenrap,Porno/Provokation
+Tony D|DE|Straßenrap
+G-Hot|DE|Straßenrap
+Kitty Kat|DE|Straßenrap
+Baba Saad|DE|Gangsta Rap
+Eko Fresh|DE|Battle Rap
+Chakuza|AT|Straßenrap
+Bizzy Montana|DE|Straßenrap
+Kay One|DE|Gangsta Rap
+Bass Sultan Hengzt|DE|Battle Rap,Straßenrap
+MC Bogy|DE|Straßenrap
+Joe Rilla|DE|Straßenrap
+Godsilla|DE|Straßenrap
+MOK|DE|Straßenrap
+King Orgasmus One|DE|Porno/Provokation
+Frauenarzt|DE|Porno/Provokation,Electro-Rap
+Manny Marc|DE|Electro-Rap
+Taktloss|DE|Battle Rap,Underground
+Fuhmanschu|DE|Battle Rap
+Kollegah|DE|Battle Rap,Gangsta Rap
+Favorite|DE|Battle Rap,Gangsta Rap
+Farid Bang|DE|Gangsta Rap,Battle Rap
+Summer Cem|DE|Straßenrap
+Silla|DE|Straßenrap
+Massiv|DE|Gangsta Rap,Straßenrap
+Xatar|DE|Gangsta Rap,Straßenrap
+Haftbefehl|DE|Straßenrap
+Celo & Abdi|DE|Straßenrap
+Automatikk|DE|Straßenrap
+Sinan-G|DE|Straßenrap
+Kaisaschnitt|DE|Battle Rap
+K.I.Z|DE|Battle Rap,Porno/Provokation
+Prinz Pi|DE|Conscious,Battle Rap
+Prinz Porno|DE|Battle Rap,Porno/Provokation
+Kaas|DE|Party/Pop-Rap,Underground
+Casper|DE|Emo-Rap,Conscious
+Marteria|DE|Party/Pop-Rap,Electro-Rap
+Marsimoto|DE|Experimental,Electro-Rap
+Maeckes & Plan B|DE|Experimental,Underground
+Die Orsons|DE|Experimental,Party/Pop-Rap
+Tua|DE|Experimental
+Morlockk Dilemma|DE|Horrorcore,Underground
+Retrogott|DE|Boom Bap,Underground
+Huss und Hodn|DE|Underground,Experimental
+Hiob|DE|Boom Bap,Underground
+Rhymin Simon|DE|Underground,Battle Rap
+Audio88 & Yassin|DE|Underground,Boom Bap
+Pyranja|DE|Boom Bap
+Fiva|DE|Boom Bap,Conscious
+Sookee|DE|Conscious,Political
+Lady Bitch Ray|DE|Porno/Provokation
+Harris|DE|Straßenrap,Party/Pop-Rap
+Megaloh|DE|Boom Bap,Conscious
+Blokkmonsta|DE|Horrorcore
+Schwartz|DE|Horrorcore
+Rako|DE|Horrorcore
+Basstard|DE|Horrorcore
+MC Basstard|DE|Horrorcore
+Hollywood Hank|DE|Underground
+Sentence|DE|Boom Bap
+Absztrakkt|DE|Boom Bap,Conscious
+Jeru|DE|Boom Bap
+Clueso|DE|Party/Pop-Rap
+Mellowbag|DE|Funk/Soul
+Mono & Nikitaman|DE|Reggae/Dancehall
+Culcha Candela|DE|Reggae/Dancehall,Party/Pop-Rap
+Sékou|DE|Conscious
+Olli Banjo|DE|Battle Rap,Boom Bap
+Laas Unltd.|DE|Battle Rap
+Laas Unltd|DE|Battle Rap
+Chefket|DE|Conscious
+Jaysus|DE|Battle Rap
+Separate|DE|Battle Rap
+Moe Mitchell|DE|Straßenrap
+Plattenpapzt|DE|Boom Bap
+Cr7z|DE|Battle Rap
+Mach One|DE|Underground
+Vork|DE|Underground
+JAW|DE|Underground
+Tufu|DE|Underground
+Kamikazes|DE|Boom Bap
+Italo Reno & Germany|DE|Boom Bap
+Germany|DE|Boom Bap
+Mr. Schnabel|DE|Boom Bap
+Scope|DE|Boom Bap
+Tatwaffe|DE|Boom Bap
+Def Benski|DE|Boom Bap
+Toni der Assi|DE|Porno/Provokation
+Atzen|DE|Electro-Rap
+Die Atzen|DE|Electro-Rap
+Fard|DE|Straßenrap
+Snaga|DE|Straßenrap
+Pillath|DE|Straßenrap
+Jokah|DE|Battle Rap
+Manuellsen|DE|Straßenrap
+Mo-Torres|DE|Party/Pop-Rap
+Ali As|DE|Battle Rap
+Melbeatz|DE|Boom Bap
+DJ Tomekk|DE|Party/Pop-Rap
+DJ Desue|DE|Boom Bap
+Illmatic|DE|Boom Bap
+Phreaky Flave|DE|Boom Bap
+Gauner|DE|Underground
+Nico Suave|DE|Boom Bap,Funk/Soul
+Bintia|DE|Funk/Soul
+Ronny Trettmann|DE|Reggae/Dancehall
+Konkret Finn|DE|Political
+Aphroe|DE|Boom Bap
+Tierstar|DE|Boom Bap
+MC Fitti|DE|Party/Pop-Rap
+Edgar Wasser|DE|Experimental
+Fatoni|DE|Experimental
+Antilopen Gang|DE|Experimental
+Mädness|DE|Boom Bap
+Döll|DE|Boom Bap
+Hulk Hodn|DE|Underground
+Knowsum|DE|Boom Bap
+Eloquent|DE|Boom Bap
+Kamp|AT|Boom Bap,Underground
+Texta|AT|Boom Bap,Conscious
+Total Chaos|AT|Boom Bap
+Skero|AT|Experimental,Party/Pop-Rap
+Raf Camora|AT|Straßenrap,Reggae/Dancehall
+Raf 3.0|AT|Electro-Rap
+Nazar|AT|Gangsta Rap,Straßenrap
+Mieze Medusa|AT|Conscious
+Def Ill|AT|Boom Bap
+Brenk Sinatra|AT|Boom Bap
+Schönheitsfehler|AT|Boom Bap,Party/Pop-Rap
+Average|AT|Boom Bap
+Kayo|AT|Boom Bap
+Hinterland|AT|Underground
+Sua Kaine|AT|Boom Bap
+Joshi Mizu|AT|Straßenrap
+Mainframe|AT|Boom Bap
+Fünfhaus Gang|AT|Straßenrap
+MC Sinch|AT|Boom Bap
+Bligg|CH|Mundart-Rap,Party/Pop-Rap
+Greis|CH|Mundart-Rap,Conscious
+Gimma|CH|Mundart-Rap
+Wurzel 5|CH|Mundart-Rap,Boom Bap
+Chlyklass|CH|Mundart-Rap,Boom Bap
+Baze|CH|Mundart-Rap
+Sektion Kuchikäschtli|CH|Mundart-Rap,Party/Pop-Rap
+Breitbild|CH|Mundart-Rap
+Black Tiger|CH|Mundart-Rap,Boom Bap
+Gleis Zwei|CH|Mundart-Rap
+PVP|CH|Mundart-Rap
+Big Zis|CH|Mundart-Rap,Experimental
+Tommy Vercetti|CH|Mundart-Rap,Conscious
+Dezmond Dez|CH|Mundart-Rap
+Göldin|CH|Mundart-Rap
+Brandhärd|CH|Mundart-Rap,Boom Bap
+E.K.R.|CH|Mundart-Rap
+Griot|CH|Mundart-Rap
+Skor|CH|Mundart-Rap
+Bandit|CH|Mundart-Rap
+Phumaso & Smack|CH|Mundart-Rap
+Mimiks|CH|Mundart-Rap
+Steff la Cheffe|CH|Mundart-Rap
+Lo & Leduc|CH|Mundart-Rap
+Manillio|CH|Mundart-Rap
+Mundartisten|CH|Mundart-Rap
+Luut & Tüütli|CH|Mundart-Rap
+Sauzeit|CH|Mundart-Rap
+Cuba Cabbage|CH|Mundart-Rap
+Pablo Infernal|CH|Mundart-Rap,Straßenrap
+Liebesbrief|CH|Mundart-Rap
+Knackeboul|CH|Mundart-Rap,Experimental
+Fratelli-B|CH|Mundart-Rap
+Gültige Rapper|CH|Mundart-Rap
+Ronin|CH|Mundart-Rap
+Dodo|CH|Reggae/Dancehall
+Sir Serch|CH|Mundart-Rap
+CBN|CH|Mundart-Rap
+Nativ|CH|Mundart-Rap
+Lexzem|CH|Mundart-Rap
+Italo Reno|DE|Boom Bap
+Isar|DE|Battle Rap
+Dr. Faustus|DE|Boom Bap,Underground
+Midy Kosov|DE|Straßenrap
+Shizoe|DE|Battle Rap
+Amar|DE|Straßenrap
+UZI|DE|Horrorcore
+Smoky|DE|Straßenrap
+G-Style|DE|Straßenrap
+Vega|DE|Straßenrap,Conscious
+Jack Orsen|DE|Battle Rap,Underground
+Justus|DE|Battle Rap
+Darn|DE|Underground
+PCP|DE|Underground
+Doppelkopf|DE|Boom Bap,Conscious
+Schwester S|DE|Party/Pop-Rap
+Blumio|DE|Party/Pop-Rap
+Pal One|DE|Boom Bap
+Twit One|DE|Boom Bap
+Dissput|DE|Battle Rap
+Phantomas|DE|Underground
+Sprachdealer|DE|Underground
+Bizzy Montana|DE|Straßenrap
+D-Bo|DE|Straßenrap
+Nyze|DE|Straßenrap
+Bendt|DE|Underground
+Pimpulsiv|DE|Battle Rap
+Jeyz|DE|Straßenrap
+Kurdo|DE|Straßenrap
+Hamad 45|DE|Straßenrap
+Sinan|DE|Straßenrap
+Ado Kojo|DE|Reggae/Dancehall
+Illo|DE|Boom Bap
+Headliners|DE|Boom Bap
+Nachbar|DE|Boom Bap
+Mirko Machine|DE|Boom Bap
+Leila Akinyi|DE|Boom Bap
+Big Derill Mack|DE|Battle Rap
+Damion Davis|DE|Battle Rap
+Mr. Moe|DE|Battle Rap
+Toni der Assi|DE|Porno/Provokation
+Atzen Bierbong|DE|Party/Pop-Rap
+Fumanschu|DE|Battle Rap
+Sir Prize|DE|Battle Rap
+Godessa|CH|Mundart-Rap
+QL|CH|Mundart-Rap
+Lügner|CH|Mundart-Rap

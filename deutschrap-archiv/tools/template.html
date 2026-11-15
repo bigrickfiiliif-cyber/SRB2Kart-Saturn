@@ -1,0 +1,449 @@
+<meta charset="utf-8">
+<title>Deutschrap Archiv 00–09</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: Plattenkiste – sticky Registerleiste oben, Jahres-Trenner wie in einer Crate, Cover-Raster darunter; Detail als Seitenblatt */
+:root{
+  --bg:#e9ebee; --paper:#f7f8f9; --ink:#14161a; --muted:#5d636d; --line:#d3d7dd;
+  --accent:#e0412b; --accent-ink:#fff; --blue:#2d55c8; --chip:#dfe3e8; --shadow:0 1px 2px rgba(20,22,26,.08),0 6px 18px rgba(20,22,26,.07);
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111317; --paper:#1a1d22; --ink:#eceef1; --muted:#9aa1ac; --line:#2c3038;
+  --accent:#ff5b40; --accent-ink:#140806; --blue:#7d9cff; --chip:#252a31; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --paper:#1a1d22; --ink:#eceef1; --muted:#9aa1ac; --line:#2c3038;
+  --accent:#ff5b40; --accent-ink:#140806; --blue:#7d9cff; --chip:#252a31; --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--paper)}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:16px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;min-width:0}
+.brand b{font-family:var(--f-display);font-stretch:68%;font-weight:900;font-size:26px;letter-spacing:-.01em;text-transform:uppercase;line-height:1}
+.brand span{font-family:var(--f-mono);font-size:12px;color:var(--accent);font-weight:600}
+nav.tabs{display:flex;gap:4px;margin-left:auto}
+nav.tabs a{text-decoration:none;font-weight:700;font-size:14px;padding:7px 12px;border-radius:999px;color:var(--muted)}
+nav.tabs a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+main{padding-block:20px 60px}
+.view[hidden]{display:none}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+.label{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* intro */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end;margin-bottom:18px}
+.intro h1{font-stretch:62%;font-weight:900;font-size:clamp(40px,8vw,84px);line-height:.88;text-transform:uppercase;letter-spacing:-.01em}
+.intro h1 em{font-style:normal;color:var(--accent)}
+.intro p{margin:10px 0 0;color:var(--muted);max-width:60ch}
+.counter{display:flex;gap:18px;font-variant-numeric:tabular-nums}
+.counter div{display:flex;flex-direction:column}
+.counter b{font-family:var(--f-display);font-stretch:75%;font-size:30px;font-weight:800;line-height:1}
+@media (max-width:720px){.intro{grid-template-columns:1fr}}
+/* controls */
+.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.searchrow{display:flex;gap:8px;flex-wrap:wrap}
+.search{flex:1 1 260px;display:flex;align-items:center;gap:8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:0 12px;min-width:0}
+.search input{border:0;background:transparent;padding:11px 0;width:100%;outline:none;font-size:16px}
+.search svg{flex:none;color:var(--muted)}
+select{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip small{font-family:var(--f-mono);font-weight:400;opacity:.65;margin-left:4px}
+.years{display:flex;gap:0;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper);scrollbar-width:none}
+.years button{flex:1 0 auto;border:0;background:transparent;padding:8px 12px;font-family:var(--f-mono);font-size:13px;font-weight:600;cursor:pointer;border-right:1px solid var(--line);color:var(--muted)}
+.years button:last-child{border-right:0}
+.years button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.resultinfo{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--blue);cursor:pointer;font-weight:600;padding:0}
+/* crate */
+.divider{display:flex;align-items:baseline;gap:12px;margin:26px 0 12px;border-bottom:2px solid var(--ink);padding-bottom:4px}
+.divider h2{font-stretch:65%;font-weight:900;font-size:40px;line-height:1}
+.divider span{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px 14px}
+@media (max-width:480px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}}
+.card{display:flex;flex-direction:column;gap:7px;text-decoration:none;min-width:0;cursor:pointer;background:none;border:0;padding:0;text-align:left}
+.cover{position:relative;aspect-ratio:1;width:100%;max-width:100%;border-radius:4px;overflow:hidden;background:var(--chip);box-shadow:var(--shadow)}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.card:hover .cover{transform:translateY(-2px)}
+.cover{transition:transform .15s}
+@media (prefers-reduced-motion:reduce){.cover{transition:none}}
+.gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:10%;color:#fff;font-family:var(--f-display)}
+.gen b{font-stretch:65%;font-weight:900;font-size:clamp(14px,2.2vw,22px);line-height:.95;text-transform:uppercase;word-break:break-word}
+.gen i{font-style:normal;font-family:var(--f-mono);font-size:10px;opacity:.85}
+.badge{position:absolute;left:6px;top:6px;font-family:var(--f-mono);font-size:10px;font-weight:600;background:var(--paper);color:var(--ink);padding:1px 6px;border-radius:3px}
+.meta{min-width:0}
+.meta .t{font-weight:700;font-size:14px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.meta .a{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta .g{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flag{font-family:var(--f-mono);font-size:10px;font-weight:600;border:1px solid var(--line);border-radius:3px;padding:0 4px;margin-right:4px;color:var(--muted)}
+.more{display:flex;justify-content:center;margin-top:24px}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-weight:700;padding:10px 18px;border-radius:999px;cursor:pointer;text-decoration:none;display:inline-flex;gap:8px;align-items:center;font-size:14px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,12,15,.5);z-index:40}
+.sheet{position:fixed;z-index:41;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--paper);overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.25);padding:calc(16px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) 20px}
+.sheet .close{position:sticky;top:0;float:right;border:1px solid var(--line);background:var(--paper);border-radius:999px;width:36px;height:36px;cursor:pointer;font-size:18px;line-height:1;z-index:2}
+.ahead{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:end;margin-top:6px;clear:both}
+@media (max-width:440px){.ahead{grid-template-columns:110px minmax(0,1fr)}}
+.ahead h2{font-stretch:70%;font-weight:900;font-size:clamp(24px,5vw,34px);line-height:1;text-transform:uppercase}
+.ahead .by{font-weight:700;margin-top:6px}
+.ahead .by a{color:var(--blue);text-decoration:none}
+dl.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:18px 0;font-size:14px}
+dl.facts dt{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding-top:2px}
+dl.facts dd{margin:0;min-width:0}
+dl.facts dd a{color:var(--blue);text-decoration:none}
+.links{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 18px}
+.links a{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;font-size:13px;font-weight:700}
+.links a i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.tl{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+.tl li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}
+.tl .n{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tl .d{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tl .ft{display:block;font-size:12px;color:var(--muted)}
+.tl .ft a{color:var(--blue);text-decoration:none}
+.note{font-size:12.5px;color:var(--muted);margin-top:14px}
+h3.sec{font-size:13px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:22px 0 8px;font-weight:600}
+/* artists */
+.alist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.arow{display:flex;gap:12px;align-items:center;padding:8px;border-radius:10px;background:var(--paper);border:1px solid var(--line);text-decoration:none;min-width:0}
+.arow:hover{border-color:var(--ink)}
+.stack{position:relative;width:52px;height:52px;flex:none}
+.stack .cover{position:absolute;width:44px;height:44px;border-radius:3px}
+.stack .cover:nth-child(1){left:8px;top:0;opacity:.55}
+.stack .cover:nth-child(2){left:0;top:8px}
+.arow .nm{font-weight:800;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arow .sub{font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.arow > div:last-child{min-width:0}
+.letters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.letters button{border:0;background:var(--chip);border-radius:6px;width:30px;height:30px;font-weight:700;cursor:pointer;font-size:13px}
+.letters button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.apage-head{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:16px}
+.apage-head h1{font-stretch:62%;font-weight:900;font-size:clamp(40px,9vw,90px);line-height:.88;text-transform:uppercase}
+.back{display:inline-block;margin-bottom:12px;color:var(--blue);text-decoration:none;font-weight:700;font-size:14px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px}
+.tile b{display:block;font-family:var(--f-display);font-stretch:72%;font-weight:800;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums}
+.apptable{width:100%;border-collapse:collapse;font-size:14px}
+.apptable td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.apptable td:first-child{font-family:var(--f-mono);font-size:12px;color:var(--muted);width:48px}
+.apptable a{color:var(--blue);text-decoration:none;font-weight:600}
+.scroll{overflow-x:auto}
+/* stats */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.panel h2{font-size:18px;font-stretch:80%;font-weight:800;margin-bottom:12px}
+.bars{display:flex;flex-direction:column;gap:6px}
+.brow{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) 3.2em;gap:8px;align-items:center;font-size:13px}
+.brow .bl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .bl a{color:inherit;text-decoration:none}
+.brow .bl a:hover{color:var(--blue)}
+.brow .track{height:14px;background:var(--chip);border-radius:3px;overflow:hidden}
+.brow .fill{height:100%;background:var(--ink);border-radius:3px}
+.brow .v{font-family:var(--f-mono);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.brow.hl .fill{background:var(--accent)}
+.cols{display:flex;align-items:flex-end;gap:6px;height:180px;padding-top:18px}
+.cols .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;min-width:0;cursor:pointer;background:none;border:0;padding:0}
+.cols .c .col{width:100%;background:var(--ink);border-radius:3px 3px 0 0;position:relative}
+.cols .c:hover .col{background:var(--accent)}
+.cols .c span{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.cols .c em{font-style:normal;font-family:var(--f-mono);font-size:11px;font-weight:600}
+footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);font-size:12.5px}
+</style>
+
+<header class="top"><div class="wrap bar">
+  <a class="brand" href="#alben"><b>Deutschrap Archiv</b><span>00—09</span></a>
+  <nav class="tabs" aria-label="Bereiche">
+    <a href="#alben" data-tab="alben">Alben</a>
+    <a href="#artists" data-tab="artists">Artists</a>
+    <a href="#stats" data-tab="stats">Stats</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="view" id="v-alben">
+    <div class="intro">
+      <div>
+        <h1>Deutschrap<br><em>2000–2009</em></h1>
+        <p>Alben, EPs, Mixtapes und Sampler aus Deutschland, Österreich und der Schweiz. Mit Covern, Tracklisten, Gastparts, Producern und Links zum Reinhören.</p>
+      </div>
+      <div class="counter" id="counter"></div>
+    </div>
+    <div class="controls">
+      <div class="searchrow">
+        <label class="search" for="q">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input id="q" type="search" placeholder="Album, Artist, Song oder Producer suchen" autocomplete="off">
+        </label>
+        <select id="land" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select>
+        <select id="typ" aria-label="Release-Typ"></select>
+        <select id="sort" aria-label="Sortierung"><option value="year">Nach Jahr</option><option value="title">Album A–Z</option><option value="artist">Artist A–Z</option></select>
+      </div>
+      <div class="chips" id="genres" role="group" aria-label="Genre-Filter"></div>
+      <div class="years" id="years" role="group" aria-label="Jahr"></div>
+      <div class="resultinfo"><span id="rinfo"></span><button class="linkbtn" id="reset" type="button">Filter zurücksetzen</button></div>
+    </div>
+    <div id="crate"></div>
+  </section>
+
+  <section class="view" id="v-artists" hidden></section>
+  <section class="view" id="v-artist" hidden></section>
+  <section class="view" id="v-stats" hidden></section>
+</main>
+
+<footer><div class="wrap" id="foot"></div></footer>
+
+<div class="sheet-bg" id="sheetbg" hidden></div>
+<aside class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Album-Details"></aside>
+
+<script>
+const DATA = /*DATA*/;
+</script>
+<script>
+(function(){
+const A = DATA.albums, AR = DATA.artists;
+const byId = new Map(A.map(a=>[a.id,a]));
+const arBy = new Map(AR.map(a=>[a.slug,a]));
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LAND = {DE:'Deutschland',AT:'Österreich',CH:'Schweiz'};
+const PALETTE = ['#2d55c8','#e0412b','#1f8a5b','#7a3fd1','#c2851b','#14161a','#b8326a','#0f7c8c','#5b6b1e','#8a2f1f'];
+function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)}
+function cover(a,size){
+  if(a.cover) return `<div class="cover"><img src="${a.cover}" alt="Cover: ${esc(a.title)} von ${esc(a.artist)}" loading="lazy" decoding="async" width="${size}" height="${size}"></div>`;
+  const h=hash(a.artist+a.title), c1=PALETTE[h%PALETTE.length], c2=PALETTE[(h>>3)%PALETTE.length];
+  const ang=(h%4)*45;
+  return `<div class="cover" role="img" aria-label="Kein Cover verfügbar: ${esc(a.title)}"><div class="gen" style="background:linear-gradient(${ang}deg,${c1},${c1} 55%,${c2===c1?'#14161a':c2})"><i>${esc(a.artist)}</i><b>${esc(a.title)}</b><i>${a.year} · ${esc(a.type)}</i></div></div>`;
+}
+function artistLinks(names){return names.map(n=>{const s=DATA.slugOf[n];return s?`<a href="#artist-${s}">${esc(n)}</a>`:esc(n)}).join(', ')}
+const fmt = ms=>{if(!ms)return'';const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+
+/* ---------- state ---------- */
+const st={q:'',genres:new Set(),year:'',land:'',typ:'',sort:'year',limit:120};
+try{const s=JSON.parse(localStorage.getItem('dra-filter')||'{}');if(s.sort)st.sort=s.sort;}catch(e){}
+
+/* ---------- counter ---------- */
+const nTracks=A.reduce((s,a)=>s+(a.tracks?a.tracks.length:0),0);
+$('#counter').innerHTML=[[A.length,'Releases'],[AR.length,'Artists'],[nTracks.toLocaleString('de-DE'),'Songs']].map(([v,l])=>`<div><b>${v}</b><span class="label">${l}</span></div>`).join('');
+
+/* ---------- filters ---------- */
+const gCount={};A.forEach(a=>a.genres.forEach(g=>gCount[g]=(gCount[g]||0)+1));
+const GEN=Object.keys(gCount).sort((a,b)=>gCount[b]-gCount[a]);
+$('#genres').innerHTML=GEN.map(g=>`<button type="button" class="chip" data-g="${esc(g)}" aria-pressed="false">${esc(g)}<small>${gCount[g]}</small></button>`).join('');
+const TYPES=[...new Set(A.map(a=>a.type))].sort();
+$('#typ').innerHTML='<option value="">Alle Typen</option>'+TYPES.map(t=>`<option>${esc(t)}</option>`).join('');
+$('#years').innerHTML='<button type="button" data-y="" aria-pressed="true">Alle</button>'+[...Array(10)].map((_,i)=>`<button type="button" data-y="${2000+i}" aria-pressed="false">${2000+i}</button>`).join('');
+$('#sort').value=st.sort;
+
+function matches(a){
+  if(st.year && a.year!=+st.year) return false;
+  if(st.land && a.land!==st.land) return false;
+  if(st.typ && a.type!==st.typ) return false;
+  if(st.genres.size && ![...st.genres].every(g=>a.genres.includes(g))) return false;
+  if(st.q){const terms=st.q.toLowerCase().split(/\s+/).filter(Boolean);return terms.every(t=>a._s.includes(t));}
+  return true;
+}
+A.forEach(a=>{a._s=[a.title,a.artist,a.label,a.producers.join(' '),a.genres.join(' '),a.year,(a.tracks||[]).map(t=>t.t).join(' '),a.guests.join(' ')].join(' ').toLowerCase()});
+
+function card(a){
+  return `<a class="card" href="#album-${a.id}">${cover(a,180)}<div class="meta"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="g"><span class="flag">${a.land}</span>${a.type!=='Album'?esc(a.type)+' · ':''}${esc(a.genres.slice(0,2).join(' / '))}</div></div></a>`;
+}
+function renderAlben(){
+  let list=A.filter(matches);
+  const cmp={year:(x,y)=>x.year-y.year||x.artist.localeCompare(y.artist,'de')||x.title.localeCompare(y.title,'de'),
+    title:(x,y)=>x.title.localeCompare(y.title,'de'),artist:(x,y)=>x.artist.localeCompare(y.artist,'de')||x.year-y.year}[st.sort];
+  list.sort(cmp);
+  $('#rinfo').textContent=list.length===A.length?`Alle ${A.length} Releases`:`${list.length} von ${A.length} Releases`;
+  $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.typ);
+  if(!list.length){$('#crate').innerHTML='<div class="empty">Nichts gefunden. Probier einen anderen Suchbegriff oder nimm einen Filter raus.</div>';return}
+  const shown=list.slice(0,st.limit);
+  let html='';
+  if(st.sort==='year'){
+    const groups={};shown.forEach(a=>(groups[a.year]=groups[a.year]||[]).push(a));
+    const total={};list.forEach(a=>total[a.year]=(total[a.year]||0)+1);
+    for(const y of Object.keys(groups).sort()) html+=`<div class="divider"><h2>${y}</h2><span>${total[y]} Releases</span></div><div class="grid">${groups[y].map(card).join('')}</div>`;
+  } else html=`<div class="grid" style="margin-top:8px">${shown.map(card).join('')}</div>`;
+  if(list.length>st.limit) html+=`<div class="more"><button class="btn" type="button" id="moreBtn">${Math.min(120,list.length-st.limit)} weitere laden</button></div>`;
+  $('#crate').innerHTML=html;
+  const mb=$('#moreBtn'); if(mb) mb.onclick=()=>{st.limit+=120;renderAlben()};
+}
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim();st.limit=120;renderAlben()},120)});
+$('#genres').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const g=b.dataset.g;st.genres.has(g)?st.genres.delete(g):st.genres.add(g);b.setAttribute('aria-pressed',st.genres.has(g));st.limit=120;renderAlben()});
+$('#years').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.year=b.dataset.y;document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x===b));st.limit=120;renderAlben()});
+$('#land').onchange=e=>{st.land=e.target.value;renderAlben()};
+$('#typ').onchange=e=>{st.typ=e.target.value;renderAlben()};
+$('#sort').onchange=e=>{st.sort=e.target.value;try{localStorage.setItem('dra-filter',JSON.stringify({sort:st.sort}))}catch(_){};renderAlben()};
+$('#reset').onclick=()=>{st.q='';st.genres.clear();st.year='';st.land='';st.typ='';$('#q').value='';$('#land').value='';$('#typ').value='';
+  document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
+  document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.y===''));renderAlben()};
+function setGenre(g){$('#reset').click();st.genres.add(g);document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.g===g));renderAlben()}
+function setYear(y){$('#reset').click();st.year=String(y);document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.y==String(y)));renderAlben()}
+
+/* ---------- album sheet ---------- */
+function links(a){
+  const q=encodeURIComponent(a.artist+' '+a.title);
+  const L=[];
+  if(a.apple) L.push(['Apple Music / iTunes',a.apple,'#fa2d48']); else L.push(['Apple Music suchen','https://music.apple.com/de/search?term='+q,'#fa2d48']);
+  L.push(['Spotify','https://open.spotify.com/search/'+q,'#1db954']);
+  L.push(['YouTube','https://www.youtube.com/results?search_query='+q,'#ff0000']);
+  L.push(['Deezer','https://www.deezer.com/search/'+q,'#a238ff']);
+  L.push(['Discogs','https://www.discogs.com/search/?type=all&q='+q,'#888']);
+  L.push(['Genius','https://genius.com/search?q='+q,'#e8d000']);
+  return L.map(([n,u,c])=>`<a href="${u}" target="_blank" rel="noopener"><i style="background:${c}"></i>${n}</a>`).join('');
+}
+function openAlbum(id){
+  const a=byId.get(id); if(!a) return false;
+  const tl=(a.tracks||[]);
+  const multi=new Set(tl.map(t=>t.d)).size>1;
+  const tracks=tl.length?`<ol class="tl">${tl.map(t=>`<li><span class="n">${multi?t.d+'.':''}${t.n}</span><span>${esc(t.t)}${t.f&&t.f.length?`<span class="ft">feat. ${artistLinks(t.f)}</span>`:''}</span><span class="d">${fmt(t.ms)}</span></li>`).join('')}</ol>`
+    :`<p class="note">Für diesen Release ist noch keine Tracklist erfasst. Über Discogs oder YouTube findest du sie meistens.</p>`;
+  const dur=tl.reduce((s,t)=>s+(t.ms||0),0);
+  $('#sheet').innerHTML=`<button class="close" type="button" aria-label="Schließen" id="closeSheet">×</button>
+  <div class="ahead">${cover(a,300)}<div><div class="label">${esc(a.type)} · ${a.year} · ${LAND[a.land]}</div><h2>${esc(a.title)}</h2><div class="by">${artistLinks(a.artists)}</div></div></div>
+  <dl class="facts">
+    <dt>Genre</dt><dd>${a.genres.map(g=>`<a href="#alben" data-genre="${esc(g)}">${esc(g)}</a>`).join(', ')}</dd>
+    <dt>Producer</dt><dd>${a.producers.length?artistLinks(a.producers):'<span style="color:var(--muted)">nicht erfasst</span>'}</dd>
+    <dt>Label</dt><dd>${esc(a.label)||'<span style="color:var(--muted)">nicht erfasst</span>'}</dd>
+    ${a.guests.length?`<dt>Gäste</dt><dd>${artistLinks(a.guests)}</dd>`:''}
+    ${tl.length?`<dt>Länge</dt><dd>${tl.length} Tracks · ${Math.round(dur/60000)} Min.</dd>`:''}
+    ${a.note?`<dt>Notiz</dt><dd>${esc(a.note)}</dd>`:''}
+  </dl>
+  <h3 class="sec">Anhören &amp; nachschlagen</h3><div class="links">${links(a)}</div>
+  <h3 class="sec">Tracklist</h3>${tracks}
+  <p class="note">${a.src==='itunes'?'Cover, Tracklist und Erscheinungsjahr stammen aus dem iTunes-Katalog. Jahreszahlen von Neuauflagen können abweichen.':'Dieser Release ist nicht im iTunes-Katalog. Die Angaben stammen aus dem Archiv selbst, ohne Gewähr.'}</p>`;
+  $('#sheet').hidden=false;$('#sheetbg').hidden=false;document.body.style.overflow='hidden';$('#sheet').scrollTop=0;
+  $('#closeSheet').onclick=closeSheet;$('#closeSheet').focus({preventScroll:true});
+  return true;
+}
+let lastView='alben';
+function closeSheet(){ $('#sheet').hidden=true;$('#sheetbg').hidden=true;document.body.style.overflow='';
+  if(location.hash.startsWith('#album-')) history.replaceState(null,'','#'+lastView); }
+$('#sheetbg').onclick=closeSheet;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#sheet').hidden)closeSheet()});
+$('#sheet').addEventListener('click',e=>{const g=e.target.closest('[data-genre]');if(g){e.preventDefault();closeSheet();location.hash='#alben';setGenre(g.dataset.genre)}
+  const l=e.target.closest('a[href^="#artist-"]');if(l){closeSheet()}});
+
+/* ---------- artists ---------- */
+const ast={q:'',letter:'',role:''};
+function renderArtists(){
+  const v=$('#v-artists');
+  if(!v.dataset.built){
+    const letters=[...new Set(AR.map(a=>a.letter))].sort();
+    v.innerHTML=`<div class="intro"><div><h1>Artists</h1><p>Rapper:innen, Crews, Producer und Gäste. Jede Seite zeigt eigene Releases, Features und Produktionen.</p></div></div>
+    <div class="controls"><div class="searchrow"><label class="search" for="aq"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="aq" type="search" placeholder="Artist suchen" autocomplete="off"></label>
+    <select id="arole" aria-label="Rolle"><option value="">Alle Rollen</option><option value="main">Mit eigenen Releases</option><option value="feat">Nur Features</option><option value="prod">Producer</option></select>
+    <select id="aland" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select></div>
+    <div class="letters" id="letters"><button type="button" data-l="" aria-pressed="true">#</button>${letters.map(l=>`<button type="button" data-l="${l}" aria-pressed="false">${l}</button>`).join('')}</div>
+    <div class="resultinfo" style="margin-bottom:10px"><span id="ainfo"></span></div></div><div class="alist" id="alist"></div>`;
+    v.dataset.built=1;
+    $('#aq').oninput=e=>{ast.q=e.target.value.trim().toLowerCase();drawA()};
+    $('#arole').onchange=e=>{ast.role=e.target.value;drawA()};
+    $('#aland').onchange=e=>{ast.land=e.target.value;drawA()};
+    $('#letters').onclick=e=>{const b=e.target.closest('button');if(!b)return;ast.letter=b.dataset.l;document.querySelectorAll('#letters button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawA()};
+  }
+  drawA();
+}
+function drawA(){
+  let l=AR.filter(a=>(!ast.q||a.name.toLowerCase().includes(ast.q))&&(!ast.letter||a.letter===ast.letter)&&(!ast.land||a.land===ast.land)
+    &&(!ast.role||(ast.role==='main'&&a.main.length)||(ast.role==='feat'&&!a.main.length&&a.feats.length)||(ast.role==='prod'&&a.prod.length)));
+  l.sort((x,y)=>(y.main.length*3+y.feats.length+y.prod.length)-(x.main.length*3+x.feats.length+x.prod.length)||x.name.localeCompare(y.name,'de'));
+  $('#ainfo').textContent=`${l.length} Artists`;
+  const shown=l.slice(0,300);
+  $('#alist').innerHTML=shown.map(a=>{
+    const cv=a.main.slice(0,2).map(id=>byId.get(id)).concat(a.feats.slice(0,2).map(f=>byId.get(f.id))).filter(Boolean).slice(0,2);
+    const parts=[];if(a.main.length)parts.push(a.main.length+' Releases');if(a.feats.length)parts.push(a.feats.length+' Features');if(a.prod.length)parts.push(a.prod.length+' Prod.');
+    return `<a class="arow" href="#artist-${a.slug}"><div class="stack">${cv.length?cv.map(x=>cover(x,44)).join(''):'<div class="cover"></div>'}</div><div><div class="nm">${esc(a.name)}</div><div class="sub">${a.land?a.land+' · ':''}${parts.join(' · ')}</div></div></a>`}).join('')+(l.length>300?`<p class="note">${l.length-300} weitere. Nutze die Suche oder die Buchstaben.</p>`:'');
+}
+function renderArtist(slug){
+  const a=arBy.get(slug); const v=$('#v-artist'); if(!a){v.innerHTML='<div class="empty">Artist nicht gefunden.</div>';return}
+  const main=a.main.map(id=>byId.get(id)).sort((x,y)=>x.year-y.year);
+  const years=[...main.map(x=>x.year),...a.feats.map(f=>byId.get(f.id).year),...a.prod.map(id=>byId.get(id).year)];
+  const span=years.length?Math.min(...years)+'–'+Math.max(...years):'–';
+  const gc={};main.forEach(x=>x.genres.forEach(g=>gc[g]=(gc[g]||0)+1));
+  const topG=Object.entries(gc).sort((x,y)=>y[1]-x[1]).map(x=>x[0]).slice(0,3);
+  const songs=main.reduce((s,x)=>s+(x.tracks||[]).length,0);
+  const collab={};
+  main.forEach(x=>(x.tracks||[]).forEach(t=>(t.f||[]).forEach(n=>collab[n]=(collab[n]||0)+1)));
+  a.feats.forEach(f=>{const al=byId.get(f.id);al.artists.forEach(n=>{if(n!==a.name)collab[n]=(collab[n]||0)+1})});
+  const topC=Object.entries(collab).sort((x,y)=>y[1]-x[1]).slice(0,8);
+  const featRows=a.feats.slice().sort((x,y)=>byId.get(x.id).year-byId.get(y.id).year).map(f=>{const al=byId.get(f.id);return `<tr><td>${al.year}</td><td>${esc(f.t)}<br><span style="color:var(--muted);font-size:13px">auf <a href="#album-${al.id}">${esc(al.title)}</a> von ${artistLinks(al.artists)}</span></td></tr>`}).join('');
+  const prodRows=a.prod.map(id=>byId.get(id)).sort((x,y)=>x.year-y.year).map(al=>`<tr><td>${al.year}</td><td><a href="#album-${al.id}">${esc(al.title)}</a> <span style="color:var(--muted)">von ${esc(al.artist)}</span></td></tr>`).join('');
+  const max=Math.max(1,...topC.map(x=>x[1]));
+  v.innerHTML=`<a class="back" href="#artists">← Alle Artists</a>
+  <div class="apage-head"><div><div class="label">${a.land?LAND[a.land]:'Artist'}${topG.length?' · '+topG.join(' / '):''}</div><h1>${esc(a.name)}</h1></div>
+  <div class="links" style="margin:0"><a href="https://open.spotify.com/search/${encodeURIComponent(a.name)}" target="_blank" rel="noopener"><i style="background:#1db954"></i>Spotify</a><a href="${a.apple||'https://music.apple.com/de/search?term='+encodeURIComponent(a.name)}" target="_blank" rel="noopener"><i style="background:#fa2d48"></i>Apple Music</a><a href="https://www.discogs.com/search/?type=artist&q=${encodeURIComponent(a.name)}" target="_blank" rel="noopener"><i style="background:#888"></i>Discogs</a></div></div>
+  <div class="tiles">
+    <div class="tile"><b>${main.length}</b><span class="label">Eigene Releases</span></div>
+    <div class="tile"><b>${a.feats.length}</b><span class="label">Gastparts</span></div>
+    <div class="tile"><b>${a.prod.length}</b><span class="label">Produktionen</span></div>
+    <div class="tile"><b>${songs}</b><span class="label">Songs auf eig. Releases</span></div>
+    <div class="tile"><b style="font-size:24px">${span}</b><span class="label">Aktiv im Archiv</span></div>
+  </div>
+  ${main.length?`<h3 class="sec">Releases</h3><div class="grid">${main.map(card).join('')}</div>`:''}
+  ${topC.length?`<h3 class="sec">Häufigste Kollaborationen</h3><div class="panel"><div class="bars">${topC.map(([n,c])=>`<div class="brow"><span class="bl">${artistLinks([n])}</span><span class="track"><span class="fill" style="display:block;width:${c/max*100}%"></span></span><span class="v">${c}</span></div>`).join('')}</div></div>`:''}
+  ${featRows?`<h3 class="sec">Gastparts auf anderen Releases</h3><div class="scroll"><table class="apptable">${featRows}</table></div>`:''}
+  ${prodRows?`<h3 class="sec">Als Producer</h3><div class="scroll"><table class="apptable">${prodRows}</table></div>`:''}`;
+}
+
+/* ---------- stats ---------- */
+function bars(entries,linkFn,hl){const max=Math.max(...entries.map(e=>e[1]));return `<div class="bars">${entries.map(([k,v])=>`<div class="brow${hl&&hl(k)?' hl':''}"><span class="bl">${linkFn?linkFn(k):esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v/max*100}%"></span></span><span class="v">${v}</span></div>`).join('')}</div>`}
+function renderStats(){
+  const v=$('#v-stats'); if(v.dataset.built) return; v.dataset.built=1;
+  const perY={};A.forEach(a=>perY[a.year]=(perY[a.year]||0)+1);
+  const maxY=Math.max(...Object.values(perY));
+  const land={};A.forEach(a=>land[LAND[a.land]]=(land[LAND[a.land]]||0)+1);
+  const typ={};A.forEach(a=>typ[a.type]=(typ[a.type]||0)+1);
+  const top=(arr,n)=>Object.entries(arr).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0],'de')).slice(0,n);
+  const ar=AR.slice();
+  const mostRel=ar.filter(a=>a.main.length).sort((x,y)=>y.main.length-x.main.length).slice(0,12).map(a=>[a.name,a.main.length]);
+  const mostFeat=ar.filter(a=>a.feats.length).sort((x,y)=>y.feats.length-x.feats.length).slice(0,12).map(a=>[a.name,a.feats.length]);
+  const mostProd=ar.filter(a=>a.prod.length).sort((x,y)=>y.prod.length-x.prod.length).slice(0,12).map(a=>[a.name,a.prod.length]);
+  const lab={};A.forEach(a=>{if(a.label)lab[a.label]=(lab[a.label]||0)+1});
+  const longest=A.filter(a=>a.tracks&&a.tracks.length).map(a=>[a,a.tracks.reduce((s,t)=>s+(t.ms||0),0)]).sort((x,y)=>y[1]-x[1]).slice(0,8);
+  const featRate=A.filter(a=>a.tracks&&a.tracks.length>5).map(a=>[a,a.tracks.filter(t=>t.f&&t.f.length).length]).sort((x,y)=>y[1]-x[1]).slice(0,8);
+  const al=k=>{const s=DATA.slugOf[k];return s?`<a href="#artist-${s}">${esc(k)}</a>`:esc(k)};
+  const genreYear=GEN.slice(0,6).map(g=>{const c={};A.filter(a=>a.genres.includes(g)).forEach(a=>c[a.year]=(c[a.year]||0)+1);return [g,c]});
+  const gmax=Math.max(...genreYear.flatMap(([g,c])=>Object.values(c)));
+  v.innerHTML=`<div class="intro"><div><h1>Stats</h1><p>Zahlen über das ganze Archiv. Tipp auf ein Jahr oder ein Genre, um die passenden Releases zu sehen.</p></div></div>
+  <div class="sgrid">
+    <div class="panel" style="grid-column:1/-1"><h2>Releases pro Jahr</h2><div class="cols">${Object.keys(perY).sort().map(y=>`<button type="button" class="c" data-year="${y}" aria-label="${perY[y]} Releases in ${y}"><em>${perY[y]}</em><span class="col" style="height:${perY[y]/maxY*100}%"></span><span>${String(y).slice(2)}</span></button>`).join('')}</div></div>
+    <div class="panel"><h2>Genres</h2>${bars(top(gCount,14),k=>`<a href="#alben" data-genre="${esc(k)}">${esc(k)}</a>`)}</div>
+    <div class="panel"><h2>Genres im Zeitverlauf</h2><div class="scroll"><table class="apptable" style="font-size:12px"><tr><td></td>${[...Array(10)].map((_,i)=>`<td style="text-align:center;width:auto">${String(i).padStart(2,'0')}</td>`).join('')}</tr>${genreYear.map(([g,c])=>`<tr><td style="font-family:var(--f-body);color:var(--ink);width:auto;white-space:nowrap">${esc(g)}</td>${[...Array(10)].map((_,i)=>{const n=c[2000+i]||0;return `<td style="text-align:center;width:auto"><span title="${n}" style="display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--accent);opacity:${n?0.15+0.85*n/gmax:0.06}"></span></td>`}).join('')}</tr>`).join('')}</table></div><p class="note">Je kräftiger der Punkt, desto mehr Releases im Jahr (00 = 2000).</p></div>
+    <div class="panel"><h2>Länder</h2>${bars(top(land,3))}<h2 style="margin-top:18px">Release-Typen</h2>${bars(top(typ,10))}</div>
+    <div class="panel"><h2>Meiste Releases</h2>${bars(mostRel,al)}</div>
+    <div class="panel"><h2>Meiste Gastparts</h2>${bars(mostFeat,al)}</div>
+    ${mostProd.length?`<div class="panel"><h2>Meiste Produktionen (erfasst)</h2>${bars(mostProd,al)}</div>`:''}
+    <div class="panel"><h2>Labels</h2>${bars(top(lab,12))}</div>
+    <div class="panel"><h2>Längste Releases</h2>${bars(longest.map(([a,ms])=>[a.id,Math.round(ms/60000)]),id=>{const a=byId.get(id);return `<a href="#album-${id}">${esc(a.title)}</a>`})}<p class="note">in Minuten</p></div>
+    <div class="panel"><h2>Meiste Features auf einem Release</h2>${bars(featRate.map(([a,n])=>[a.id,n]),id=>{const a=byId.get(id);return `<a href="#album-${id}">${esc(a.title)}</a>`})}<p class="note">Anzahl Tracks mit Gästen</p></div>
+  </div>`;
+  v.addEventListener('click',e=>{const y=e.target.closest('[data-year]');if(y){location.hash='#alben';setYear(y.dataset.year)}
+    const g=e.target.closest('[data-genre]');if(g){e.preventDefault();location.hash='#alben';setGenre(g.dataset.genre)}});
+}
+
+/* ---------- router ---------- */
+function show(view){document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+view);
+  document.querySelectorAll('nav.tabs a').forEach(a=>a.toggleAttribute('aria-current',false));
+  const t=view==='artist'?'artists':view;const el=document.querySelector(`nav.tabs a[data-tab="${t}"]`);if(el)el.setAttribute('aria-current','page')}
+function route(){
+  const h=location.hash.slice(1)||'alben';
+  if(h.startsWith('album-')){ if(openAlbum(h.slice(6))) { if(document.querySelector('.view:not([hidden])')==null) show('alben'); return } }
+  if(!$('#sheet').hidden){$('#sheet').hidden=true;$('#sheetbg').hidden=true;document.body.style.overflow=''}
+  if(h.startsWith('artist-')){show('artist');renderArtist(h.slice(7));lastView=h;window.scrollTo(0,0);return}
+  if(h==='artists'){show('artists');renderArtists();lastView=h;return}
+  if(h==='stats'){show('stats');renderStats();lastView=h;return}
+  show('alben');lastView='alben';
+}
+window.addEventListener('hashchange',route);
+$('#foot').innerHTML=`Deutschrap Archiv 2000–2009 · ${A.length} Releases von ${new Set(A.map(a=>a.artist)).size} Artists · Stand ${esc(DATA.built)}. Cover, Tracklisten und Apple-Music-Links aus dem iTunes-Katalog, Genres, Producer und fehlende Releases aus eigener Recherche. Die Spotify-, YouTube-, Deezer-, Discogs- und Genius-Links öffnen eine Suche nach dem Album. Das Archiv ist nicht vollständig.`;
+renderAlben();route();
+})();
+</script>
