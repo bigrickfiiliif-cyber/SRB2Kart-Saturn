@@ -4,6 +4,10 @@ raw=json.load(open('raw.json'))
 tr=json.load(open('tracks.json')) if __import__('os').path.exists('tracks.json') else {}
 sel=[r for r in select(raw) if str(r['collectionId']) not in tr]
 groups={}
+if __import__('os').path.exists('mbres.json'):
+    for v in json.load(open('mbres.json')).values():
+        x=v.get('itunes')
+        if x and str(x['collectionId']) not in tr: groups.setdefault(v['itc'],[]).append(str(x['collectionId']))
 for r in sel: groups.setdefault(raw['artists'][r['_seed']]['country'],[]).append(str(r['collectionId']))
 jobs=[(c,v[i:i+12]) for c,v in groups.items() for i in range(0,len(v),12)]
 print(len(sel),'to fetch',len(jobs),'calls')

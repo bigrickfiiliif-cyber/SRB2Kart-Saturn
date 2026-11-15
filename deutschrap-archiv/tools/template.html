@@ -72,13 +72,14 @@ select{background:var(--paper);border:1px solid var(--line);border-radius:10px;p
 .card{display:flex;flex-direction:column;gap:7px;text-decoration:none;min-width:0;cursor:pointer;background:none;border:0;padding:0;text-align:left}
 .cover{position:relative;aspect-ratio:1;width:100%;max-width:100%;border-radius:4px;overflow:hidden;background:var(--chip);box-shadow:var(--shadow)}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
+.spr{width:100%;height:100%;background-size:800% 800%;background-repeat:no-repeat}
 .card:hover .cover{transform:translateY(-2px)}
 .cover{transition:transform .15s}
 @media (prefers-reduced-motion:reduce){.cover{transition:none}}
 .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:10%;color:#fff;font-family:var(--f-display)}
 .gen b{font-stretch:65%;font-weight:900;font-size:clamp(14px,2.2vw,22px);line-height:.95;text-transform:uppercase;word-break:break-word}
 .gen i{font-style:normal;font-family:var(--f-mono);font-size:10px;opacity:.85}
-.badge{position:absolute;left:6px;top:6px;font-family:var(--f-mono);font-size:10px;font-weight:600;background:var(--paper);color:var(--ink);padding:1px 6px;border-radius:3px}
+.badge{position:absolute;left:6px;top:6px;z-index:1;box-shadow:0 1px 3px rgba(0,0,0,.3);font-family:var(--f-mono);font-size:10px;font-weight:600;background:var(--paper);color:var(--ink);padding:1px 6px;border-radius:3px}
 .meta{min-width:0}
 .meta .t{font-weight:700;font-size:14px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .meta .a{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -185,6 +186,7 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
         </label>
         <select id="land" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select>
         <select id="typ" aria-label="Release-Typ"></select>
+        <select id="avail" aria-label="Verfügbarkeit"><option value="">Digital &amp; physisch</option><option value="digital">Digital verfügbar</option><option value="phys">Nicht digital (nur CD/Vinyl/Tape)</option><option value="late">Erst später digital</option></select>
         <select id="sort" aria-label="Sortierung"><option value="year">Nach Jahr</option><option value="title">Album A–Z</option><option value="artist">Artist A–Z</option></select>
       </div>
       <div class="chips" id="genres" role="group" aria-label="Genre-Filter"></div>
@@ -218,7 +220,7 @@ const LAND = {DE:'Deutschland',AT:'Österreich',CH:'Schweiz'};
 const PALETTE = ['#2d55c8','#e0412b','#1f8a5b','#7a3fd1','#c2851b','#14161a','#b8326a','#0f7c8c','#5b6b1e','#8a2f1f'];
 function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return Math.abs(h)}
 function cover(a,size){
-  if(a.cover) return `<div class="cover"><img src="${a.cover}" alt="Cover: ${esc(a.title)} von ${esc(a.artist)}" loading="lazy" decoding="async" width="${size}" height="${size}"></div>`;
+  if(a.cover) return `<div class="cover" role="img" aria-label="Cover: ${esc(a.title)} von ${esc(a.artist)}"><div class="spr" style="background-image:url(sprites/s${a.cover[0]}.jpg);background-position:${(a.cover[1]%8)*100/7}% ${Math.floor(a.cover[1]/8)*100/7}%"></div></div>`;
   const h=hash(a.artist+a.title), c1=PALETTE[h%PALETTE.length], c2=PALETTE[(h>>3)%PALETTE.length];
   const ang=(h%4)*45;
   return `<div class="cover" role="img" aria-label="Kein Cover verfügbar: ${esc(a.title)}"><div class="gen" style="background:linear-gradient(${ang}deg,${c1},${c1} 55%,${c2===c1?'#14161a':c2})"><i>${esc(a.artist)}</i><b>${esc(a.title)}</b><i>${a.year} · ${esc(a.type)}</i></div></div>`;
@@ -227,7 +229,7 @@ function artistLinks(names){return names.map(n=>{const s=DATA.slugOf[n];return s
 const fmt = ms=>{if(!ms)return'';const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 
 /* ---------- state ---------- */
-const st={q:'',genres:new Set(),year:'',land:'',typ:'',sort:'year',limit:120};
+const st={q:'',genres:new Set(),year:'',land:'',typ:'',avail:'',sort:'year',limit:120};
 try{const s=JSON.parse(localStorage.getItem('dra-filter')||'{}');if(s.sort)st.sort=s.sort;}catch(e){}
 
 /* ---------- counter ---------- */
@@ -247,6 +249,9 @@ function matches(a){
   if(st.year && a.year!=+st.year) return false;
   if(st.land && a.land!==st.land) return false;
   if(st.typ && a.type!==st.typ) return false;
+  if(st.avail==='digital' && a.src!=='itunes') return false;
+  if(st.avail==='phys' && a.src==='itunes') return false;
+  if(st.avail==='late' && !a.late) return false;
   if(st.genres.size && ![...st.genres].every(g=>a.genres.includes(g))) return false;
   if(st.q){const terms=st.q.toLowerCase().split(/\s+/).filter(Boolean);return terms.every(t=>a._s.includes(t));}
   return true;
@@ -254,7 +259,8 @@ function matches(a){
 A.forEach(a=>{a._s=[a.title,a.artist,a.label,a.producers.join(' '),a.genres.join(' '),a.year,(a.tracks||[]).map(t=>t.t).join(' '),a.guests.join(' ')].join(' ').toLowerCase()});
 
 function card(a){
-  return `<a class="card" href="#album-${a.id}">${cover(a,180)}<div class="meta"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="g"><span class="flag">${a.land}</span>${a.type!=='Album'?esc(a.type)+' · ':''}${esc(a.genres.slice(0,2).join(' / '))}</div></div></a>`;
+  const bd=a.src!=='itunes'?'<span class="badge">nicht digital</span>':a.late?`<span class="badge">digital ${a.late}</span>`:'';
+  return `<a class="card" href="#album-${a.id}"><div style="position:relative">${cover(a,180)}${bd}</div><div class="meta"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="g"><span class="flag">${a.land}</span>${a.type!=='Album'?esc(a.type)+' · ':''}${esc(a.genres.slice(0,2).join(' / '))}</div></div></a>`;
 }
 function renderAlben(){
   let list=A.filter(matches);
@@ -262,7 +268,7 @@ function renderAlben(){
     title:(x,y)=>x.title.localeCompare(y.title,'de'),artist:(x,y)=>x.artist.localeCompare(y.artist,'de')||x.year-y.year}[st.sort];
   list.sort(cmp);
   $('#rinfo').textContent=list.length===A.length?`Alle ${A.length} Releases`:`${list.length} von ${A.length} Releases`;
-  $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.typ);
+  $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.typ||st.avail);
   if(!list.length){$('#crate').innerHTML='<div class="empty">Nichts gefunden. Probier einen anderen Suchbegriff oder nimm einen Filter raus.</div>';return}
   const shown=list.slice(0,st.limit);
   let html='';
@@ -280,8 +286,9 @@ $('#genres').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!
 $('#years').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.year=b.dataset.y;document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x===b));st.limit=120;renderAlben()});
 $('#land').onchange=e=>{st.land=e.target.value;renderAlben()};
 $('#typ').onchange=e=>{st.typ=e.target.value;renderAlben()};
+$('#avail').onchange=e=>{st.avail=e.target.value;renderAlben()};
 $('#sort').onchange=e=>{st.sort=e.target.value;try{localStorage.setItem('dra-filter',JSON.stringify({sort:st.sort}))}catch(_){};renderAlben()};
-$('#reset').onclick=()=>{st.q='';st.genres.clear();st.year='';st.land='';st.typ='';$('#q').value='';$('#land').value='';$('#typ').value='';
+$('#reset').onclick=()=>{st.q='';st.genres.clear();st.year='';st.land='';st.typ='';st.avail='';$('#avail').value='';$('#q').value='';$('#land').value='';$('#typ').value='';
   document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
   document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.y===''));renderAlben()};
 function setGenre(g){$('#reset').click();st.genres.add(g);document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.g===g));renderAlben()}
@@ -314,11 +321,12 @@ function openAlbum(id){
     <dt>Label</dt><dd>${esc(a.label)||'<span style="color:var(--muted)">nicht erfasst</span>'}</dd>
     ${a.guests.length?`<dt>Gäste</dt><dd>${artistLinks(a.guests)}</dd>`:''}
     ${tl.length?`<dt>Länge</dt><dd>${tl.length} Tracks · ${Math.round(dur/60000)} Min.</dd>`:''}
+    <dt>Verfügbar</dt><dd>${a.src==='itunes'?(a.late?`Digital seit ${a.late} (Original ${a.year})`:'Digital (Streaming/Download)'):'Nicht digital gefunden, nur physisch oder als Free-Download'}</dd>
     ${a.note?`<dt>Notiz</dt><dd>${esc(a.note)}</dd>`:''}
   </dl>
   <h3 class="sec">Anhören &amp; nachschlagen</h3><div class="links">${links(a)}</div>
   <h3 class="sec">Tracklist</h3>${tracks}
-  <p class="note">${a.src==='itunes'?'Cover, Tracklist und Erscheinungsjahr stammen aus dem iTunes-Katalog. Jahreszahlen von Neuauflagen können abweichen.':'Dieser Release ist nicht im iTunes-Katalog. Die Angaben stammen aus dem Archiv selbst, ohne Gewähr.'}</p>`;
+  <p class="note">${a.src==='itunes'?'Cover und Tracklist aus dem iTunes-Katalog'+(a.mb?', Erstveröffentlichung laut MusicBrainz.':'. Jahreszahlen von Neuauflagen können abweichen.'):a.src==='mb'?'Dieser Release ist nicht im iTunes-Katalog. Tracklist, Label und Jahr stammen aus MusicBrainz, das Cover ist ein Platzhalter.':'Dieser Release ist nicht im iTunes-Katalog. Die Angaben stammen aus dem Archiv selbst, ohne Gewähr.'}${a.mb?` <a href="https://musicbrainz.org/release-group/${a.mb}" target="_blank" rel="noopener">MusicBrainz-Eintrag</a>`:''}</p>`;
   $('#sheet').hidden=false;$('#sheetbg').hidden=false;document.body.style.overflow='hidden';$('#sheet').scrollTop=0;
   $('#closeSheet').onclick=closeSheet;$('#closeSheet').focus({preventScroll:true});
   return true;
@@ -443,7 +451,7 @@ function route(){
   show('alben');lastView='alben';
 }
 window.addEventListener('hashchange',route);
-$('#foot').innerHTML=`Deutschrap Archiv 2000–2009 · ${A.length} Releases von ${new Set(A.map(a=>a.artist)).size} Artists · Stand ${esc(DATA.built)}. Cover, Tracklisten und Apple-Music-Links aus dem iTunes-Katalog, Genres, Producer und fehlende Releases aus eigener Recherche. Die Spotify-, YouTube-, Deezer-, Discogs- und Genius-Links öffnen eine Suche nach dem Album. Das Archiv ist nicht vollständig.`;
+$('#foot').innerHTML=`Deutschrap Archiv 2000–2009 · ${A.length} Releases von ${new Set(A.map(a=>a.artist)).size} Artists · Stand ${esc(DATA.built)}. Cover, Tracklisten und Apple-Music-Links aus dem iTunes-Katalog, Erstveröffentlichungen und nicht digital erschienene Releases aus MusicBrainz, Genres und Producer aus eigener Recherche. Die Spotify-, YouTube-, Deezer-, Discogs- und Genius-Links öffnen eine Suche nach dem Album. Das Archiv ist nicht vollständig.`;
 renderAlben();route();
 })();
 </script>

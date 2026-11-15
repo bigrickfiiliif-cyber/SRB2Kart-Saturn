@@ -147,9 +147,9 @@ Jokah|DE|Battle Rap
 Manuellsen|DE|Straßenrap
 Mo-Torres|DE|Party/Pop-Rap
 Ali As|DE|Battle Rap
-Melbeatz|DE|Boom Bap
+Melbeatz|DE|Instrumental,Boom Bap
 DJ Tomekk|DE|Party/Pop-Rap
-DJ Desue|DE|Boom Bap
+DJ Desue|DE|Instrumental,Boom Bap
 Illmatic|DE|Boom Bap
 Phreaky Flave|DE|Boom Bap
 Gauner|DE|Underground
@@ -177,7 +177,7 @@ Raf 3.0|AT|Electro-Rap
 Nazar|AT|Gangsta Rap,Straßenrap
 Mieze Medusa|AT|Conscious
 Def Ill|AT|Boom Bap
-Brenk Sinatra|AT|Boom Bap
+Brenk Sinatra|AT|Instrumental,Boom Bap
 Schönheitsfehler|AT|Boom Bap,Party/Pop-Rap
 Average|AT|Boom Bap
 Kayo|AT|Boom Bap
@@ -274,3 +274,31 @@ Sir Prize|DE|Battle Rap
 Godessa|CH|Mundart-Rap
 QL|CH|Mundart-Rap
 Lügner|CH|Mundart-Rap
+Waxolutionists|AT|Instrumental,Boom Bap
+Suff Daddy|DE|Instrumental,Boom Bap
+Figub Brazlevič|DE|Instrumental,Boom Bap
+Dexter|DE|Instrumental,Boom Bap
+Fid Mella|DE|Instrumental,Boom Bap
+Torky Tork|DE|Instrumental,Boom Bap
+Shuko|DE|Instrumental,Boom Bap
+Roey Marquis II|DE|Instrumental,Boom Bap
+DJ Stylewarz|DE|Instrumental,Boom Bap
+DJ Rabauke|DE|Instrumental,Boom Bap
+Sepalot|DE|Instrumental,Jazz Rap
+DJ Phekt|AT|Instrumental,Boom Bap
+Testa|AT|Instrumental,Boom Bap
+Dejot|CH|Instrumental,Boom Bap
+Kraans de Lutin|DE|Instrumental,Boom Bap
+Ghanaian Stallion|DE|Instrumental,Boom Bap
+Drunken Masters|DE|Instrumental
+Beatzarre|DE|Instrumental
+Djorkaeff|DE|Instrumental
+Paul NZA|DE|Instrumental
+DJ Mad|DE|Instrumental
+Tropf|DE|Instrumental
+The Krauts|DE|Instrumental
+Biztram|DE|Instrumental
+Whizz Vienna|AT|Instrumental,Boom Bap
+Kamp & Whizz Vienna|AT|Boom Bap,Underground
+Mädness & Döll|DE|Boom Bap
+Edgar Wasser|DE|Experimental

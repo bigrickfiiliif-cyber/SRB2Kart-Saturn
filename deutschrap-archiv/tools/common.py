@@ -16,15 +16,16 @@ def year_of(r):
     return ry
 def typ_of(r):
     n=r['collectionName']; tc=r.get('trackCount',0)
-    if re.search(r'instrumental',n,re.I): return 'Instrumentals'
+    if re.search(r'instrumental',n,re.I): return 'Instrumental'
     if re.search(r'best of|greatest|hits|collection|anthology|das beste|essential',n,re.I): return 'Best-of'
     if re.search(r'\blive\b|unplugged',n,re.I): return 'Live'
     if re.search(r'mixtape|\btape\b',n,re.I): return 'Mixtape'
     if re.search(r'remix',n,re.I): return 'Remix'
     if re.search(r'remix',n,re.I): return 'Remix'
-    if re.search(r'- EP$',n): return 'EP' if tc>=7 else 'Single'
-    if re.search(r'\bEP\b',n): return 'EP' if tc>=4 else 'Single'
-    if re.search(r'\(single\)|feat\.',n,re.I) or tc<=6: return 'Single'
+    if re.search(r'\(single\)|feat\.',n,re.I) or tc<=3: return 'Single'
+    if re.search(r'- EP$',n): return 'EP' if tc>=7 else 'EP?'
+    if re.search(r'\bEP\b',n): return 'EP'
+    if tc<=6: return 'EP?'
     if tc<=8: return 'EP'
     return 'Album'
 EXCL=set()
@@ -40,7 +41,7 @@ def select(raw):
             if not 2000<=y<=2009: continue
             if norm(name) not in norm(r.get('artistName','')) : continue
             t=typ_of(r)
-            if t in ('Instrumentals','Single','Best-of','Remix'): continue
+            if t in ('Single','Best-of','Remix'): continue
             if (norm(r.get('artistName',''))+'|'+norm(base_title(n))) in EXCL or norm(base_title(n)) in EXCL: continue
             key=norm(r['artistName'])+'|'+norm(base_title(n))
             cur=chosen.get(key)

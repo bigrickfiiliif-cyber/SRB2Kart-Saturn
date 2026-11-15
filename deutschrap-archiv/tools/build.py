@@ -57,38 +57,92 @@ def find_manual(artist,title):
         if norm(base_title(m[1]))==norm(title) and (norm(m[0]) in norm(artist) or norm(artist) in norm(m[0]) or norm(artist.split(' & ')[0]) in norm(m[0])):
             return i,m
     return None,None
+
+from common import year_of,typ_of
 raw['artists']={k:v for k,v in raw['artists'].items() if k in seeds}
 albums=[]
-for r in select(raw):
-    seed=seeds[r['_seed']]
-    artist=r['artistName']
-    arts=split_names(artist)
-    mi,m=find_manual(artist,r['_title'])
-    genres=seed[2].split(',')
-    a={'id':'i'+str(r['collectionId']),'title':r['_title'],'artist':artist,'artists':arts,'year':r['_year'],'type':r['_typ'],
-       'land':seed[1],'label':label_of(r.get('copyright','')),'genres':genres,'producers':[],'guests':[],'note':'',
-       'apple':r['collectionViewUrl'].split('?')[0],'src':'itunes','_art':r.get('artworkUrl100'),'_cid':str(r['collectionId'])}
-    if m:
-        mused.add(mi)
-        y=int(m[2]); 
-        if 2000<=y<=2009: a['year']=y
-        if m[3]: a['type']=m[3]
-        if m[4]: a['label']=m[4]
+def from_itunes(r,seedname,year=None,typ=None,title=None):
+    seed=seeds[seedname]; artist=r['artistName']; arts=split_names(artist)
+    a={'id':'i'+str(r['collectionId']),'title':title or base_title(r['collectionName']),'artist':artist,'artists':arts,'year':year or year_of(r),'type':typ or typ_of(r),
+       'land':seed[1],'label':label_of(r.get('copyright','')),'genres':seed[2].split(','),'producers':[],'guests':[],'note':'',
+       'apple':r['collectionViewUrl'].split('?')[0],'src':'itunes','_art':r.get('artworkUrl100'),'_cid':str(r['collectionId']),'_ry':int(r.get('releaseDate','0000')[:4] or 0)}
+    tl=[parse_track(t,arts) for t in sorted(tr.get(a['_cid'],[]),key=lambda t:(t['d'],t['n']))]
+    a['tracks']=tl; return a
+for r in select(raw): albums.append(from_itunes(r,r['_seed'],r['_year'],r['_typ'],r['_title']))
+ids={a['id'] for a in albums}
+def same(a,title,names):
+    if norm(base_title(a['title']))!=norm(base_title(title)): return False
+    na=norm(a['artist']); return any(n and (n in na or na in n) for n in names)
+# ---- MusicBrainz merge ----
+mbres=json.load(open('mbres.json')) if os.path.exists('mbres.json') else {}
+MBT={'Album':'Album','EP':'EP'}
+for rg in mbres.values():
+    if rg['seed'] not in seeds: continue
+    names=[norm(rg['seed']),norm(rg['credit'])]
+    typ='Mixtape' if 'Mixtape/Street' in rg['sec'] else 'Live' if 'Live' in rg['sec'] else MBT[rg['ptype']]
+    hit=[a for a in albums if same(a,rg['title'],names)]
+    if hit:
+        for a in hit:
+            a['mb']=rg['rg']
+            if rg['year']<a['year'] or (a.get('_ry',0)>2009):
+                if a.get('_ry',0)>rg['year']: a['late']=a['_ry']
+                a['year']=rg['year']
+            if a['type'] in ('Album','EP','EP?'): a['type']=typ
+        continue
+    if rg.get('itunes'):
+        x=rg['itunes']
+        if 'i'+str(x['collectionId']) in ids: continue
+        a=from_itunes(x,rg['seed'],rg['year'],typ,rg['title']); a['mb']=rg['rg']
+        if a['_ry']>rg['year']: a['late']=a['_ry']
+        albums.append(a); ids.add(a['id']); continue
+    m=rg.get('mbrel')
+    if not m: continue
+    arts=split_names(rg['credit']) if rg['credit'] not in KEEP_TOGETHER else [rg['credit']]
+    seed=seeds[rg['seed']]
+    tl=[parse_track(t,arts) for t in sorted(m['tracks'],key=lambda t:(t['d'],t['n']))]
+    albums.append({'id':'mb-'+rg['rg'][:8],'title':rg['title'],'artist':rg['credit'],'artists':arts,'year':rg['year'],'type':typ,'land':seed[1],
+      'label':m['label'],'genres':seed[2].split(','),'producers':[],'guests':[],'note':'','apple':'','src':'mb','formats':m['formats'],'tracks':tl,'mb':rg['rg']})
+# ---- manual knowledge over everything ----
+for m in manual:
+    names=[norm(x) for x in [m[0]]+m[0].split(' & ')]
+    hit=[a for a in albums if same(a,m[1],names)]
+    if not hit:
+        arts=split_names(m[0]) if m[0] not in KEEP_TOGETHER else [m[0]]
+        sid=re.sub(r'[^a-z0-9]+','-',unicodedata.normalize('NFKD',(m[0]+' '+m[1]).lower()).encode('ascii','ignore').decode()).strip('-')
+        a={'id':'m-'+sid,'title':m[1],'artist':m[0],'artists':arts,'year':int(m[2]),'type':m[3] or 'Album','land':seeds.get(arts[0],[None,'DE'])[1],'label':m[4],
+           'genres':[],'producers':[],'guests':[],'note':'','apple':'','src':'manual','tracks':[]}
+        albums.append(a); hit=[a]
+    for a in hit:
+        if a['src'] in ('itunes','mb') and not a.get('mb'):
+            y=int(m[2])
+            if 2000<=y<=2009: a['year']=y
+        if m[3] and m[3]!='Album': a['type']=m[3]
+        if m[4] and not a['label'] or a['src']=='manual': a['label']=m[4] or a['label']
         if m[5]: a['genres']=m[5].split(',')
         a['producers']=[canon(x) for x in m[6].split(',') if x.strip()]
-        a['note']=m[8] if len(m)>8 else ''
-    tl=[parse_track(t,arts) for t in sorted(tr.get(a['_cid'],[]),key=lambda t:(t['d'],t['n']))]
-    a['tracks']=tl
-    a['guests']=list(dict.fromkeys(n for t in tl for n in t['f']))
-    albums.append(a)
-for i,m in enumerate(manual):
-    if i in mused: continue
-    arts=split_names(m[0]) if m[0] not in KEEP_TOGETHER else [m[0]]
-    land=seeds.get(arts[0],[None,'DE'])[1]
-    sid=re.sub(r'[^a-z0-9]+','-',unicodedata.normalize('NFKD',(m[0]+' '+m[1]).lower()).encode('ascii','ignore').decode()).strip('-')
-    if any(x['id']=='m-'+sid for x in albums): continue
-    albums.append({'id':'m-'+sid,'title':m[1],'artist':m[0],'artists':arts,'year':int(m[2]),'type':m[3] or 'Album','land':land,'label':m[4],
-      'genres':m[5].split(','),'producers':[canon(x) for x in m[6].split(',') if x.strip()],'guests':[],'note':m[8] if len(m)>8 else '','apple':'','src':'manual','tracks':[]})
+        if len(m)>8 and m[8]: a['note']=m[8]
+# ---- EP? resolution, instrumentals, notes ----
+songs={}
+for a in albums:
+    if a['type'] not in ('EP?',):
+        for n in a['artists']: songs.setdefault(n,set()).update(norm(t['t']) for t in a['tracks'])
+keep=[]
+for a in albums:
+    if not 2000<=a['year']<=2009: continue
+    if a['type']=='EP?':
+        if any(norm(a['title']) in songs.get(n,()) for n in a['artists']) or len(a['tracks'])<4: continue
+        a['type']='EP'
+    if a['type']=='Instrumental' or re.search(r'instrumental',a['title'],re.I):
+        a['type']='Instrumental'
+        if 'Instrumental' not in a['genres']: a['genres']=['Instrumental']+a['genres']
+    if a.get('late'): a['note']=(a['note']+' ' if a['note'] else '')+f"Ursprünglich {a['year']} erschienen, digital erst {a['late']}."
+    if a['src']=='mb':
+        f=', '.join(a.get('formats') or [])
+        a['note']=(a['note']+' ' if a['note'] else '')+'Nicht im iTunes-Katalog gefunden'+(f' (erschienen als {f})' if f else '')+'. Angaben aus MusicBrainz.'
+    a['guests']=list(dict.fromkeys(n for t in a['tracks'] for n in t['f']))
+    for k in ('_ry','formats'): a.pop(k,None)
+    keep.append(a)
+albums=keep
 # artists index
 AR={}
 def ar(n):
