@@ -4,7 +4,7 @@ from common import norm,select,base_title
 common.EXCL.update(norm(x.split('|')[0])+'|'+norm(x.split('|')[1]) for x in open('exclude.txt') if '|' in x)
 raw=json.load(open('raw.json')); tr=json.load(open('tracks.json')) if os.path.exists('tracks.json') else {}
 seeds={l.split('|')[0]:l.strip().split('|') for l in open('artists.txt') if l.strip() and not l.startswith('#')}
-ALIAS={'King Kool Savas':'Kool Savas','Absolute Beginner':'Beginner','Cora E':'Cora E.','Laas Unltd':'Laas Unltd.','Fanta 4':'Die Fantastischen Vier','Die Fantastischen 4':'Die Fantastischen Vier','Sido & B-Tight':'Sido & B-Tight','Sonny Black':'Bushido','Saad':'Baba Saad','Savas':'Kool Savas','Moe Mitchel':'Moe Mitchell','Jonesman':'Jonesmann','KIZ':'K.I.Z','K. I. Z':'K.I.Z','Frank White':'Fler','Buddy':'Buddy','MC Ferris':'Ferris MC','Luut&Tüütli':'Luut & Tüütli','Toni L':'Toni-L','Raf Camora':'RAF Camora','Kaas':'KAAS','Kitty Kat':'Kitty Kat','Eko':'Eko Fresh'}
+ALIAS={'Roey Marquis II.':'Roey Marquis II','DJ Ilan Hosted By Sonny Black & Saad':'DJ Ilan','King Kool Savas':'Kool Savas','Absolute Beginner':'Beginner','Cora E':'Cora E.','Laas Unltd':'Laas Unltd.','Fanta 4':'Die Fantastischen Vier','Die Fantastischen 4':'Die Fantastischen Vier','Sido & B-Tight':'Sido & B-Tight','Sonny Black':'Bushido','Saad':'Baba Saad','Savas':'Kool Savas','Moe Mitchel':'Moe Mitchell','Jonesman':'Jonesmann','KIZ':'K.I.Z','K. I. Z':'K.I.Z','Frank White':'Fler','Buddy':'Buddy','MC Ferris':'Ferris MC','Luut&Tüütli':'Luut & Tüütli','Toni L':'Toni-L','Raf Camora':'RAF Camora','Kaas':'KAAS','Kitty Kat':'Kitty Kat','Eko':'Eko Fresh'}
 COMPOUND=[s for s in seeds if re.search(r' & | und ',s)]+['Frauenarzt & Manny Marc','Sonny Black & Frank White','Kool Savas & Azad','Bushido & Baba Saad','Kollegah & Farid Bang']
 KEEP_TOGETHER=[s for s in seeds if re.search(r' & | und ',s)]
 def canon(n):
@@ -12,7 +12,7 @@ def canon(n):
     n=re.sub(r'\s+',' ',n)
     return ALIAS.get(n,n)
 def split_names(s):
-    s=re.sub(r'\s+(?:&|and|und|x|vs\.?|feat\.?|featuring|ft\.?)\s+','|',' '+s+' ').strip()
+    s=re.sub(r'(?i)\s+(?:hosted by|mixed by:?|&|and|und|x|vs\.?|feat\.?|featuring|ft\.?)\s+','|',' '+s+' ').strip()
     # restore compounds
     out=[]
     parts=[p for p in re.split(r'\||,\s*|\s*/\s*',s) if p.strip()]
@@ -76,7 +76,8 @@ def same(a,title,names):
 # ---- MusicBrainz merge ----
 mbres=json.load(open('mbres.json')) if os.path.exists('mbres.json') else {}
 MBT={'Album':'Album','EP':'EP'}
-for rg in mbres.values():
+mixres=json.load(open('mixres.json')) if os.path.exists('mixres.json') else {}
+for rg in list(mbres.values())+list(mixres.values()):
     if rg['seed'] not in seeds: continue
     names=[norm(rg['seed']),norm(rg['credit'])]
     typ='Mixtape' if 'Mixtape/Street' in rg['sec'] else 'Live' if 'Live' in rg['sec'] else MBT[rg['ptype']]
@@ -100,7 +101,7 @@ for rg in mbres.values():
     arts=split_names(rg['credit']) if rg['credit'] not in KEEP_TOGETHER else [rg['credit']]
     seed=seeds[rg['seed']]
     tl=[parse_track(t,arts) for t in sorted(m['tracks'],key=lambda t:(t['d'],t['n']))]
-    albums.append({'id':'mb-'+rg['rg'][:8],'title':rg['title'],'artist':rg['credit'],'artists':arts,'year':rg['year'],'type':typ,'land':seed[1],
+    albums.append({'id':'mb-'+rg['rg'][:8],'title':rg['title'],'artist':rg['credit'],'artists':arts,'year':rg['year'],'type':typ,'land':rg.get('land') or seed[1],
       'label':m['label'],'genres':seed[2].split(','),'producers':[],'guests':[],'note':'','apple':'','src':'mb','formats':m['formats'],'tracks':tl,'mb':rg['rg']})
 # ---- manual knowledge over everything ----
 for m in manual:

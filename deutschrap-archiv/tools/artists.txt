@@ -302,3 +302,92 @@ Whizz Vienna|AT|Instrumental,Boom Bap
 Kamp & Whizz Vienna|AT|Boom Bap,Underground
 Mädness & Döll|DE|Boom Bap
 Edgar Wasser|DE|Experimental
+
+# Mixtape-Artists (MusicBrainz)
+DJ Kreislauf|AT|Underground
+Eldorado FM|CH|Mundart-Rap,Underground
+Oschtblock Kuabuaba|CH|Mundart-Rap,Underground
+Intackt|CH|Mundart-Rap,Underground
+Diverse|DE|Underground
+Die Vamummtn|AT|Underground
+Nate57 & Telly Tellz|DE|Straßenrap
+2 Krüppel|DE|Underground
+Greckoe|DE|Underground
+Maeckes|DE|Conscious
+B-Lash|DE|Underground
+DJ Lifeforce|DE|Instrumental
+R.O.D.|DE|Underground
+Farid Urlaub|DE|Underground
+SAW|DE|Underground
+GeniousHardcore|DE|Underground
+Plan B Mixed by DJ Stean|DE|Underground
+Blockwart & BasuR|DE|Underground
+NTS|DE|Underground
+Perverz|DE|Underground
+Souljah & Tesoro|DE|Underground
+Nabil M|DE|Underground
+King Keil|DE|Underground
+Cpt. Kebap|DE|Underground
+Imbiss Bronko|DE|Underground
+Randgruppe|DE|Underground
+2Seiten|DE|Underground
+Nate57|DE|Underground
+Dj Flaischsalat|DE|Porno/Provokation
+Dr. Stimpy|DE|Underground
+TobFlow|DE|Underground
+BBC / Mafia Clikk|DE|Underground
+DJ Mad Zee & DJ Harry Dee|DE|Underground
+Joka31|DE|Underground
+SpastenAbwehr|DE|Underground
+Freshwask|DE|Underground
+257ers|DE|Party/Pop-Rap
+Spontan|DE|Underground
+Capkekz|DE|Straßenrap
+Sprachtot|DE|Underground
+Sprachtot, Dervizz, C-Genius|DE|Underground
+Toby Ses|DE|Underground
+Prezident|DE|Conscious,Underground
+FAV|DE|Underground
+Kaisa|DE|Underground
+82EE|DE|Underground
+DJ Kitsune Hosted By Scram Jones|DE|Underground
+DJ Ilan Hosted By Sonny Black & Saad|DE|Underground
+Elektro Eko|DE|Underground
+Freshwask & Paranoia|DE|Underground
+Ali A$|DE|Underground
+Keskin|DE|Underground
+030 Gangxta Clicc|DE|Gangsta Rap
+Hieronymus|DE|Underground
+34ers Hosted by Smirnoff Jones|DE|Underground
+DJ Katch & DJ Release|DE|Underground
+Cro|DE|Party/Pop-Rap
+Edgar Wollust, Hulk Hoden & Kurt Hustle|DE|Underground
+Inferno79|DE|Underground
+Olson|DE|Underground
+Caput|DE|Underground
+Lolita|DE|Underground
+Caser und Kraz|DE|Underground
+BTM Squad|DE|Gangsta Rap,Straßenrap
+eRRdeKa|DE|Underground
+Kontra K|DE|Straßenrap
+Cone Gorilla|DE|Underground
+Deckstar 89|DE|Underground
+Sady K|DE|Battle Rap
+Dj D-Nice|DE|Underground
+G.B.Z. Babba Soundz|DE|Underground
+Creaturen der Nacht|DE|Underground
+Verbal Kint|DE|Underground
+Maxat|DE|Underground
+Beathoavenz|DE|Underground
+41 Beatfanatika|DE|Underground
+Boogie • Machrome • Deckstar 89 • Shifroc|DE|Underground
+Charnell|DE|Gangsta Rap
+Mad Skill|DE|Underground
+DJ Boogie / DJ Shifroc|DE|Underground
+DJ Ugly Cut|DE|Underground
+FiST|DE|Underground
+Pedaz|DE|Underground
+DJ Frenetikk|DE|Underground
+Ostblokk|DE|Underground
+KL52|DE|Underground
+Boba Fettt|DE|Underground

@@ -15,6 +15,12 @@ for n in range(0,len(cids),G*G):
 SPR={int(k) if k.isdigit() else k:v for k,v in SPR.items()}
 d['albums']=[a for a in d['albums'] if 'brooklyn soul' not in a['title'].lower()]
 from common import norm
+# manual duplicate fixes: MusicBrainz copies of releases already in the catalogue
+DROPMB=['Die John Bello Story II','Liebling, ich habe das Label geschrumpft','Heimspiel','Live in Stuttgart','Fornika für alle','Dünya Dönüyor (Die Welt dreht sich)','Gesucht Gefunden EP','M.A.D.U. 2 (Mukke aus der Unterschicht)','M.A.D.U. 3 (Mukke aus der Unterschicht)','Zuhältertape, Volume 1','Zuhältertape, Volume 1: X-Mas Edition','Zuhältertape, Volume 3','Boss Der Bosse (Zuhältertape Vol. 2)','Wurzeln & Flügel','Das Buch der drei Ringe','Is’n Schnabelding: Willkommen in Schnabylon','Beat of Life, Volume 1','Return of Hip Hop','Chrigu','Die Jagd auf den König','Momentaufnahmen 2','Momentaufnahmen 3','Momentaufnahmen']
+d['albums']=[a for a in d['albums'] if not (a['src']=='mb' and a['title'] in DROPMB)]
+MIX=['Die John Bello Story, Vol. 2','Liebling, ich habe das Label geschrumpft (Mit Ali A$ & Tua)','Zuhältertape, Vol. 3','Die Jagd auf den König 1','Die Jagd auf den König 2']
+for a in d['albums']:
+    if a['title'] in MIX: a['type']='Mixtape'
 # dedupe (title may contain artist name / quotes); prefer iTunes over MusicBrainz-only
 pri={'itunes':0,'manual':1,'mb':2}
 seen={};drop=set()
