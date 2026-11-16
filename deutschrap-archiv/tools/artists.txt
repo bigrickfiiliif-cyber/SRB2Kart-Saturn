@@ -391,3 +391,165 @@ DJ Frenetikk|DE|Underground
 Ostblokk|DE|Underground
 KL52|DE|Underground
 Boba Fettt|DE|Underground
+# Nachtrag: weitere Artists
+Alligatoah|DE|Battle Rap,Experimental
+Trailerpark|DE|Porno/Provokation,Party/Pop-Rap
+DNP|DE|Porno/Provokation,Battle Rap
+Timi Hendrix|DE|Porno/Provokation,Battle Rap
+Sudden|DE|Porno/Provokation,Battle Rap
+Private Paul|DE|Emo-Rap,Underground
+Maexer|DE|Battle Rap,Underground
+Rotten Monkey|DE|Horrorcore
+Crystal F|DE|Horrorcore
+Hirntot Posse|DE|Horrorcore
+Vollbluthustler|DE|Straßenrap
+Die Sekte|DE|Straßenrap,Porno/Provokation
+A.i.d.S.|DE|Straßenrap
+Alpa Gun|DE|Straßenrap
+Deine Lieblings Rapper|DE|Straßenrap,Party/Pop-Rap
+Westberlin Maskulin|DE|Battle Rap
+Südberlin Maskulin|DE|Straßenrap
+Beatfabrik|DE|Battle Rap,Underground
+Royal TS|DE|Battle Rap,Straßenrap
+M.O.R.|DE|Battle Rap
+Mr. Long|DE|Porno/Provokation
+Akte One|DE|Battle Rap,Underground
+She-Raw|DE|Battle Rap
+Problemkind|DE|Straßenrap
+Kalusha|DE|Straßenrap
+Icke & Er|DE|Party/Pop-Rap
+Pilskills|DE|Boom Bap
+Taichi|DE|Conscious
+Herr von Grau|DE|Underground,Experimental
+Liquit Walker|DE|Battle Rap
+187 Strassenbande|DE|Straßenrap
+Reeperbahn Kareem|DE|Straßenrap
+Das Bo|DE|Party/Pop-Rap
+ASD|DE|Boom Bap
+Moqui Marbles|DE|Boom Bap
+Flowin Immo|DE|Experimental,Boom Bap
+Skills en Masse|DE|Boom Bap
+Breite Seite|DE|Boom Bap
+Die Krähen|DE|Boom Bap
+Hausmarke|DE|Boom Bap
+Wasi|DE|Boom Bap
+Kodimey|DE|Experimental
+Schowi|DE|Boom Bap
+Sucuk Ufuk|DE|Battle Rap
+Umse|DE|Boom Bap
+David Pe|DE|Boom Bap
+Feinkost Paranoia|DE|Boom Bap,Underground
+Doppel D|DE|Mundart-Rap
+Liquid & Maniac|DE|Mundart-Rap
+Boshi San|DE|Boom Bap
+Creme Fresh|DE|Boom Bap
+Lunafrow|DE|Straßenrap
+Binding Squad|DE|Boom Bap
+Warheit|DE|Straßenrap
+Chaker|DE|Straßenrap
+Juvel|DE|Straßenrap
+Yassir|DE|Straßenrap
+Real Jay|DE|Straßenrap
+Bosca|DE|Straßenrap
+Flipstar|DE|Boom Bap,Battle Rap
+Pahel|DE|Boom Bap
+Terence Chill|DE|Boom Bap
+Hakan Abi|DE|Straßenrap
+Slick One|DE|Battle Rap
+Shiml|DE|Battle Rap
+Rizbo|DE|Battle Rap
+Mr. Chissmann|DE|Battle Rap
+Toony|DE|Battle Rap
+Sentino|DE|Battle Rap
+F.R.|DE|Conscious,Battle Rap
+Lord Scan|DE|Boom Bap
+Die Coolen Säue|DE|Boom Bap
+Microphone Mafia|DE|Political,Boom Bap
+DCS|DE|Boom Bap
+Äi-Tiem|DE|Boom Bap
+Der Klan|DE|Boom Bap
+Stress & Trauma|DE|Boom Bap
+Inflabluntahz|DE|Boom Bap,Jazz Rap
+Abroo|DE|Conscious
+Antihelden|DE|Underground
+Sorgenkind|DE|Battle Rap
+Dissziplin|DE|Straßenrap
+Dra-Q|DE|Boom Bap
+Underdog Cru|DE|Boom Bap
+Jansen & Kowalski|DE|Party/Pop-Rap
+Spezializtz|DE|Boom Bap
+Dean Dawson|DE|Boom Bap
+Nina MC|DE|Boom Bap
+Aziza A|DE|Conscious
+Woroc|DE|Straßenrap
+Crackaveli|DE|Straßenrap
+Sizzlac|DE|Battle Rap
+Optik Army|DE|Battle Rap
+DJ Stickle|AT|Straßenrap,Instrumental
+Atillah78|DE|Straßenrap
+Bero Bass|DE|Straßenrap
+Bektas|DE|Straßenrap
+Viruz|DE|Straßenrap
+Serk|DE|Battle Rap
+Sera Finale|DE|Party/Pop-Rap
+Rapsoul|DE|Party/Pop-Rap
+Zcalacee|DE|Boom Bap
+Boulevard Bou|DE|Conscious,Boom Bap
+Vokalmatador|DE|Porno/Provokation
+Chaoze One|DE|Political
+Holger Burner|DE|Political
+Lea-Won|DE|Political,Conscious
+Schlagzeiln|DE|Political
+Kaveh|DE|Political,Conscious
+Amewu|DE|Conscious
+Hecklah & Coch|DE|Boom Bap
+Lyroholika|DE|Boom Bap
+Anarchist Academy|DE|Political
+Bambägga|DE|Mundart-Rap
+Rainer von Vielen|DE|Experimental
+Montana Max|DE|Battle Rap
+Gregpipe|DE|Battle Rap
+Schivv|DE|Battle Rap
+Kid Kobra|DE|Battle Rap
+Ronald Mack Donald|DE|Battle Rap
+Sha-Karl|DE|Battle Rap
+Smexer|DE|Battle Rap
+Bass Crew|DE|Porno/Provokation
+4.9.0 Friedhof Chiller|DE|Horrorcore
+Die 3. Generation|DE|Party/Pop-Rap
+Tic Tac Toe|DE|Party/Pop-Rap
+Der Wolf|DE|Party/Pop-Rap
+Oli.P|DE|Party/Pop-Rap
+Aleksey|DE|Party/Pop-Rap
+Grüne Medizin|DE|Underground
+Brixx|DE|Straßenrap
+Frittenbude|DE|Electro-Rap
+Mediengruppe Telekommander|DE|Electro-Rap
+Gerard|AT|Conscious
+Markante Handlungen|AT|Boom Bap
+MaDoppelT|AT|Battle Rap
+A.geh Wirklich?|AT|Mundart-Rap
+Penetrante Sorte|AT|Boom Bap
+Hörspielcrew|AT|Boom Bap
+Rooftop Clique|AT|Boom Bap
+Selbstlaut|AT|Conscious
+Die Au|AT|Boom Bap
+Mevlut Khan|AT|Straßenrap
+Kid Pex|AT|Straßenrap
+Kroko Jack|AT|Mundart-Rap
+Wisdom & Slime|AT|Boom Bap
+Emirez|AT|Straßenrap
+Monobrother|AT|Mundart-Rap
+BumBumKunst|AT|Boom Bap
+Radio 200000|CH|Mundart-Rap
+Tafs|CH|Mundart-Rap
+Diens|CH|Mundart-Rap
+Serej|CH|Mundart-Rap
+LDeeP|CH|Mundart-Rap
+Kutti MC|CH|Mundart-Rap,Experimental
+Webba|CH|Mundart-Rap
+Kalmoo|CH|Mundart-Rap
+Boys on Pills|CH|Electro-Rap,Mundart-Rap
+Milchmaa|CH|Mundart-Rap
+Subzonic|CH|Party/Pop-Rap,Mundart-Rap
+Semantik|CH|Mundart-Rap
