@@ -54,6 +54,9 @@ h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
 .search svg{flex:none;color:var(--muted)}
 select{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
+.fgroup{display:flex;gap:10px;align-items:flex-start}.flabel{flex:0 0 52px;padding-top:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+@media(max-width:600px){.fgroup{flex-direction:column;gap:6px}.flabel{flex:none;padding-top:0}}
+.role{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .chip small{font-family:var(--f-mono);font-weight:400;opacity:.65;margin-left:4px}
@@ -185,11 +188,11 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
           <input id="q" type="search" placeholder="Album, Artist, Song oder Producer suchen" autocomplete="off">
         </label>
         <select id="land" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select>
-        <select id="typ" aria-label="Release-Typ"></select>
         <select id="avail" aria-label="Verfügbarkeit"><option value="">Digital &amp; physisch</option><option value="digital">Digital verfügbar</option><option value="phys">Nicht digital (nur CD/Vinyl/Tape)</option><option value="late">Erst später digital</option></select>
         <select id="sort" aria-label="Sortierung"><option value="year">Nach Jahr</option><option value="title">Album A–Z</option><option value="artist">Artist A–Z</option></select>
       </div>
-      <div class="chips" id="genres" role="group" aria-label="Genre-Filter"></div>
+      <div class="fgroup"><span class="flabel">Typ</span><div class="chips" id="types" role="group" aria-label="Release-Typ (mehrere wählbar)"></div></div>
+      <div class="fgroup"><span class="flabel">Genre</span><div class="chips" id="genres" role="group" aria-label="Genre-Filter"></div></div>
       <div class="years" id="years" role="group" aria-label="Jahr"></div>
       <div class="resultinfo"><span id="rinfo"></span><button class="linkbtn" id="reset" type="button">Filter zurücksetzen</button></div>
     </div>
@@ -229,7 +232,7 @@ function artistLinks(names){return names.map(n=>{const s=DATA.slugOf[n];return s
 const fmt = ms=>{if(!ms)return'';const s=Math.round(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 
 /* ---------- state ---------- */
-const st={q:'',genres:new Set(),year:'',land:'',typ:'',avail:'',sort:'year',limit:120};
+const st={q:'',genres:new Set(),year:'',land:'',types:new Set(),avail:'',sort:'year',limit:120};
 try{const s=JSON.parse(localStorage.getItem('dra-filter')||'{}');if(s.sort)st.sort=s.sort;}catch(e){}
 
 /* ---------- counter ---------- */
@@ -241,14 +244,16 @@ const gCount={};A.forEach(a=>a.genres.forEach(g=>gCount[g]=(gCount[g]||0)+1));
 const GEN=Object.keys(gCount).sort((a,b)=>gCount[b]-gCount[a]);
 $('#genres').innerHTML=GEN.map(g=>`<button type="button" class="chip" data-g="${esc(g)}" aria-pressed="false">${esc(g)}<small>${gCount[g]}</small></button>`).join('');
 const TYPES=[...new Set(A.map(a=>a.type))].sort();
-$('#typ').innerHTML='<option value="">Alle Typen</option>'+TYPES.map(t=>`<option>${esc(t)}</option>`).join('');
+const tCount={};A.forEach(a=>tCount[a.type]=(tCount[a.type]||0)+1);
+const TORD=['Album','EP','Mixtape','Sampler','Live','Instrumental','Producer-Album'];TYPES.sort((x,y)=>((TORD.indexOf(x)+1)||99)-((TORD.indexOf(y)+1)||99));
+$('#types').innerHTML=TYPES.map(t=>`<button type="button" class="chip" data-t="${esc(t)}" aria-pressed="false">${esc(t)}<small>${tCount[t]}</small></button>`).join('');
 $('#years').innerHTML='<button type="button" data-y="" aria-pressed="true">Alle</button>'+[...Array(10)].map((_,i)=>`<button type="button" data-y="${2000+i}" aria-pressed="false">${2000+i}</button>`).join('');
 $('#sort').value=st.sort;
 
 function matches(a){
   if(st.year && a.year!=+st.year) return false;
   if(st.land && a.land!==st.land) return false;
-  if(st.typ && a.type!==st.typ) return false;
+  if(st.types.size && !st.types.has(a.type)) return false;
   if(st.avail==='digital' && a.src!=='itunes') return false;
   if(st.avail==='phys' && a.src==='itunes') return false;
   if(st.avail==='late' && !a.late) return false;
@@ -268,7 +273,7 @@ function renderAlben(){
     title:(x,y)=>x.title.localeCompare(y.title,'de'),artist:(x,y)=>x.artist.localeCompare(y.artist,'de')||x.year-y.year}[st.sort];
   list.sort(cmp);
   $('#rinfo').textContent=list.length===A.length?`Alle ${A.length} Releases`:`${list.length} von ${A.length} Releases`;
-  $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.typ||st.avail);
+  $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.types.size||st.avail);
   if(!list.length){$('#crate').innerHTML='<div class="empty">Nichts gefunden. Probier einen anderen Suchbegriff oder nimm einen Filter raus.</div>';return}
   const shown=list.slice(0,st.limit);
   let html='';
@@ -285,10 +290,10 @@ let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{
 $('#genres').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const g=b.dataset.g;st.genres.has(g)?st.genres.delete(g):st.genres.add(g);b.setAttribute('aria-pressed',st.genres.has(g));st.limit=120;renderAlben()});
 $('#years').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.year=b.dataset.y;document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x===b));st.limit=120;renderAlben()});
 $('#land').onchange=e=>{st.land=e.target.value;renderAlben()};
-$('#typ').onchange=e=>{st.typ=e.target.value;renderAlben()};
+$('#types').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;const t=b.dataset.t;st.types.has(t)?st.types.delete(t):st.types.add(t);b.setAttribute('aria-pressed',st.types.has(t));st.limit=120;renderAlben()});
 $('#avail').onchange=e=>{st.avail=e.target.value;renderAlben()};
 $('#sort').onchange=e=>{st.sort=e.target.value;try{localStorage.setItem('dra-filter',JSON.stringify({sort:st.sort}))}catch(_){};renderAlben()};
-$('#reset').onclick=()=>{st.q='';st.genres.clear();st.year='';st.land='';st.typ='';st.avail='';$('#avail').value='';$('#q').value='';$('#land').value='';$('#typ').value='';
+$('#reset').onclick=()=>{st.q='';st.genres.clear();st.year='';st.land='';st.types.clear();st.avail='';$('#avail').value='';$('#q').value='';$('#land').value='';document.querySelectorAll('#types .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
   document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed','false'));
   document.querySelectorAll('#years button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.y===''));renderAlben()};
 function setGenre(g){$('#reset').click();st.genres.add(g);document.querySelectorAll('#genres .chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.g===g));renderAlben()}
@@ -384,6 +389,11 @@ function renderArtist(slug){
   const topC=Object.entries(collab).sort((x,y)=>y[1]-x[1]).slice(0,8);
   const featRows=a.feats.slice().sort((x,y)=>byId.get(x.id).year-byId.get(y.id).year).map(f=>{const al=byId.get(f.id);return `<tr><td>${al.year}</td><td>${esc(f.t)}<br><span style="color:var(--muted);font-size:13px">auf <a href="#album-${al.id}">${esc(al.title)}</a> von ${artistLinks(al.artists)}</span></td></tr>`}).join('');
   const prodRows=a.prod.map(id=>byId.get(id)).sort((x,y)=>x.year-y.year).map(al=>`<tr><td>${al.year}</td><td><a href="#album-${al.id}">${esc(al.title)}</a> <span style="color:var(--muted)">von ${esc(al.artist)}</span></td></tr>`).join('');
+  const app=new Map();const mainSet=new Set(a.main);
+  a.feats.forEach(f=>{if(mainSet.has(f.id))return;const e=app.get(f.id)||{f:[],p:0};e.f.push(f.t);app.set(f.id,e)});
+  a.prod.forEach(id=>{if(mainSet.has(id))return;const e=app.get(id)||{f:[],p:0};e.p=1;app.set(id,e)});
+  const appears=[...app.entries()].map(([id,e])=>[byId.get(id),e]).filter(x=>x[0]).sort((x,y)=>y[0].year-x[0].year||x[0].title.localeCompare(y[0].title,'de'));
+  const appCard=([al,e])=>{const r=[];if(e.f.length)r.push(e.f.length>1?e.f.length+' Gastparts':'Feature: '+e.f[0]);if(e.p)r.push('Produktion');return card(al).replace('</div></div></a>',`<span class="role">${esc(r.join(' · '))}</span></div></div></a>`)};
   const max=Math.max(1,...topC.map(x=>x[1]));
   v.innerHTML=`<a class="back" href="#artists">← Alle Artists</a>
   <div class="apage-head"><div><div class="label">${a.land?LAND[a.land]:'Artist'}${topG.length?' · '+topG.join(' / '):''}</div><h1>${esc(a.name)}</h1></div>
@@ -396,8 +406,9 @@ function renderArtist(slug){
     <div class="tile"><b style="font-size:24px">${span}</b><span class="label">Aktiv im Archiv</span></div>
   </div>
   ${main.length?`<h3 class="sec">Releases</h3><div class="grid">${main.map(card).join('')}</div>`:''}
+  ${appears.length?`<h3 class="sec">Enthalten in <small style="font-weight:400;color:var(--muted)">${appears.length}</small></h3><div class="grid">${appears.map(appCard).join('')}</div>`:''}
   ${topC.length?`<h3 class="sec">Häufigste Kollaborationen</h3><div class="panel"><div class="bars">${topC.map(([n,c])=>`<div class="brow"><span class="bl">${artistLinks([n])}</span><span class="track"><span class="fill" style="display:block;width:${c/max*100}%"></span></span><span class="v">${c}</span></div>`).join('')}</div></div>`:''}
-  ${featRows?`<h3 class="sec">Gastparts auf anderen Releases</h3><div class="scroll"><table class="apptable">${featRows}</table></div>`:''}
+  ${featRows?`<h3 class="sec">Alle Gastparts im Detail</h3><div class="scroll"><table class="apptable">${featRows}</table></div>`:''}
   ${prodRows?`<h3 class="sec">Als Producer</h3><div class="scroll"><table class="apptable">${prodRows}</table></div>`:''}`;
 }
 

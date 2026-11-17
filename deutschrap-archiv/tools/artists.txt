@@ -553,3 +553,224 @@ Boys on Pills|CH|Electro-Rap,Mundart-Rap
 Milchmaa|CH|Mundart-Rap
 Subzonic|CH|Party/Pop-Rap,Mundart-Rap
 Semantik|CH|Mundart-Rap
+
+# Nachtrag 2: MusicBrainz-Genre-Tags + häufige Gäste
+2Face|DE|Horrorcore
+D.N.A.|DE|Horrorcore
+Darko|DE|Horrorcore
+Dr. Tod|DE|Horrorcore
+Dr. SadoH|DE|Horrorcore
+Dr. Jekyll|DE|Horrorcore
+Evilution|DE|Horrorcore
+Floki|DE|Horrorcore
+Idol|DE|Horrorcore
+Jessy James|DE|Horrorcore
+Leatherface|DE|Horrorcore
+Pain|DE|Horrorcore
+Psykmaster|DE|Horrorcore
+Pycho Sword|DE|Horrorcore
+PzychOne|DE|Horrorcore
+Pzycho Fati|DE|Horrorcore
+Psycho X|DE|Horrorcore
+Phsycho 666|DE|Horrorcore
+Stalker|DE|Horrorcore
+Short|DE|Horrorcore
+Sicknezz|DE|Horrorcore
+Splattaqueen|DE|Horrorcore
+TodezEngel|DE|Horrorcore
+Chirurg des Todes|DE|Horrorcore
+Massenmörda|DE|Horrorcore
+Mr. Kannibal|DE|Horrorcore
+Mr. Krank im Kopf|DE|Horrorcore
+Mr. Skorbut|DE|Horrorcore
+Nightmare 34|DE|Horrorcore
+Gebrüda Cannibal|DE|Horrorcore
+Erfurts Chainsaw Entertainment|DE|Horrorcore
+Demonenpark|DE|Horrorcore
+Der Nachtschatten|DE|Horrorcore
+Igon666|DE|Horrorcore
+Sadistic Mane|DE|Horrorcore
+Zer.Fleisch|DE|Horrorcore
+Hirnspalt|DE|Horrorcore
+Kunstfehler|DE|Horrorcore
+Scheusal und Kunstfehler|DE|Horrorcore
+Odium|DE|Horrorcore
+Sheytan|DE|Horrorcore
+Räuber Rob|DE|Horrorcore
+Hell Raisas|DE|Horrorcore
+King Virus One|DE|Horrorcore
+Satanic Steve|DE|Horrorcore
+Chucky|DE|Horrorcore
+Mörder Marc|DE|Horrorcore
+Choleriker|DE|Horrorcore
+Tiermensch|DE|Horrorcore
+Kaosloge|DE|Horrorcore
+Gaizteskrank|DE|Horrorcore
+ABS|DE|Party/Pop-Rap
+AchtVier|DE|Straßenrap
+Akkkzt|DE|Straßenrap
+Animus|DE|Straßenrap
+Asche|DE|Battle Rap
+C10|DE|Straßenrap
+Caught in the Crack|DE|Gangsta Rap,Straßenrap
+CreeKOne|DE|Underground
+Der Tobi & Das Bo|DE|Party/Pop-Rap
+Deso Dogg|DE|Gangsta Rap,Straßenrap
+Down Low|DE|Party/Pop-Rap
+Drehmoment|DE|Underground
+FTC|DE|Underground
+Fast Forward|DE|Straßenrap
+Firat|DE|Straßenrap
+Flashmaster Ray|DE|Underground
+GPC|DE|Straßenrap
+Ghettobitch|DE|Straßenrap
+HKE Posse|DE|Straßenrap
+Hanybal|DE|Gangsta Rap,Straßenrap
+Hassmonsta|DE|Straßenrap
+HoodBlaq|DE|Straßenrap
+Illmat!c|DE|Straßenrap
+Just1ce|DE|Underground
+KC Rebell|DE|Straßenrap
+KSO|DE|Underground
+Kasimir1441|DE|Underground
+Kern|DE|Underground
+Kurzer Prozess|DE|Straßenrap
+La Honda|DE|Gangsta Rap,Straßenrap
+LeoLex|DE|Underground
+Lil’ Chrizz|DE|Party/Pop-Rap
+Lord Gaus|DE|Underground
+Melo68|DE|Straßenrap
+Menve Exus|DE|Underground
+MiZeb|DE|Underground
+Michael Night|DE|Underground
+Mr. 187|DE|Straßenrap
+Mr. Marius|DE|Underground
+Mr. Titan|DE|Straßenrap
+Muso|DE|Underground
+Musso|DE|Straßenrap
+Myng|DE|Underground
+Nord Nord Muzikk|DE|Underground
+Omeka|DE|Underground
+Sarhad|DE|Straßenrap
+Sebar|DE|Straßenrap
+Shacke One|DE|Battle Rap
+Stress|DE|Underground
+Sylabil Spill|DE|Underground
+Takt32|DE|Underground
+TeysarShokk|DE|Underground
+Tice|DE|Straßenrap
+Tiefbasskommando|DE|Underground
+TrustNo.1|DE|Underground
+Twin|DE|Straßenrap
+Vata Thereza|DE|Underground
+Walkin’ Large|DE|Party/Pop-Rap
+WestBerlinBandit|DE|Straßenrap
+White Maze|DE|Underground
+big M|DE|Straßenrap
+deus|DE|Underground
+Nicodemus|DE|Straßenrap
+Skinny Al|DE|Straßenrap
+Sicc|DE|Straßenrap
+Schlafwandler|DE|Underground
+Ozan|DE|Straßenrap
+Mic Wrecka|DE|Underground
+M-Hot|DE|Straßenrap
+Jope|DE|Straßenrap
+Mr. Sche|DE|Straßenrap
+Joka|DE|Straßenrap
+Fiva MC|DE|Boom Bap
+Bogy|DE|Party/Pop-Rap
+Dirty P|DE|Straßenrap
+Dashenn|DE|Straßenrap
+Charon|DE|Underground
+Asek|DE|Underground
+Onkel Size|DE|Underground
+Medizin Mann|DE|Underground
+MB1000|DE|Straßenrap
+Kingsize|DE|Underground
+Jonarama|DE|Underground
+Jifusi|DE|Underground
+Gino Casino|DE|Straßenrap
+Chabs|DE|Straßenrap
+Billy 13|DE|Straßenrap
+Aci Krank|DE|Porno/Provokation
+Zyankali|DE|Straßenrap
+Vero One|DE|Underground
+Selbstjustizz|DE|Straßenrap
+Profan78|DE|Straßenrap
+Patrick mit Absicht|DE|Party/Pop-Rap
+Paranoia|DE|Straßenrap
+Marc Reis|DE|Straßenrap
+Lil Deso|DE|Straßenrap
+Killa Hakan|DE|Straßenrap
+Kareem|DE|Straßenrap
+Joachim Deutschland|DE|Party/Pop-Rap
+Hässlich Rap|DE|Porno/Provokation
+Doujah Raze|DE|Straßenrap
+Darkroom Familia|DE|Straßenrap
+Criz|DE|Straßenrap
+Chablife|DE|Straßenrap
+Telly Tellz|DE|Straßenrap
+SRK|DE|Straßenrap
+Raptile|DE|Straßenrap
+R.A.F|DE|Straßenrap
+Nordmassiv|DE|Underground
+Moe Phoenix|DE|Straßenrap
+MoTrip|DE|Straßenrap
+Marcus Staiger|DE|Battle Rap
+Lou Geniuz|DE|Straßenrap
+Kanious|DE|Underground
+Hirntot Crew|DE|Horrorcore
+Cashmo|DE|Straßenrap
+Camouflow|DE|Boom Bap
+Ben Salomo|DE|Underground
+Atze Bierbong|DE|Party/Pop-Rap
+4.9.0 Strassen Spieler|DE|Straßenrap
+Tefla|DE|Boom Bap
+Pottweiler|DE|Straßenrap
+Orgi69|DE|Porno/Provokation
+Audio88|DE|Underground
+Advanced Chemistry|DE|Boom Bap
+Abusex|DE|Porno/Provokation
+Rhymez|DE|Underground
+Mike Fiction|DE|Underground
+Machtwort|DE|Underground
+Dephjoe|DE|Underground
+Fabscho|DE|Underground
+Unterleib Dynamo|DE|Underground
+Weser Allstars|DE|Underground
+Tarééc|DE|Straßenrap
+Questgott|DE|Underground
+Silence One|DE|Underground
+Vier zu Eins|DE|Underground
+Chefetage|DE|Straßenrap
+Fumse|DE|Underground
+Baggefudda|DE|Underground
+Dauawizzy|DE|Underground
+Big Derill|DE|Straßenrap
+Ossi Ostler|DE|Underground
+Fritz Evil|DE|Underground
+Erich Frontah|DE|Underground
+Mr. Complex|DE|Underground
+Heimleita|DE|Underground
+NKlas|DE|Underground
+F.I.N.K|DE|Underground
+Euro8000|DE|Underground
+Raper Pimp|DE|Straßenrap
+Jayson|DE|Straßenrap
+Kobra|DE|Straßenrap
+Chuky|DE|Horrorcore
+Manuva|AT|Straßenrap
+Mundpropaganda|AT|Boom Bap
+MTS|AT|Underground
+DER-CON|AT|Straßenrap
+Don Leon|AT|Underground
+KeKe|AT|Underground
+Kitana|AT|Underground
+Mr. Freed|AT|Underground
+Mono:Massive|AT|Instrumental
+Spilif|AT|Underground
+Saiko|AT|Instrumental
+Bomshi|AT|Underground
+Mr. Bond|AT|Underground
+Chaostruppe|CH|Mundart-Rap
