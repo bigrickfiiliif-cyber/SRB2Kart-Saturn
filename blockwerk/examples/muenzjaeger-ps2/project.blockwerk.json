@@ -1,0 +1,875 @@
+{
+ "version": 1,
+ "name": "Münzjäger",
+ "sky": "#7fb2e0",
+ "camera": {
+  "pos": [
+   0,
+   9,
+   14
+  ],
+  "target": [
+   0,
+   0,
+   0
+  ]
+ },
+ "variables": [
+  {
+   "name": "Münzen",
+   "id": "v_muenzen"
+  }
+ ],
+ "objects": [
+  {
+   "id": "omwl4pt141",
+   "name": "Boden",
+   "shape": "plane",
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    30,
+    1,
+    30
+   ],
+   "color": "#5aa85a",
+   "script": null
+  },
+  {
+   "id": "omwl4pt142",
+   "name": "Spieler",
+   "shape": "cube",
+   "pos": [
+    0,
+    0.5,
+    0
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1,
+    1,
+    1.4
+   ],
+   "color": "#e74c3c",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "controls_if",
+         "inputs": {
+          "IF0": {
+           "block": {
+            "type": "sn_held",
+            "fields": {
+             "BTN": "UP"
+            }
+           }
+          },
+          "DO0": {
+           "block": {
+            "type": "mv_forward",
+            "inputs": {
+             "N": {
+              "shadow": {
+               "type": "math_number",
+               "fields": {
+                "NUM": 0.12
+               }
+              }
+             }
+            }
+           }
+          }
+         },
+         "next": {
+          "block": {
+           "type": "controls_if",
+           "inputs": {
+            "IF0": {
+             "block": {
+              "type": "sn_held",
+              "fields": {
+               "BTN": "DOWN"
+              }
+             }
+            },
+            "DO0": {
+             "block": {
+              "type": "mv_forward",
+              "inputs": {
+               "N": {
+                "shadow": {
+                 "type": "math_number",
+                 "fields": {
+                  "NUM": -0.08
+                 }
+                }
+               }
+              }
+             }
+            }
+           },
+           "next": {
+            "block": {
+             "type": "controls_if",
+             "inputs": {
+              "IF0": {
+               "block": {
+                "type": "sn_held",
+                "fields": {
+                 "BTN": "LEFT"
+                }
+               }
+              },
+              "DO0": {
+               "block": {
+                "type": "mv_rotate",
+                "inputs": {
+                 "X": {
+                  "shadow": {
+                   "type": "math_number",
+                   "fields": {
+                    "NUM": 0
+                   }
+                  }
+                 },
+                 "Y": {
+                  "shadow": {
+                   "type": "math_number",
+                   "fields": {
+                    "NUM": 3
+                   }
+                  }
+                 },
+                 "Z": {
+                  "shadow": {
+                   "type": "math_number",
+                   "fields": {
+                    "NUM": 0
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             },
+             "next": {
+              "block": {
+               "type": "controls_if",
+               "inputs": {
+                "IF0": {
+                 "block": {
+                  "type": "sn_held",
+                  "fields": {
+                   "BTN": "RIGHT"
+                  }
+                 }
+                },
+                "DO0": {
+                 "block": {
+                  "type": "mv_rotate",
+                  "inputs": {
+                   "X": {
+                    "shadow": {
+                     "type": "math_number",
+                     "fields": {
+                      "NUM": 0
+                     }
+                    }
+                   },
+                   "Y": {
+                    "shadow": {
+                     "type": "math_number",
+                     "fields": {
+                      "NUM": -3
+                     }
+                    }
+                   },
+                   "Z": {
+                    "shadow": {
+                     "type": "math_number",
+                     "fields": {
+                      "NUM": 0
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               },
+               "next": {
+                "block": {
+                 "type": "cam_follow",
+                 "inputs": {
+                  "DIST": {
+                   "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                     "NUM": 7
+                    }
+                   }
+                  },
+                  "H": {
+                   "shadow": {
+                    "type": "math_number",
+                    "fields": {
+                     "NUM": 4
+                    }
+                   }
+                  }
+                 },
+                 "next": {
+                  "block": {
+                   "type": "lk_hud",
+                   "fields": {
+                    "TEXT": "Münzen:"
+                   },
+                   "inputs": {
+                    "VALUE": {
+                     "block": {
+                      "type": "variables_get",
+                      "fields": {
+                       "VAR": {
+                        "id": "v_muenzen"
+                       }
+                      }
+                     }
+                    }
+                   },
+                   "next": {
+                    "block": {
+                     "type": "controls_if",
+                     "inputs": {
+                      "IF0": {
+                       "block": {
+                        "type": "logic_compare",
+                        "fields": {
+                         "OP": "GTE"
+                        },
+                        "inputs": {
+                         "A": {
+                          "block": {
+                           "type": "variables_get",
+                           "fields": {
+                            "VAR": {
+                             "id": "v_muenzen"
+                            }
+                           }
+                          }
+                         },
+                         "B": {
+                          "shadow": {
+                           "type": "math_number",
+                           "fields": {
+                            "NUM": 4
+                           }
+                          }
+                         }
+                        }
+                       }
+                      },
+                      "DO0": {
+                       "block": {
+                        "type": "lk_hudtext",
+                        "fields": {
+                         "TEXT": "Gewonnen! START = neu"
+                        }
+                       }
+                      }
+                     }
+                    }
+                   }
+                  }
+                 }
+                }
+               }
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Stein"
+       },
+       "x": 440,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_undo"
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Mauer"
+       },
+       "x": 440,
+       "y": 150,
+       "next": {
+        "block": {
+         "type": "mv_undo"
+        }
+       }
+      },
+      {
+       "type": "ev_press",
+       "fields": {
+        "BTN": "START"
+       },
+       "x": 440,
+       "y": 280,
+       "next": {
+        "block": {
+         "type": "gm_restart"
+        }
+       }
+      },
+      {
+       "type": "ev_press",
+       "fields": {
+        "BTN": "CROSS"
+       },
+       "x": 440,
+       "y": 410,
+       "next": {
+        "block": {
+         "type": "lk_color",
+         "fields": {
+          "COLOR": "#3498db"
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_press",
+       "fields": {
+        "BTN": "CIRCLE"
+       },
+       "x": 440,
+       "y": 540,
+       "next": {
+        "block": {
+         "type": "lk_color",
+         "fields": {
+          "COLOR": "#e74c3c"
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt143",
+   "name": "Münze1",
+   "shape": "cylinder",
+   "pos": [
+    5,
+    0.8,
+    -4
+   ],
+   "rot": [
+    90,
+    0,
+    0
+   ],
+   "scale": [
+    0.8,
+    0.12,
+    0.8
+   ],
+   "color": "#f1c40f",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_rotate",
+         "inputs": {
+          "X": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          },
+          "Y": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 4
+            }
+           }
+          },
+          "Z": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Spieler"
+       },
+       "x": 20,
+       "y": 160,
+       "next": {
+        "block": {
+         "type": "lk_show",
+         "fields": {
+          "VIS": "0"
+         },
+         "next": {
+          "block": {
+           "type": "math_change",
+           "fields": {
+            "VAR": {
+             "id": "v_muenzen"
+            }
+           },
+           "inputs": {
+            "DELTA": {
+             "shadow": {
+              "type": "math_number",
+              "fields": {
+               "NUM": 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt144",
+   "name": "Münze2",
+   "shape": "cylinder",
+   "pos": [
+    -6,
+    0.8,
+    -7
+   ],
+   "rot": [
+    90,
+    0,
+    0
+   ],
+   "scale": [
+    0.8,
+    0.12,
+    0.8
+   ],
+   "color": "#f1c40f",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_rotate",
+         "inputs": {
+          "X": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          },
+          "Y": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 4
+            }
+           }
+          },
+          "Z": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Spieler"
+       },
+       "x": 20,
+       "y": 160,
+       "next": {
+        "block": {
+         "type": "lk_show",
+         "fields": {
+          "VIS": "0"
+         },
+         "next": {
+          "block": {
+           "type": "math_change",
+           "fields": {
+            "VAR": {
+             "id": "v_muenzen"
+            }
+           },
+           "inputs": {
+            "DELTA": {
+             "shadow": {
+              "type": "math_number",
+              "fields": {
+               "NUM": 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt145",
+   "name": "Münze3",
+   "shape": "cylinder",
+   "pos": [
+    -4,
+    0.8,
+    6
+   ],
+   "rot": [
+    90,
+    0,
+    0
+   ],
+   "scale": [
+    0.8,
+    0.12,
+    0.8
+   ],
+   "color": "#f1c40f",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_rotate",
+         "inputs": {
+          "X": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          },
+          "Y": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 4
+            }
+           }
+          },
+          "Z": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Spieler"
+       },
+       "x": 20,
+       "y": 160,
+       "next": {
+        "block": {
+         "type": "lk_show",
+         "fields": {
+          "VIS": "0"
+         },
+         "next": {
+          "block": {
+           "type": "math_change",
+           "fields": {
+            "VAR": {
+             "id": "v_muenzen"
+            }
+           },
+           "inputs": {
+            "DELTA": {
+             "shadow": {
+              "type": "math_number",
+              "fields": {
+               "NUM": 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt146",
+   "name": "Münze4",
+   "shape": "cylinder",
+   "pos": [
+    8,
+    0.8,
+    7
+   ],
+   "rot": [
+    90,
+    0,
+    0
+   ],
+   "scale": [
+    0.8,
+    0.12,
+    0.8
+   ],
+   "color": "#f1c40f",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_rotate",
+         "inputs": {
+          "X": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          },
+          "Y": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 4
+            }
+           }
+          },
+          "Z": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      {
+       "type": "ev_touch",
+       "fields": {
+        "TARGET": "Spieler"
+       },
+       "x": 20,
+       "y": 160,
+       "next": {
+        "block": {
+         "type": "lk_show",
+         "fields": {
+          "VIS": "0"
+         },
+         "next": {
+          "block": {
+           "type": "math_change",
+           "fields": {
+            "VAR": {
+             "id": "v_muenzen"
+            }
+           },
+           "inputs": {
+            "DELTA": {
+             "shadow": {
+              "type": "math_number",
+              "fields": {
+               "NUM": 1
+              }
+             }
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt147",
+   "name": "Stein",
+   "shape": "cube",
+   "pos": [
+    2,
+    0.75,
+    -9
+   ],
+   "rot": [
+    0,
+    20,
+    0
+   ],
+   "scale": [
+    2,
+    1.5,
+    2
+   ],
+   "color": "#95a5a6",
+   "script": {
+    "blocks": {
+     "languageVersion": 0,
+     "blocks": [
+      {
+       "type": "ev_tick",
+       "x": 20,
+       "y": 20,
+       "next": {
+        "block": {
+         "type": "mv_rotate",
+         "inputs": {
+          "X": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          },
+          "Y": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 1
+            }
+           }
+          },
+          "Z": {
+           "shadow": {
+            "type": "math_number",
+            "fields": {
+             "NUM": 0
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "omwl4pt148",
+   "name": "Mauer",
+   "shape": "cube",
+   "pos": [
+    -3,
+    1,
+    -3
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    0.6,
+    2,
+    7
+   ],
+   "color": "#8e5b3a",
+   "script": null
+  }
+ ]
+}

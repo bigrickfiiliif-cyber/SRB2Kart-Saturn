@@ -1,0 +1,1952 @@
+<title>Blockwerk Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: engine-style workbench. Scene list | 3D viewport | inspector, block editor spans the lower right. */
+:root {
+  --bg: #14171d;          /* workbench */
+  --panel: #1b1f27;       /* panels */
+  --panel-2: #232835;     /* raised controls */
+  --line: #2e3442;        /* separators */
+  --fg: #e6e4df;          /* text */
+  --muted: #8f96a3;       /* secondary text */
+  --accent: #ffb547;      /* event-block amber, used sparingly */
+  --accent-ink: #261a05;
+  --play: #4cd28a;
+  --stop: #ff6b6b;
+  --sel: #3a6df0;
+  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-body); overflow: hidden; }
+* { box-sizing: border-box; }
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+#app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+
+/* top bar */
+#bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 8px; font: 700 16px var(--font-display); letter-spacing: .01em; margin-right: 6px; }
+.brand-mark { width: 22px; height: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.brand-mark i { border-radius: 2px; background: var(--accent); }
+.brand-mark i:nth-child(2) { background: #4c97ff; } .brand-mark i:nth-child(3) { background: #9966ff; } .brand-mark i:nth-child(4) { background: #4cbf8a; }
+#projName { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; width: 160px; font-weight: 600; }
+#projName:hover, #projName:focus { border-color: var(--line); background: var(--bg); }
+.grp { display: flex; gap: 4px; align-items: center; }
+.sep { width: 1px; height: 22px; background: var(--line); margin: 0 4px; }
+.btn { background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; white-space: nowrap; }
+.btn:hover { border-color: #46506a; background: #2a3040; }
+.btn.primary { background: var(--play); color: #06200f; border-color: transparent; font-weight: 600; }
+.btn.primary.stop { background: var(--stop); color: #2a0707; }
+.btn.ps2 { background: #2b3f8f; border-color: #3d55b8; font-weight: 600; }
+.btn.ps2:hover { background: #33499f; }
+.spacer { flex: 1; }
+#status { color: var(--muted); font-size: 12px; }
+
+/* workbench grid */
+#bench { display: grid; min-height: 0;
+  grid-template-columns: 200px minmax(0, 1fr) 270px;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-areas: "scene view insp" "scene code code"; }
+.panel { background: var(--panel); min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.panel h2 { margin: 0; padding: 9px 12px; font: 600 11px var(--font-body); text-transform: uppercase; letter-spacing: .09em; color: var(--muted); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+.panel h2 b { color: var(--fg); text-transform: none; letter-spacing: 0; font-size: 12px; }
+#scene { grid-area: scene; border-right: 1px solid var(--line); }
+#insp { grid-area: insp; border-left: 1px solid var(--line); overflow: auto; }
+#code { grid-area: code; border-top: 1px solid var(--line); }
+#viewWrap { grid-area: view; position: relative; background: #0d0f13; min-height: 0; overflow: hidden; }
+#viewWrap canvas { display: block; }
+
+.addRow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; border-bottom: 1px solid var(--line); }
+.addRow .btn { display: flex; align-items: center; gap: 6px; padding: 6px 8px; font-size: 12px; }
+.shape-ico { width: 14px; height: 14px; flex: none; border: 1.5px solid currentColor; opacity: .85; }
+.shape-ico.sphere { border-radius: 50%; } .shape-ico.cylinder { border-radius: 40% / 20%; }
+.shape-ico.plane { height: 6px; transform: skewX(-30deg); }
+#objList { list-style: none; margin: 0; padding: 6px; overflow: auto; flex: 1; }
+#objList li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+#objList li:hover { background: var(--panel-2); }
+#objList li.sel { background: var(--sel); color: #fff; }
+#objList .sw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+#objList .nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#objList .badge { font: 10px var(--font-mono); color: var(--muted); }
+#objList li.sel .badge { color: #dce4ff; }
+.sceneRow { padding: 8px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; cursor: pointer; }
+.sceneRow:hover { color: var(--fg); }
+.sceneRow.sel { color: var(--accent); }
+
+/* inspector */
+.field { display: grid; gap: 4px; padding: 8px 12px; }
+.field label, .lbl { font-size: 11px; color: var(--muted); }
+.vec { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.vec div { position: relative; }
+.vec span { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); font: 600 10px var(--font-mono); pointer-events: none; }
+.vec div:nth-child(1) span { color: #ff6b6b; } .vec div:nth-child(2) span { color: #4cd28a; } .vec div:nth-child(3) span { color: #5aa7ff; }
+.inp { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 5px 6px; font-variant-numeric: tabular-nums; }
+.vec .inp { padding-left: 18px; font: 12px var(--font-mono); }
+input[type=color].inp { padding: 2px; height: 30px; }
+.row2 { display: flex; gap: 6px; padding: 8px 12px; flex-wrap: wrap; }
+.hint { padding: 8px 12px; color: var(--muted); font-size: 12px; }
+.hint kbd, .keys kbd { font: 11px var(--font-mono); background: var(--panel-2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; color: var(--fg); }
+
+/* viewport overlays */
+#gizmoBar { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; z-index: 3; }
+#gizmoBar .btn { padding: 4px 8px; font-size: 12px; background: rgba(27,31,39,.86); }
+#gizmoBar .btn.on { border-color: var(--accent); color: var(--accent); }
+#viewHint { position: absolute; bottom: 8px; left: 8px; font-size: 11px; color: var(--muted); z-index: 3; background: rgba(13,15,19,.7); padding: 3px 7px; border-radius: 4px; }
+#playHost { position: absolute; inset: 0; z-index: 5; background: #000; }
+.keys { position: absolute; right: 8px; bottom: 8px; z-index: 6; font-size: 11px; color: #c9ccd3; background: rgba(0,0,0,.6); padding: 6px 8px; border-radius: 6px; display: grid; grid-template-columns: auto auto; gap: 2px 8px; }
+
+/* code area */
+#code h2 .tip { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 400; }
+#blocklyWrap { position: relative; flex: 1; min-height: 0; }
+#blocklyDiv { position: absolute; inset: 0; }
+#noSel { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; background: rgba(20,23,29,.82); color: var(--muted); text-align: center; padding: 16px; }
+#noSel strong { display: block; color: var(--fg); font: 600 15px var(--font-display); margin-bottom: 4px; }
+
+/* modal + toast */
+#modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.55); display: grid; place-items: center; padding: 16px; }
+#modal .box { width: min(760px, 100%); max-height: 88vh; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+#modal header { display: flex; align-items: center; gap: 8px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+#modal header h3 { margin: 0; font: 700 16px var(--font-display); flex: 1; }
+#modal .body { padding: 14px; overflow: auto; min-height: 0; }
+#modal .body p { margin: 0 0 10px; max-width: 65ch; color: var(--muted); }
+#modal .body p b { color: var(--fg); }
+#modal pre { margin: 0; background: #0d0f13; border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 12px/1.5 var(--font-mono); overflow: auto; max-height: 50vh; white-space: pre; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+.tabs .btn.on { border-color: var(--accent); color: var(--accent); }
+#toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line); padding: 8px 14px; border-radius: 8px; z-index: 1001; box-shadow: 0 6px 24px rgba(0,0,0,.4); }
+
+/* Blockly dark tweaks */
+.blocklyToolboxDiv { border-right: 1px solid var(--line); }
+.blocklyTreeLabel { font-family: var(--font-body) !important; }
+.blocklyWidgetDiv .blocklyMenu { background: var(--panel-2) !important; }
+
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  #app { height: auto; padding-left: max(0px, env(safe-area-inset-left, 0px)); padding-right: max(0px, env(safe-area-inset-right, 0px)); }
+  #bench { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 52vh auto 75vh;
+    grid-template-areas: "scene" "view" "insp" "code"; }
+  #scene, #insp { border: 0; border-bottom: 1px solid var(--line); }
+  #objList { max-height: 180px; }
+  #projName { width: 120px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div id="app">
+  <header id="bar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div>Blockwerk</div>
+    <input id="projName" class="inp" aria-label="Projektname" value="Münzjäger">
+    <div class="grp">
+      <button class="btn" id="bNew" title="Leeres Projekt">Neu</button>
+      <button class="btn" id="bSample" title="Beispielspiel laden">Beispiel</button>
+      <label class="btn" for="fileOpen" title="Projekt (.json) öffnen">Öffnen</label>
+      <input type="file" id="fileOpen" accept=".json,application/json" hidden>
+      <button class="btn" id="bSave" title="Projekt als .json speichern">Speichern</button>
+    </div>
+    <div class="sep"></div>
+    <button class="btn primary" id="bPlay">▶ Spielen</button>
+    <div class="sep"></div>
+    <div class="grp">
+      <button class="btn" id="bWeb" title="Spiel als einzelne HTML-Datei">Export Web</button>
+      <button class="btn ps2" id="bPS2" title="PS2-Projekt (C, PS2SDK + gsKit) als .zip">Export PS2</button>
+    </div>
+    <div class="spacer"></div>
+    <span id="status"></span>
+  </header>
+
+  <main id="bench">
+    <section id="scene" class="panel" aria-label="Szene">
+      <h2>Szene</h2>
+      <div class="addRow">
+        <button class="btn" data-add="cube"><span class="shape-ico"></span>Würfel</button>
+        <button class="btn" data-add="sphere"><span class="shape-ico sphere"></span>Kugel</button>
+        <button class="btn" data-add="cylinder"><span class="shape-ico cylinder"></span>Zylinder</button>
+        <button class="btn" data-add="plane"><span class="shape-ico plane"></span>Fläche</button>
+      </div>
+      <ul id="objList"></ul>
+      <div class="sceneRow" id="sceneSettings">⚙ Welt &amp; Kamera</div>
+    </section>
+
+    <section id="viewWrap" aria-label="3D-Ansicht">
+      <div id="gizmoBar">
+        <button class="btn on" data-mode="translate" title="Verschieben (W)">Verschieben</button>
+        <button class="btn" data-mode="rotate" title="Drehen (E)">Drehen</button>
+        <button class="btn" data-mode="scale" title="Skalieren (R)">Skalieren</button>
+      </div>
+      <div id="viewHint">Ziehen: drehen · Rechts: schieben · Rad: zoomen · Klick: auswählen</div>
+    </section>
+
+    <section id="insp" class="panel" aria-label="Eigenschaften">
+      <h2>Eigenschaften</h2>
+      <div id="inspBody"></div>
+    </section>
+
+    <section id="code" class="panel" aria-label="Block-Skript">
+      <h2>Skript <b id="codeFor">–</b><span class="tip">Blöcke links aus den Kategorien ziehen</span></h2>
+      <div id="blocklyWrap">
+        <div id="blocklyDiv"></div>
+        <div id="noSel" hidden><div><strong>Kein Objekt ausgewählt</strong>Wähle links ein Objekt, um ihm Blöcke zu geben.</div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modal" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <header><h3 id="mTitle"></h3><button class="btn" id="mClose">Schließen</button></header>
+  <div class="body" id="mBody"></div>
+</div></div>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blockly@10.4.3/blockly_compressed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blockly@10.4.3/blocks_compressed.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/blockly@10.4.3/msg/de.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- PS2 runtime sources, copied into every PS2 export -->
+<script type="text/plain" id="c-rt.h">
+/* Blockwerk runtime - platform independent game logic.
+ * Generated projects: game.c holds the scene and the compiled block scripts. */
+#ifndef BW_RT_H
+#define BW_RT_H
+
+#define BW_MAX_OBJS 128
+#define BW_HUD_LEN 64
+
+enum { SHAPE_CUBE, SHAPE_SPHERE, SHAPE_PLANE, SHAPE_CYLINDER, SHAPE_COUNT };
+enum {
+  BTN_CROSS, BTN_CIRCLE, BTN_SQUARE, BTN_TRIANGLE,
+  BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT,
+  BTN_START, BTN_SELECT, BTN_L1, BTN_R1, BTN_COUNT
+};
+
+typedef struct Obj {
+  const char *name;
+  int shape;
+  float pos[3], rot[3], scale[3], prev[3];
+  unsigned int color; /* 0xRRGGBB */
+  int visible;
+  char hud[BW_HUD_LEN];
+} Obj;
+
+typedef struct {
+  void (*start)(Obj *self);
+  void (*tick)(Obj *self);
+  void (*press)(Obj *self, int btn);
+  void (*collide)(Obj *self, Obj *other);
+} Script;
+
+typedef struct {
+  const char *name;
+  int shape;
+  float pos[3], rot[3], scale[3];
+  unsigned int color;
+} ObjInit;
+
+/* provided by game.c (generated) */
+extern const int GAME_NOBJS;
+extern const ObjInit GAME_OBJS[];
+extern const Script GAME_SCRIPTS[];
+extern const unsigned int GAME_SKY;
+extern const float GAME_CAM_POS[3];
+extern const float GAME_CAM_TARGET[3];
+extern const char GAME_NAME[];
+void game_reset_vars(void);
+
+/* runtime state */
+extern Obj g_objs[BW_MAX_OBJS];
+extern int g_nobjs;
+extern float g_cam_pos[3], g_cam_target[3];
+
+void rt_reset(void);
+void rt_frame(unsigned int held_mask); /* one 1/60 s step */
+
+/* block API */
+void rt_move(Obj *o, float x, float y, float z);
+void rt_setpos(Obj *o, float x, float y, float z);
+void rt_rotate(Obj *o, float x, float y, float z);
+void rt_setrot(Obj *o, float x, float y, float z);
+void rt_forward(Obj *o, float n);
+void rt_setscale(Obj *o, float x, float y, float z);
+void rt_setcolor(Obj *o, unsigned int rgb);
+void rt_setvisible(Obj *o, int v);
+void rt_hud(Obj *o, const char *text, float value);
+void rt_hudtext(Obj *o, const char *text);
+void rt_undo(Obj *o);
+void rt_camfollow(Obj *o, float dist, float height);
+void rt_campos(float x, float y, float z);
+void rt_camlook(Obj *o);
+void rt_restart(void);
+int rt_held(int btn);
+float rt_get(Obj *o, int what); /* 0..2 pos, 3..5 rot, 6..8 scale */
+Obj *rt_find(const char *name);
+float rt_distance(Obj *a, Obj *b);
+int rt_touching(Obj *a, Obj *b);
+int rt_touching_any(Obj *a);
+float rt_time(void);
+float rt_randint(float a, float b);
+float rt_div(float a, float b);
+float rt_mod(float a, float b);
+
+/* renderer (render.c): calls emit for each screen-space triangle */
+typedef void (*bw_emit_fn)(float x1, float y1, float z1,
+                           float x2, float y2, float z2,
+                           float x3, float y3, float z3,
+                           unsigned int rgb, void *user);
+void bw_render(float width, float height, bw_emit_fn emit, void *user);
+void bw_mesh_init(void);
+
+#endif
+</script>
+<script type="text/plain" id="c-rt.c">
+#include <math.h>
+#include <string.h>
+#include <stdio.h>
+#include "rt.h"
+
+Obj g_objs[BW_MAX_OBJS];
+int g_nobjs;
+float g_cam_pos[3], g_cam_target[3];
+
+static unsigned int s_prev_held, s_held;
+static float s_time;
+static int s_restart;
+static unsigned char s_touch[BW_MAX_OBJS][BW_MAX_OBJS];
+static unsigned int s_rand = 12345u;
+
+#define DEG2RAD 0.017453292519943295f
+
+static void run_starts(void)
+{
+  int i;
+  for (i = 0; i < g_nobjs; i++)
+    if (GAME_SCRIPTS[i].start) GAME_SCRIPTS[i].start(&g_objs[i]);
+}
+
+void rt_reset(void)
+{
+  int i;
+  g_nobjs = GAME_NOBJS > BW_MAX_OBJS ? BW_MAX_OBJS : GAME_NOBJS;
+  for (i = 0; i < g_nobjs; i++) {
+    const ObjInit *in = &GAME_OBJS[i];
+    Obj *o = &g_objs[i];
+    memset(o, 0, sizeof(*o));
+    o->name = in->name;
+    o->shape = in->shape;
+    memcpy(o->pos, in->pos, sizeof(o->pos));
+    memcpy(o->prev, in->pos, sizeof(o->prev));
+    memcpy(o->rot, in->rot, sizeof(o->rot));
+    memcpy(o->scale, in->scale, sizeof(o->scale));
+    o->color = in->color;
+    o->visible = 1;
+  }
+  memcpy(g_cam_pos, GAME_CAM_POS, sizeof(g_cam_pos));
+  memcpy(g_cam_target, GAME_CAM_TARGET, sizeof(g_cam_target));
+  memset(s_touch, 0, sizeof(s_touch));
+  s_time = 0.0f;
+  s_restart = 0;
+  s_prev_held = s_held;
+  game_reset_vars();
+  run_starts();
+}
+
+static void half_ext(const Obj *o, float h[3])
+{
+  int k;
+  for (k = 0; k < 3; k++) h[k] = fabsf(o->scale[k]) * 0.5f;
+  if (o->shape == SHAPE_PLANE) h[1] = 0.05f;
+}
+
+int rt_touching(Obj *a, Obj *b)
+{
+  float ha[3], hb[3];
+  int k;
+  if (!a || !b || a == b || !a->visible || !b->visible) return 0;
+  half_ext(a, ha);
+  half_ext(b, hb);
+  for (k = 0; k < 3; k++)
+    if (fabsf(a->pos[k] - b->pos[k]) > ha[k] + hb[k]) return 0;
+  return 1;
+}
+
+int rt_touching_any(Obj *a)
+{
+  int i;
+  for (i = 0; i < g_nobjs; i++)
+    if (rt_touching(a, &g_objs[i])) return 1;
+  return 0;
+}
+
+void rt_frame(unsigned int held_mask)
+{
+  int i, j, b;
+  unsigned int pressed;
+  s_held = held_mask;
+  pressed = s_held & ~s_prev_held;
+  s_prev_held = s_held;
+
+  for (i = 0; i < g_nobjs; i++)
+    memcpy(g_objs[i].prev, g_objs[i].pos, sizeof(g_objs[i].pos));
+
+  for (i = 0; i < g_nobjs; i++) {
+    const Script *s = &GAME_SCRIPTS[i];
+    if (s->press && pressed)
+      for (b = 0; b < BTN_COUNT; b++)
+        if (pressed & (1u << b)) s->press(&g_objs[i], b);
+    if (s->tick) s->tick(&g_objs[i]);
+  }
+
+  for (i = 0; i < g_nobjs; i++) {
+    for (j = i + 1; j < g_nobjs; j++) {
+      int t = rt_touching(&g_objs[i], &g_objs[j]);
+      if (t && !s_touch[i][j]) {
+        s_touch[i][j] = 1;
+        if (GAME_SCRIPTS[i].collide) GAME_SCRIPTS[i].collide(&g_objs[i], &g_objs[j]);
+        if (GAME_SCRIPTS[j].collide) GAME_SCRIPTS[j].collide(&g_objs[j], &g_objs[i]);
+        /* a handler may have moved the objects apart (e.g. "gehe zurück") */
+        s_touch[i][j] = (unsigned char)rt_touching(&g_objs[i], &g_objs[j]);
+      } else if (!t) {
+        s_touch[i][j] = 0;
+      }
+    }
+  }
+
+  s_time += 1.0f / 60.0f;
+  if (s_restart) rt_reset();
+}
+
+void rt_move(Obj *o, float x, float y, float z) { if (!o) return; o->pos[0] += x; o->pos[1] += y; o->pos[2] += z; }
+void rt_setpos(Obj *o, float x, float y, float z) { if (!o) return; o->pos[0] = x; o->pos[1] = y; o->pos[2] = z; }
+void rt_rotate(Obj *o, float x, float y, float z) { if (!o) return; o->rot[0] += x; o->rot[1] += y; o->rot[2] += z; }
+void rt_setrot(Obj *o, float x, float y, float z) { if (!o) return; o->rot[0] = x; o->rot[1] = y; o->rot[2] = z; }
+void rt_forward(Obj *o, float n)
+{
+  float yaw;
+  if (!o) return;
+  yaw = o->rot[1] * DEG2RAD;
+  o->pos[0] += -sinf(yaw) * n;
+  o->pos[2] += -cosf(yaw) * n;
+}
+void rt_setscale(Obj *o, float x, float y, float z) { if (!o) return; o->scale[0] = x; o->scale[1] = y; o->scale[2] = z; }
+void rt_setcolor(Obj *o, unsigned int rgb) { if (o) o->color = rgb; }
+void rt_setvisible(Obj *o, int v) { if (o) o->visible = v ? 1 : 0; }
+void rt_hud(Obj *o, const char *text, float value)
+{
+  if (!o) return;
+  if (value == (float)(int)value) snprintf(o->hud, BW_HUD_LEN, "%s %d", text, (int)value);
+  else snprintf(o->hud, BW_HUD_LEN, "%s %.2f", text, value);
+}
+void rt_hudtext(Obj *o, const char *text) { if (o) snprintf(o->hud, BW_HUD_LEN, "%s", text); }
+void rt_undo(Obj *o) { if (o) memcpy(o->pos, o->prev, sizeof(o->pos)); }
+void rt_camfollow(Obj *o, float dist, float height)
+{
+  float yaw;
+  if (!o) return;
+  yaw = o->rot[1] * DEG2RAD;
+  g_cam_pos[0] = o->pos[0] + sinf(yaw) * dist;
+  g_cam_pos[1] = o->pos[1] + height;
+  g_cam_pos[2] = o->pos[2] + cosf(yaw) * dist;
+  memcpy(g_cam_target, o->pos, sizeof(g_cam_target));
+}
+void rt_campos(float x, float y, float z) { g_cam_pos[0] = x; g_cam_pos[1] = y; g_cam_pos[2] = z; }
+void rt_camlook(Obj *o) { if (o) memcpy(g_cam_target, o->pos, sizeof(g_cam_target)); }
+void rt_restart(void) { s_restart = 1; }
+int rt_held(int btn) { return (s_held >> btn) & 1u; }
+float rt_get(Obj *o, int what)
+{
+  if (!o) return 0.0f;
+  if (what < 3) return o->pos[what];
+  if (what < 6) return o->rot[what - 3];
+  if (what < 9) return o->scale[what - 6];
+  return 0.0f;
+}
+Obj *rt_find(const char *name)
+{
+  int i;
+  for (i = 0; i < g_nobjs; i++)
+    if (strcmp(g_objs[i].name, name) == 0) return &g_objs[i];
+  return 0;
+}
+float rt_distance(Obj *a, Obj *b)
+{
+  float dx, dy, dz;
+  if (!a || !b) return 0.0f;
+  dx = a->pos[0] - b->pos[0]; dy = a->pos[1] - b->pos[1]; dz = a->pos[2] - b->pos[2];
+  return sqrtf(dx * dx + dy * dy + dz * dz);
+}
+float rt_time(void) { return s_time; }
+float rt_randint(float a, float b)
+{
+  int lo = (int)floorf(a < b ? a : b), hi = (int)floorf(a < b ? b : a);
+  s_rand = s_rand * 1103515245u + 12345u;
+  return (float)(lo + (int)((s_rand >> 8) % (unsigned int)(hi - lo + 1)));
+}
+float rt_div(float a, float b) { return b == 0.0f ? 0.0f : a / b; }
+float rt_mod(float a, float b) { return b == 0.0f ? 0.0f : fmodf(a, b); }
+</script>
+<script type="text/plain" id="c-render.c">
+/* Blockwerk software transform + clipping. Platform independent:
+ * produces flat shaded screen-space triangles through a callback. */
+#include <math.h>
+#include "rt.h"
+
+#define MAX_TRIS 512
+typedef struct { float v[3][3]; } Tri;
+static Tri s_mesh[SHAPE_COUNT][MAX_TRIS];
+static int s_ntris[SHAPE_COUNT];
+
+static void add_tri(int shape, const float *a, const float *b, const float *c)
+{
+  int n = s_ntris[shape], k;
+  if (n >= MAX_TRIS) return;
+  for (k = 0; k < 3; k++) {
+    s_mesh[shape][n].v[0][k] = a[k];
+    s_mesh[shape][n].v[1][k] = b[k];
+    s_mesh[shape][n].v[2][k] = c[k];
+  }
+  s_ntris[shape] = n + 1;
+}
+static void add_quad(int shape, const float *a, const float *b, const float *c, const float *d)
+{
+  add_tri(shape, a, b, c);
+  add_tri(shape, a, c, d);
+}
+
+void bw_mesh_init(void)
+{
+  int i, j, f;
+  const float PI = 3.14159265f;
+  for (i = 0; i < SHAPE_COUNT; i++) s_ntris[i] = 0;
+
+  /* cube 1x1x1 */
+  for (f = 0; f < 6; f++) {
+    int ax = f % 3; float s = f < 3 ? 0.5f : -0.5f;
+    int u = (ax + 1) % 3, w = (ax + 2) % 3;
+    float p[4][3];
+    for (i = 0; i < 4; i++) {
+      p[i][ax] = s;
+      p[i][u] = (i == 1 || i == 2) ? 0.5f : -0.5f;
+      p[i][w] = (i >= 2) ? 0.5f : -0.5f;
+    }
+    add_quad(SHAPE_CUBE, p[0], p[1], p[2], p[3]);
+  }
+
+  /* plane 1x1 on XZ, 4x4 grid (smaller triangles clip better) */
+  for (i = 0; i < 4; i++)
+    for (j = 0; j < 4; j++) {
+      float x0 = -0.5f + i * 0.25f, x1 = x0 + 0.25f;
+      float z0 = -0.5f + j * 0.25f, z1 = z0 + 0.25f;
+      float a[3] = {x0, 0, z0}, b[3] = {x1, 0, z0}, c[3] = {x1, 0, z1}, d[3] = {x0, 0, z1};
+      add_quad(SHAPE_PLANE, a, b, c, d);
+    }
+
+  /* sphere r=0.5, 12 segments x 8 rings */
+  {
+    const int SEG = 12, RING = 8;
+    for (j = 0; j < RING; j++) {
+      float t0 = PI * j / RING, t1 = PI * (j + 1) / RING;
+      for (i = 0; i < SEG; i++) {
+        float p0 = 2 * PI * i / SEG, p1 = 2 * PI * (i + 1) / SEG;
+        float a[3] = {0.5f * sinf(t0) * cosf(p0), 0.5f * cosf(t0), 0.5f * sinf(t0) * sinf(p0)};
+        float b[3] = {0.5f * sinf(t0) * cosf(p1), 0.5f * cosf(t0), 0.5f * sinf(t0) * sinf(p1)};
+        float c[3] = {0.5f * sinf(t1) * cosf(p1), 0.5f * cosf(t1), 0.5f * sinf(t1) * sinf(p1)};
+        float d[3] = {0.5f * sinf(t1) * cosf(p0), 0.5f * cosf(t1), 0.5f * sinf(t1) * sinf(p0)};
+        if (j == 0) add_tri(SHAPE_SPHERE, a, c, d);
+        else if (j == RING - 1) add_tri(SHAPE_SPHERE, a, b, c);
+        else add_quad(SHAPE_SPHERE, a, b, c, d);
+      }
+    }
+  }
+
+  /* cylinder r=0.5 h=1, 12 segments */
+  {
+    const int SEG = 12;
+    float top[3] = {0, 0.5f, 0}, bot[3] = {0, -0.5f, 0};
+    for (i = 0; i < SEG; i++) {
+      float p0 = 2 * PI * i / SEG, p1 = 2 * PI * (i + 1) / SEG;
+      float a[3] = {0.5f * cosf(p0), 0.5f, 0.5f * sinf(p0)};
+      float b[3] = {0.5f * cosf(p1), 0.5f, 0.5f * sinf(p1)};
+      float c[3] = {0.5f * cosf(p1), -0.5f, 0.5f * sinf(p1)};
+      float d[3] = {0.5f * cosf(p0), -0.5f, 0.5f * sinf(p0)};
+      add_quad(SHAPE_CYLINDER, a, b, c, d);
+      add_tri(SHAPE_CYLINDER, top, b, a);
+      add_tri(SHAPE_CYLINDER, bot, d, c);
+    }
+  }
+}
+
+/* ---- math ---- */
+typedef struct { float m[3][4]; } Mat; /* rows: 3x3 rotation/scale + translation */
+
+static void obj_matrix(const Obj *o, Mat *M)
+{
+  /* three.js Euler order XYZ: R = Rx * Ry * Rz, then M = T * R * S */
+  const float d = 0.017453292519943295f;
+  float cx = cosf(o->rot[0] * d), sx = sinf(o->rot[0] * d);
+  float cy = cosf(o->rot[1] * d), sy = sinf(o->rot[1] * d);
+  float cz = cosf(o->rot[2] * d), sz = sinf(o->rot[2] * d);
+  float R[3][3];
+  int r, c;
+  R[0][0] = cy * cz;               R[0][1] = -cy * sz;              R[0][2] = sy;
+  R[1][0] = cx * sz + sx * sy * cz; R[1][1] = cx * cz - sx * sy * sz; R[1][2] = -sx * cy;
+  R[2][0] = sx * sz - cx * sy * cz; R[2][1] = sx * cz + cx * sy * sz; R[2][2] = cx * cy;
+  for (r = 0; r < 3; r++) {
+    for (c = 0; c < 3; c++) M->m[r][c] = R[r][c] * o->scale[c];
+    M->m[r][3] = o->pos[r];
+  }
+}
+
+static void xform(const Mat *M, const float *v, float *out)
+{
+  int r;
+  for (r = 0; r < 3; r++)
+    out[r] = M->m[r][0] * v[0] + M->m[r][1] * v[1] + M->m[r][2] * v[2] + M->m[r][3];
+}
+
+static void normalize(float *v)
+{
+  float l = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  if (l > 1e-6f) { v[0] /= l; v[1] /= l; v[2] /= l; }
+}
+static void cross(const float *a, const float *b, float *o)
+{
+  o[0] = a[1] * b[2] - a[2] * b[1];
+  o[1] = a[2] * b[0] - a[0] * b[2];
+  o[2] = a[0] * b[1] - a[1] * b[0];
+}
+static float dot(const float *a, const float *b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
+
+/* ---- camera ---- */
+static float s_view[3][4];
+static const float NEAR_Z = 0.1f, FAR_Z = 500.0f;
+static float s_kx, s_ky; /* tan(half fov) */
+
+static void make_view(void)
+{
+  float f[3], r[3], u[3], up[3] = {0, 1, 0};
+  int k;
+  for (k = 0; k < 3; k++) f[k] = g_cam_target[k] - g_cam_pos[k];
+  normalize(f);
+  if (fabsf(f[1]) > 0.999f) { up[1] = 0; up[2] = -1; }
+  cross(f, up, r); normalize(r);
+  cross(r, f, u);
+  /* view space: x=right, y=up, -z=forward */
+  for (k = 0; k < 3; k++) { s_view[0][k] = r[k]; s_view[1][k] = u[k]; s_view[2][k] = -f[k]; }
+  s_view[0][3] = -dot(r, g_cam_pos);
+  s_view[1][3] = -dot(u, g_cam_pos);
+  s_view[2][3] = dot(f, g_cam_pos);
+}
+
+static void to_view(const float *w, float *v)
+{
+  int r;
+  for (r = 0; r < 3; r++)
+    v[r] = s_view[r][0] * w[0] + s_view[r][1] * w[1] + s_view[r][2] * w[2] + s_view[r][3];
+}
+
+/* clip against near plane and guard-band side planes (keep d >= 0) */
+#define GUARD 1.6f
+static float plane_dist(int p, const float *v)
+{
+  float depth = -v[2];
+  switch (p) {
+    case 0: return depth - NEAR_Z;
+    case 1: return GUARD * s_kx * depth - v[0];
+    case 2: return GUARD * s_kx * depth + v[0];
+    case 3: return GUARD * s_ky * depth - v[1];
+    case 4: return GUARD * s_ky * depth + v[1];
+    default: return FAR_Z - depth;
+  }
+}
+
+static int clip_poly(float in[][3], int n, float out[][3])
+{
+  int p, i, k;
+  float buf[16][3];
+  float (*src)[3] = in, (*dst)[3] = buf;
+  for (p = 0; p < 6; p++) {
+    int m = 0;
+    dst = (p % 2 == 0) ? buf : out;
+    for (i = 0; i < n; i++) {
+      const float *a = src[i], *b = src[(i + 1) % n];
+      float da = plane_dist(p, a), db = plane_dist(p, b);
+      if (da >= 0) { for (k = 0; k < 3; k++) dst[m][k] = a[k]; m++; }
+      if ((da >= 0) != (db >= 0)) {
+        float t = da / (da - db);
+        for (k = 0; k < 3; k++) dst[m][k] = a[k] + (b[k] - a[k]) * t;
+        m++;
+      }
+      if (m >= 14) break;
+    }
+    n = m;
+    if (n < 3) return 0;
+    src = dst;
+  }
+  if (src != out)
+    for (i = 0; i < n; i++) for (k = 0; k < 3; k++) out[i][k] = src[i][k];
+  return n;
+}
+
+void bw_render(float width, float height, bw_emit_fn emit, void *user)
+{
+  int i, t, k;
+  float light[3] = {0.45f, 1.0f, 0.3f};
+  normalize(light);
+  s_ky = tanf(30.0f * 0.017453292519943295f); /* 60 deg vertical fov like the editor */
+  s_kx = s_ky * (4.0f / 3.0f); /* TV aspect is 4:3 regardless of framebuffer size */
+  make_view();
+
+  for (i = 0; i < g_nobjs; i++) {
+    const Obj *o = &g_objs[i];
+    Mat M;
+    int shape = o->shape;
+    if (!o->visible || shape < 0 || shape >= SHAPE_COUNT) continue;
+    obj_matrix(o, &M);
+    for (t = 0; t < s_ntris[shape]; t++) {
+      float w[3][3], e1[3], e2[3], n[3], tocam[3], poly[16][3], out[16][3];
+      float lum, sx[16], sy[16], sz[16];
+      int np, r, g, b;
+      unsigned int rgb;
+      for (k = 0; k < 3; k++) xform(&M, s_mesh[shape][t].v[k], w[k]);
+      for (k = 0; k < 3; k++) { e1[k] = w[1][k] - w[0][k]; e2[k] = w[2][k] - w[0][k]; }
+      cross(e1, e2, n);
+      normalize(n);
+      for (k = 0; k < 3; k++) tocam[k] = g_cam_pos[k] - w[0][k];
+      if (shape == SHAPE_PLANE) {
+        if (dot(n, tocam) < 0) { n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2]; }
+      } else {
+        float out_dir[3];
+        for (k = 0; k < 3; k++) out_dir[k] = w[0][k] - o->pos[k];
+        if (dot(n, out_dir) < 0) { n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2]; }
+        if (dot(n, tocam) <= 0) continue; /* back face */
+      }
+      lum = 0.4f + 0.6f * (dot(n, light) > 0 ? dot(n, light) : 0);
+      r = (int)(((o->color >> 16) & 255) * lum);
+      g = (int)(((o->color >> 8) & 255) * lum);
+      b = (int)((o->color & 255) * lum);
+      rgb = ((unsigned int)r << 16) | ((unsigned int)g << 8) | (unsigned int)b;
+
+      for (k = 0; k < 3; k++) to_view(w[k], poly[k]);
+      np = clip_poly(poly, 3, out);
+      for (k = 0; k < np; k++) {
+        float depth = -out[k][2];
+        sx[k] = width * 0.5f + (out[k][0] / (depth * s_kx)) * width * 0.5f;
+        sy[k] = height * 0.5f - (out[k][1] / (depth * s_ky)) * height * 0.5f;
+        sz[k] = NEAR_Z / depth; /* 1 = near, ~0 = far */
+      }
+      for (k = 1; k + 1 < np; k++)
+        emit(sx[0], sy[0], sz[0], sx[k], sy[k], sz[k], sx[k + 1], sy[k + 1], sz[k + 1], rgb, user);
+    }
+  }
+}
+</script>
+<script type="text/plain" id="c-main_ps2.c">
+/* Blockwerk PS2 entry point: gsKit rendering + libpad input. */
+#include <tamtypes.h>
+#include <kernel.h>
+#include <sifrpc.h>
+#include <loadfile.h>
+#include <stdio.h>
+#include <gsKit.h>
+#include <dmaKit.h>
+#include <gsToolkit.h>
+#include <libpad.h>
+#include "rt.h"
+
+static char s_padbuf[256] __attribute__((aligned(64)));
+static int s_pad_ok;
+
+static void pad_init(void)
+{
+  int state, tries = 0;
+  SifInitRpc(0);
+  if (SifLoadModule("rom0:SIO2MAN", 0, NULL) < 0) return;
+  if (SifLoadModule("rom0:PADMAN", 0, NULL) < 0) return;
+  padInit(0);
+  if (padPortOpen(0, 0, s_padbuf) == 0) return;
+  do {
+    state = padGetState(0, 0);
+  } while (state != PAD_STATE_STABLE && state != PAD_STATE_FINDCTP1 && ++tries < 200000);
+  s_pad_ok = 1;
+}
+
+static unsigned int pad_read(void)
+{
+  static const unsigned short map[BTN_COUNT] = {
+    PAD_CROSS, PAD_CIRCLE, PAD_SQUARE, PAD_TRIANGLE,
+    PAD_UP, PAD_DOWN, PAD_LEFT, PAD_RIGHT,
+    PAD_START, PAD_SELECT, PAD_L1, PAD_R1
+  };
+  struct padButtonStatus st;
+  unsigned int held = 0, data;
+  int b, state;
+  if (!s_pad_ok) return 0;
+  state = padGetState(0, 0);
+  if (state != PAD_STATE_STABLE && state != PAD_STATE_FINDCTP1) return 0;
+  if (padRead(0, 0, &st) == 0) return 0;
+  data = 0xffff ^ st.btns;
+  for (b = 0; b < BTN_COUNT; b++)
+    if (data & map[b]) held |= 1u << b;
+  return held;
+}
+
+static GSGLOBAL *s_gs;
+
+static int zval(float z) /* z: 1 near .. 0 far -> 24 bit, bigger is closer */
+{
+  int v = (int)(z * 16777000.0f);
+  if (v < 1) v = 1;
+  if (v > 16777215) v = 16777215;
+  return v;
+}
+
+static void emit(float x1, float y1, float z1, float x2, float y2, float z2,
+                 float x3, float y3, float z3, unsigned int rgb, void *user)
+{
+  u64 c = GS_SETREG_RGBAQ((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255, 0x80, 0x00);
+  (void)user;
+  gsKit_prim_triangle_3d(s_gs, x1, y1, zval(z1), x2, y2, zval(z2), x3, y3, zval(z3), c);
+}
+
+int main(int argc, char *argv[])
+{
+  GSFONTM *font;
+  int i;
+  (void)argc; (void)argv;
+
+  s_gs = gsKit_init_global();
+  s_gs->PSM = GS_PSM_CT24;
+  s_gs->PSMZ = GS_PSMZ_24;
+  s_gs->ZBuffering = GS_SETTING_ON;
+  s_gs->DoubleBuffering = GS_SETTING_ON;
+  s_gs->PrimAlphaEnable = GS_SETTING_ON;
+
+  dmaKit_init(D_CTRL_RELE_OFF, D_CTRL_MFD_OFF, D_CTRL_STS_UNSPEC,
+              D_CTRL_STD_OFF, D_CTRL_RCYC_8, 1 << DMA_CHANNEL_GIF);
+  dmaKit_chan_init(DMA_CHANNEL_GIF);
+
+  gsKit_init_screen(s_gs);
+  gsKit_mode_switch(s_gs, GS_ONESHOT);
+  gsKit_set_test(s_gs, GS_ZTEST_ON);
+  gsKit_set_primalpha(s_gs, GS_SETREG_ALPHA(0, 1, 0, 1, 0), 0);
+
+  font = gsKit_init_fontm();
+  gsKit_fontm_upload(s_gs, font);
+
+  pad_init();
+  bw_mesh_init();
+  rt_reset();
+
+  for (;;) {
+    float y = 16.0f;
+    rt_frame(pad_read());
+
+    gsKit_clear(s_gs, GS_SETREG_RGBAQ((GAME_SKY >> 16) & 255, (GAME_SKY >> 8) & 255, GAME_SKY & 255, 0x80, 0x00));
+    bw_render((float)s_gs->Width, (float)s_gs->Height, emit, 0);
+
+    for (i = 0; i < g_nobjs; i++) {
+      if (g_objs[i].hud[0]) {
+        gsKit_fontm_print_scaled(s_gs, font, 20.0f, y, 0xFFFFFF, 0.6f,
+                                 GS_SETREG_RGBAQ(0xFF, 0xFF, 0xFF, 0x80, 0x00), g_objs[i].hud);
+        y += 22.0f;
+      }
+    }
+
+    gsKit_queue_exec(s_gs);
+    gsKit_sync_flip(s_gs);
+    gsKit_TexManager_nextFrame(s_gs);
+  }
+  return 0;
+}
+</script>
+<script type="text/plain" id="c-main_host.c">
+/* PC test driver: runs the game logic headless, prints the result and can
+ * write a PPM screenshot rendered with the same 3D code the PS2 uses.
+ *   cc -O2 -Isrc -o game_test src/main_host.c src/rt.c src/render.c src/game.c -lm
+ *   ./game_test 600 shot.ppm */
+#include <stdio.h>
+#include <stdlib.h>
+#include "rt.h"
+
+#define W 640
+#define H 448
+static unsigned char s_rgb[H][W][3];
+static float s_z[H][W];
+static int s_tris;
+
+static float edge(float ax, float ay, float bx, float by, float px, float py)
+{ return (bx - ax) * (py - ay) - (by - ay) * (px - ax); }
+
+static void raster(float x1, float y1, float z1, float x2, float y2, float z2,
+                   float x3, float y3, float z3, unsigned int rgb, void *u)
+{
+  int x, y, x0, x1i, y0, y1i;
+  float area = edge(x1, y1, x2, y2, x3, y3);
+  (void)u;
+  s_tris++;
+  if (area == 0) return;
+  x0 = (int)(x1 < x2 ? (x1 < x3 ? x1 : x3) : (x2 < x3 ? x2 : x3)); if (x0 < 0) x0 = 0;
+  x1i = (int)(x1 > x2 ? (x1 > x3 ? x1 : x3) : (x2 > x3 ? x2 : x3)) + 1; if (x1i > W) x1i = W;
+  y0 = (int)(y1 < y2 ? (y1 < y3 ? y1 : y3) : (y2 < y3 ? y2 : y3)); if (y0 < 0) y0 = 0;
+  y1i = (int)(y1 > y2 ? (y1 > y3 ? y1 : y3) : (y2 > y3 ? y2 : y3)) + 1; if (y1i > H) y1i = H;
+  for (y = y0; y < y1i; y++)
+    for (x = x0; x < x1i; x++) {
+      float px = x + 0.5f, py = y + 0.5f;
+      float w0 = edge(x2, y2, x3, y3, px, py) / area, w1 = edge(x3, y3, x1, y1, px, py) / area, w2 = 1 - w0 - w1;
+      float z;
+      if (w0 < 0 || w1 < 0 || w2 < 0) continue;
+      z = w0 * z1 + w1 * z2 + w2 * z3;
+      if (z <= s_z[y][x]) continue; /* bigger = closer, like the PS2 z test */
+      s_z[y][x] = z;
+      s_rgb[y][x][0] = (rgb >> 16) & 255; s_rgb[y][x][1] = (rgb >> 8) & 255; s_rgb[y][x][2] = rgb & 255;
+    }
+}
+
+int main(int argc, char **argv)
+{
+  int frames = argc > 1 ? atoi(argv[1]) : 300, f, i, x, y;
+  bw_mesh_init();
+  rt_reset();
+  for (f = 0; f < frames; f++) {
+    /* scripted input: drive forward, steer in turns, tap CROSS every 30 frames */
+    unsigned int held = 0;
+    if (f < frames * 4 / 5) held |= 1u << BTN_UP;
+    if ((f / 40) % 3 == 0) held |= 1u << BTN_LEFT;
+    if ((f / 40) % 3 == 2) held |= 1u << BTN_RIGHT;
+    if (f % 30 < 2) held |= 1u << BTN_CROSS;
+    rt_frame(held);
+  }
+  for (y = 0; y < H; y++)
+    for (x = 0; x < W; x++) {
+      s_z[y][x] = 0;
+      s_rgb[y][x][0] = (GAME_SKY >> 16) & 255; s_rgb[y][x][1] = (GAME_SKY >> 8) & 255; s_rgb[y][x][2] = GAME_SKY & 255;
+    }
+  bw_render(W, H, raster, 0);
+  printf("%s: %d frames, %d triangles drawn\n", GAME_NAME, frames, s_tris);
+  for (i = 0; i < g_nobjs; i++)
+    printf("  %s pos=(%.2f, %.2f, %.2f) rotY=%.1f visible=%d hud='%s'\n", g_objs[i].name,
+           g_objs[i].pos[0], g_objs[i].pos[1], g_objs[i].pos[2], g_objs[i].rot[1],
+           g_objs[i].visible, g_objs[i].hud);
+  if (argc > 2) {
+    FILE *fp = fopen(argv[2], "wb");
+    if (fp) { fprintf(fp, "P6\n%d %d\n255\n", W, H); fwrite(s_rgb, 1, sizeof(s_rgb), fp); fclose(fp); printf("wrote %s\n", argv[2]); }
+  }
+  return 0;
+}
+</script>
+<script type="text/plain" id="c-build.sh">
+#!/bin/sh
+# Builds game.elf with the PS2SDK toolchain (no make needed).
+# Inside Docker:  docker run --rm -v "$PWD":/src -w /src ps2dev/ps2dev sh build.sh
+set -e
+CC=mips64r5900el-ps2-elf-gcc
+CFLAGS="-D_EE -G0 -O2 -Wall -I$PS2SDK/ee/include -I$PS2SDK/common/include -I$GSKIT/include -Isrc"
+for f in main_ps2 rt render game; do $CC $CFLAGS -c src/$f.c -o src/$f.o; done
+$CC -T$PS2SDK/ee/startup/linkfile -O2 -o game.elf src/main_ps2.o src/rt.o src/render.o src/game.o \
+  -L$PS2SDK/ee/lib -L$GSKIT/lib -Wl,-zmax-page-size=128 -lgskit -ldmakit -lpad -lm
+echo "OK: game.elf"
+</script>
+<script type="text/plain" id="c-Makefile">
+EE_BIN = game.elf
+EE_OBJS = src/main_ps2.o src/rt.o src/render.o src/game.o
+EE_LIBS = -L$(GSKIT)/lib -lgskit -ldmakit -lpad -lm
+EE_INCS += -I$(GSKIT)/include -Isrc
+EE_CFLAGS += -O2
+
+all: $(EE_BIN)
+
+clean:
+	rm -f $(EE_BIN) $(EE_OBJS)
+
+include $(PS2SDK)/samples/Makefile.pref
+include $(PS2SDK)/samples/Makefile.eeglobal
+</script>
+
+<!-- Game runtime: shared by the editor's play mode and the web export -->
+<script id="bw-runtime">
+window.BW = (function () {
+  'use strict';
+  var D = Math.PI / 180;
+  var BTNS = ['CROSS', 'CIRCLE', 'SQUARE', 'TRIANGLE', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'START', 'SELECT', 'L1', 'R1'];
+  var KEYS = {
+    ArrowUp: 'UP', KeyW: 'UP', ArrowDown: 'DOWN', KeyS: 'DOWN', ArrowLeft: 'LEFT', KeyA: 'LEFT', ArrowRight: 'RIGHT', KeyD: 'RIGHT',
+    Space: 'CROSS', KeyJ: 'CROSS', KeyK: 'CIRCLE', KeyU: 'SQUARE', KeyI: 'TRIANGLE',
+    Enter: 'START', ShiftLeft: 'SELECT', ShiftRight: 'SELECT', KeyQ: 'L1', KeyE: 'R1'
+  };
+  var PAD = { CROSS: 0, CIRCLE: 1, SQUARE: 2, TRIANGLE: 3, L1: 4, R1: 5, SELECT: 8, START: 9, UP: 12, DOWN: 13, LEFT: 14, RIGHT: 15 };
+
+  function inp(b, n) { var i = b.inputs && b.inputs[n]; return i ? (i.block || i.shadow || null) : null; }
+  function fld(b, n) { return b.fields ? b.fields[n] : undefined; }
+  function nextOf(b) { return b && b.next && b.next.block ? b.next.block : null; }
+  function varId(b) { var v = fld(b, 'VAR'); return v && typeof v === 'object' ? v.id : v; }
+
+  function indexScript(script) {
+    var r = { start: [], tick: [], press: [], touch: [] };
+    var tops = (script && script.blocks && script.blocks.blocks) || [];
+    tops.forEach(function (t) {
+      var body = nextOf(t);
+      if (!body) return;
+      if (t.type === 'ev_start') r.start.push(body);
+      else if (t.type === 'ev_tick') r.tick.push(body);
+      else if (t.type === 'ev_press') r.press.push({ btn: BTNS.indexOf(fld(t, 'BTN')), body: body });
+      else if (t.type === 'ev_touch') r.touch.push({ target: fld(t, 'TARGET'), body: body });
+    });
+    return r;
+  }
+
+  function createGame(project) {
+    var g = { objs: [], cam: { pos: [0, 6, 10], target: [0, 0, 0] }, time: 0 };
+    var V = {}, held = 0, prevHeld = 0, restart = false, touch = [];
+    var scripts = project.objects.map(function (o) { return indexScript(o.script); });
+
+    function find(name) { for (var i = 0; i < g.objs.length; i++) if (g.objs[i].name === name) return g.objs[i]; return null; }
+    function half(o) { var h = [Math.abs(o.scale[0]) / 2, Math.abs(o.scale[1]) / 2, Math.abs(o.scale[2]) / 2]; if (o.shape === 'plane') h[1] = 0.05; return h; }
+    function touching(a, b) {
+      if (!a || !b || a === b || !a.visible || !b.visible) return false;
+      var ha = half(a), hb = half(b);
+      for (var k = 0; k < 3; k++) if (Math.abs(a.pos[k] - b.pos[k]) > ha[k] + hb[k]) return false;
+      return true;
+    }
+    function touchingAny(a) { for (var i = 0; i < g.objs.length; i++) if (touching(a, g.objs[i])) return true; return false; }
+    function target(name) { return name === '*' ? null : find(name); }
+    function hud(o, t, v) { o.hud = t + ' ' + (v === Math.trunc(v) ? String(Math.trunc(v)) : v.toFixed(2)); }
+
+    function num(b, n, self) { var x = inp(b, n); if (!x) return 0; var v = Number(val(x, self)); return isFinite(v) ? v : 0; }
+    function bool(b, n, self) { var x = inp(b, n); return x ? !!val(x, self) : false; }
+    function div(a, b) { return b === 0 ? 0 : a / b; }
+
+    function val(b, self) {
+      switch (b.type) {
+        case 'math_number': return Number(fld(b, 'NUM')) || 0;
+        case 'logic_boolean': return fld(b, 'BOOL') === 'TRUE';
+        case 'variables_get': return V[varId(b)] || 0;
+        case 'math_arithmetic': {
+          var a = num(b, 'A', self), c = num(b, 'B', self);
+          switch (fld(b, 'OP')) { case 'ADD': return a + c; case 'MINUS': return a - c; case 'MULTIPLY': return a * c; case 'DIVIDE': return div(a, c); case 'POWER': return Math.pow(a, c); }
+          return 0;
+        }
+        case 'math_single': {
+          var x = num(b, 'NUM', self);
+          switch (fld(b, 'OP')) { case 'ROOT': return Math.sqrt(x); case 'ABS': return Math.abs(x); case 'NEG': return -x; case 'LN': return Math.log(x); case 'LOG10': return Math.log10(x); case 'EXP': return Math.exp(x); case 'POW10': return Math.pow(10, x); }
+          return 0;
+        }
+        case 'math_trig': {
+          var y = num(b, 'NUM', self);
+          switch (fld(b, 'OP')) { case 'SIN': return Math.sin(y * D); case 'COS': return Math.cos(y * D); case 'TAN': return Math.tan(y * D); case 'ASIN': return Math.asin(y) / D; case 'ACOS': return Math.acos(y) / D; case 'ATAN': return Math.atan(y) / D; }
+          return 0;
+        }
+        case 'math_round': {
+          var z = num(b, 'NUM', self);
+          return fld(b, 'OP') === 'ROUNDUP' ? Math.ceil(z) : fld(b, 'OP') === 'ROUNDDOWN' ? Math.floor(z) : Math.round(z);
+        }
+        case 'math_modulo': { var d = num(b, 'DIVISOR', self); return d === 0 ? 0 : num(b, 'DIVIDEND', self) % d; }
+        case 'math_random_int': {
+          var lo = Math.floor(Math.min(num(b, 'FROM', self), num(b, 'TO', self))), hi = Math.floor(Math.max(num(b, 'FROM', self), num(b, 'TO', self)));
+          return lo + Math.floor(Math.random() * (hi - lo + 1));
+        }
+        case 'logic_compare': {
+          var l = num(b, 'A', self), r = num(b, 'B', self);
+          switch (fld(b, 'OP')) { case 'EQ': return l === r; case 'NEQ': return l !== r; case 'LT': return l < r; case 'LTE': return l <= r; case 'GT': return l > r; case 'GTE': return l >= r; }
+          return false;
+        }
+        case 'logic_operation': return fld(b, 'OP') === 'AND' ? (bool(b, 'A', self) && bool(b, 'B', self)) : (bool(b, 'A', self) || bool(b, 'B', self));
+        case 'logic_negate': return !bool(b, 'BOOL', self);
+        case 'sn_held': return !!(held & (1 << BTNS.indexOf(fld(b, 'BTN'))));
+        case 'sn_get': return getProp(self, +fld(b, 'PROP'));
+        case 'sn_getof': return getProp(find(fld(b, 'TARGET')), +fld(b, 'PROP'));
+        case 'sn_dist': { var o = find(fld(b, 'TARGET')); if (!o) return 0; var dx = self.pos[0] - o.pos[0], dy = self.pos[1] - o.pos[1], dz = self.pos[2] - o.pos[2]; return Math.sqrt(dx * dx + dy * dy + dz * dz); }
+        case 'sn_touching': return fld(b, 'TARGET') === '*' ? touchingAny(self) : touching(self, find(fld(b, 'TARGET')));
+        case 'sn_time': return g.time;
+      }
+      return 0;
+    }
+    function getProp(o, p) { if (!o) return 0; return p < 3 ? o.pos[p] : p < 6 ? o.rot[p - 3] : p < 9 ? o.scale[p - 6] : 0; }
+
+    function run(b, self) { while (b) { stmt(b, self); b = nextOf(b); } }
+    function stmt(b, self) {
+      switch (b.type) {
+        case 'controls_if': {
+          var es = b.extraState || {}, n = es.elseIfCount || 0;
+          for (var i = 0; i <= n; i++) if (bool(b, 'IF' + i, self)) { run(inp(b, 'DO' + i), self); return; }
+          if (es.hasElse) run(inp(b, 'ELSE'), self);
+          return;
+        }
+        case 'controls_repeat_ext': { var t = Math.min(num(b, 'TIMES', self), 10000); for (var k = 0; k < t; k++) run(inp(b, 'DO'), self); return; }
+        case 'variables_set': { var x = inp(b, 'VALUE'); V[varId(b)] = x ? Number(val(x, self)) || 0 : 0; return; }
+        case 'math_change': { var id = varId(b); V[id] = (V[id] || 0) + num(b, 'DELTA', self); return; }
+        case 'mv_move': self.pos[0] += num(b, 'X', self); self.pos[1] += num(b, 'Y', self); self.pos[2] += num(b, 'Z', self); return;
+        case 'mv_setpos': self.pos = [num(b, 'X', self), num(b, 'Y', self), num(b, 'Z', self)]; return;
+        case 'mv_forward': { var yaw = self.rot[1] * D, s = num(b, 'N', self); self.pos[0] += -Math.sin(yaw) * s; self.pos[2] += -Math.cos(yaw) * s; return; }
+        case 'mv_rotate': self.rot[0] += num(b, 'X', self); self.rot[1] += num(b, 'Y', self); self.rot[2] += num(b, 'Z', self); return;
+        case 'mv_setrot': self.rot = [num(b, 'X', self), num(b, 'Y', self), num(b, 'Z', self)]; return;
+        case 'mv_undo': self.pos = self.prev.slice(); return;
+        case 'lk_color': self.color = fld(b, 'COLOR'); return;
+        case 'lk_show': self.visible = fld(b, 'VIS') === '1'; return;
+        case 'lk_scale': self.scale = [num(b, 'X', self), num(b, 'Y', self), num(b, 'Z', self)]; return;
+        case 'lk_hud': hud(self, fld(b, 'TEXT') || '', num(b, 'VALUE', self)); return;
+        case 'lk_hudtext': self.hud = fld(b, 'TEXT') || ''; return;
+        case 'cam_follow': { var yw = self.rot[1] * D, dist = num(b, 'DIST', self), h = num(b, 'H', self); g.cam.pos = [self.pos[0] + Math.sin(yw) * dist, self.pos[1] + h, self.pos[2] + Math.cos(yw) * dist]; g.cam.target = self.pos.slice(); return; }
+        case 'cam_pos': g.cam.pos = [num(b, 'X', self), num(b, 'Y', self), num(b, 'Z', self)]; return;
+        case 'cam_look': g.cam.target = self.pos.slice(); return;
+        case 'gm_restart': restart = true; return;
+      }
+    }
+
+    g.reset = function () {
+      g.objs = project.objects.map(function (o) {
+        return { name: o.name, shape: o.shape, pos: o.pos.slice(), prev: o.pos.slice(), rot: o.rot.slice(), scale: o.scale.slice(), color: o.color, visible: true, hud: '' };
+      });
+      g.cam = { pos: project.camera.pos.slice(), target: project.camera.target.slice() };
+      touch = g.objs.map(function () { return g.objs.map(function () { return false; }); });
+      V = {}; g.time = 0; restart = false; prevHeld = held;
+      g.objs.forEach(function (o, i) { scripts[i].start.forEach(function (b) { run(b, o); }); });
+    };
+
+    g.frame = function (heldMask) {
+      held = heldMask;
+      var pressed = held & ~prevHeld; prevHeld = held;
+      g.objs.forEach(function (o) { o.prev = o.pos.slice(); });
+      g.objs.forEach(function (o, i) {
+        var s = scripts[i];
+        if (pressed) for (var b = 0; b < BTNS.length; b++) if (pressed & (1 << b)) s.press.forEach(function (p) { if (p.btn === b) run(p.body, o); });
+        s.tick.forEach(function (bk) { run(bk, o); });
+      });
+      for (var i = 0; i < g.objs.length; i++) for (var j = i + 1; j < g.objs.length; j++) {
+        var t = touching(g.objs[i], g.objs[j]);
+        if (t && !touch[i][j]) {
+          touch[i][j] = true;
+          fireTouch(i, j); fireTouch(j, i);
+          touch[i][j] = touching(g.objs[i], g.objs[j]); // a handler may have moved them apart
+        } else if (!t) touch[i][j] = false;
+      }
+      g.time += 1 / 60;
+      if (restart) g.reset();
+    };
+    function fireTouch(i, j) {
+      var self = g.objs[i], other = g.objs[j];
+      scripts[i].touch.forEach(function (h) { if (h.target === '*' || h.target === other.name) run(h.body, self); });
+    }
+    return g;
+  }
+
+  function geometry(shape) {
+    if (shape === 'sphere') return new THREE.SphereGeometry(0.5, 24, 16);
+    if (shape === 'cylinder') return new THREE.CylinderGeometry(0.5, 0.5, 1, 24);
+    if (shape === 'plane') { var p = new THREE.PlaneGeometry(1, 1); p.rotateX(-Math.PI / 2); return p; }
+    return new THREE.BoxGeometry(1, 1, 1);
+  }
+  function material(color, shape) {
+    return new THREE.MeshPhongMaterial({ color: color, flatShading: true, shininess: 0, specular: 0x000000, side: shape === 'plane' ? THREE.DoubleSide : THREE.FrontSide });
+  }
+  function lights(scene) {
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    var d = new THREE.DirectionalLight(0xffffff, 0.6); d.position.set(0.45, 1, 0.3); scene.add(d);
+  }
+
+  /* play(project, container): runs the game at a fixed 60 Hz step, 4:3 like a PS2 on a TV */
+  function play(project, container, opts) {
+    opts = opts || {};
+    var game = createGame(project);
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden';
+    var stage = document.createElement('div'); stage.style.cssText = 'position:relative';
+    var hudEl = document.createElement('div');
+    hudEl.style.cssText = 'position:absolute;left:3%;top:3%;font:600 18px/1.35 system-ui,sans-serif;color:#fff;text-shadow:0 2px 0 #000,0 0 6px #000;pointer-events:none;white-space:pre';
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    stage.appendChild(renderer.domElement); stage.appendChild(hudEl); wrap.appendChild(stage); container.appendChild(wrap);
+
+    var scene = new THREE.Scene();
+    scene.background = new THREE.Color(project.sky || '#6fa8dc');
+    lights(scene);
+    var camera = new THREE.PerspectiveCamera(60, 4 / 3, 0.1, 500);
+    var meshes = project.objects.map(function (o) { var m = new THREE.Mesh(geometry(o.shape), material(o.color, o.shape)); scene.add(m); return m; });
+
+    function fit() {
+      var w = container.clientWidth, h = container.clientHeight;
+      if (w / h > 4 / 3) w = Math.round(h * 4 / 3); else h = Math.round(w * 3 / 4);
+      renderer.setSize(w, h); hudEl.style.fontSize = Math.max(12, h / 24) + 'px';
+    }
+    fit();
+    var ro = window.ResizeObserver ? new ResizeObserver(fit) : null; if (ro) ro.observe(container); else window.addEventListener('resize', fit);
+
+    var keyHeld = 0;
+    function bit(name) { return 1 << BTNS.indexOf(name); }
+    function kd(e) {
+      var t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      var b = KEYS[e.code]; if (!b) return; keyHeld |= bit(b); e.preventDefault();
+    }
+    function ku(e) { var b = KEYS[e.code]; if (b) keyHeld &= ~bit(b); }
+    function blur() { keyHeld = 0; }
+    window.addEventListener('keydown', kd); window.addEventListener('keyup', ku); window.addEventListener('blur', blur);
+    function padHeld() {
+      var m = 0, pads = navigator.getGamepads ? navigator.getGamepads() : [];
+      for (var i = 0; i < pads.length; i++) {
+        var p = pads[i]; if (!p) continue;
+        BTNS.forEach(function (n) { var bt = p.buttons[PAD[n]]; if (bt && bt.pressed) m |= bit(n); });
+        if (p.axes && p.axes.length >= 2) {
+          if (p.axes[0] < -0.5) m |= bit('LEFT'); if (p.axes[0] > 0.5) m |= bit('RIGHT');
+          if (p.axes[1] < -0.5) m |= bit('UP'); if (p.axes[1] > 0.5) m |= bit('DOWN');
+        }
+      }
+      return m;
+    }
+
+    var running = true, last = performance.now(), acc = 0, raf = 0;
+    try { game.reset(); } catch (e) { if (opts.onError) opts.onError(e); }
+    function sync() {
+      game.objs.forEach(function (o, i) {
+        var m = meshes[i];
+        m.visible = o.visible;
+        m.position.set(o.pos[0], o.pos[1], o.pos[2]);
+        m.rotation.set(o.rot[0] * D, o.rot[1] * D, o.rot[2] * D);
+        m.scale.set(o.scale[0] || 1e-4, o.scale[1] || 1e-4, o.scale[2] || 1e-4);
+        if (m.userData.c !== o.color) { m.material.color.set(o.color); m.userData.c = o.color; }
+      });
+      camera.position.set(game.cam.pos[0], game.cam.pos[1], game.cam.pos[2]);
+      camera.lookAt(game.cam.target[0], game.cam.target[1], game.cam.target[2]);
+      hudEl.textContent = game.objs.filter(function (o) { return o.hud; }).map(function (o) { return o.hud; }).join('\n');
+    }
+    function loop(now) {
+      if (!running) return;
+      acc += Math.min(now - last, 250); last = now;
+      try {
+        var steps = 0;
+        while (acc >= 1000 / 60 && steps < 5) { game.frame(keyHeld | padHeld()); acc -= 1000 / 60; steps++; }
+        if (steps === 5) acc = 0;
+      } catch (e) { running = false; if (opts.onError) opts.onError(e); return; }
+      sync();
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(loop);
+    }
+    sync(); renderer.render(scene, camera);
+    raf = requestAnimationFrame(loop);
+
+    return {
+      game: game,
+      stop: function () {
+        running = false; cancelAnimationFrame(raf);
+        window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); window.removeEventListener('blur', blur);
+        if (ro) ro.disconnect(); else window.removeEventListener('resize', fit);
+        meshes.forEach(function (m) { m.geometry.dispose(); m.material.dispose(); });
+        renderer.dispose(); wrap.remove();
+      }
+    };
+  }
+
+  return { BTNS: BTNS, createGame: createGame, play: play, geometry: geometry, material: material, lights: lights, indexScript: indexScript };
+})();
+</script>
+
+<script>
+(function () {
+  'use strict';
+  var D = Math.PI / 180;
+  var $ = function (s) { return document.querySelector(s); };
+
+  /* ---------------- blocks ---------------- */
+  var BTN_OPTS = [['✕ Kreuz', 'CROSS'], ['○ Kreis', 'CIRCLE'], ['□ Quadrat', 'SQUARE'], ['△ Dreieck', 'TRIANGLE'],
+    ['▲ Hoch', 'UP'], ['▼ Runter', 'DOWN'], ['◀ Links', 'LEFT'], ['▶ Rechts', 'RIGHT'],
+    ['START', 'START'], ['SELECT', 'SELECT'], ['L1', 'L1'], ['R1', 'R1']];
+  var COLORS = [['Rot', '#e74c3c'], ['Orange', '#f39c12'], ['Gelb', '#f1c40f'], ['Grün', '#2ecc71'], ['Türkis', '#1abc9c'], ['Blau', '#3498db'],
+    ['Lila', '#9b59b6'], ['Pink', '#ff6fb5'], ['Weiß', '#ffffff'], ['Grau', '#95a5a6'], ['Schwarz', '#222222'], ['Braun', '#8e5b3a']];
+  var PROPS = [['Position X', '0'], ['Position Y', '1'], ['Position Z', '2'], ['Drehung X', '3'], ['Drehung Y', '4'], ['Drehung Z', '5'], ['Größe X', '6'], ['Größe Y', '7'], ['Größe Z', '8']];
+  function targets() { var o = project.objects.map(function (x) { return [x.name, x.name]; }); return o.length ? o : [['–', '']]; }
+  function targetsAny() { return [['irgendetwas', '*']].concat(project.objects.map(function (x) { return [x.name, x.name]; })); }
+  function xyz(msg, style) {
+    return { message0: msg, args0: [{ type: 'input_value', name: 'X', check: 'Number' }, { type: 'input_value', name: 'Y', check: 'Number' }, { type: 'input_value', name: 'Z', check: 'Number' }],
+      inputsInline: true, previousStatement: null, nextStatement: null, style: style };
+  }
+  function def(type, o) { o.type = type; return o; }
+
+  Blockly.defineBlocksWithJsonArray([
+    def('ev_start', { message0: 'Wenn Spiel startet', nextStatement: null, style: 'event_blocks', tooltip: 'Läuft einmal beim Start.' }),
+    def('ev_tick', { message0: 'Jeden Frame', nextStatement: null, style: 'event_blocks', tooltip: 'Läuft 60-mal pro Sekunde.' }),
+    def('ev_press', { message0: 'Wenn Taste %1 gedrückt', args0: [{ type: 'field_dropdown', name: 'BTN', options: BTN_OPTS }], nextStatement: null, style: 'event_blocks' }),
+    def('ev_touch', { message0: 'Wenn ich %1 berühre', args0: [{ type: 'field_dropdown', name: 'TARGET', options: targetsAny }], nextStatement: null, style: 'event_blocks', tooltip: 'Läuft einmal, wenn die Berührung beginnt.' }),
+
+    def('mv_move', xyz('bewege um x %1 y %2 z %3', 'motion_blocks')),
+    def('mv_setpos', xyz('setze Position x %1 y %2 z %3', 'motion_blocks')),
+    def('mv_forward', { message0: 'fahre vorwärts %1', args0: [{ type: 'input_value', name: 'N', check: 'Number' }], previousStatement: null, nextStatement: null, style: 'motion_blocks', tooltip: 'In Blickrichtung (Drehung Y) bewegen. Negativ = rückwärts.' }),
+    def('mv_rotate', xyz('drehe um x %1 ° y %2 ° z %3 °', 'motion_blocks')),
+    def('mv_setrot', xyz('setze Drehung x %1 ° y %2 ° z %3 °', 'motion_blocks')),
+    def('mv_undo', { message0: 'gehe zurück (blockiert)', previousStatement: null, nextStatement: null, style: 'motion_blocks', tooltip: 'Setzt die Position auf den Stand vor diesem Frame. Gut für Wände.' }),
+
+    def('lk_color', { message0: 'setze Farbe %1', args0: [{ type: 'field_dropdown', name: 'COLOR', options: COLORS }], previousStatement: null, nextStatement: null, style: 'looks_blocks' }),
+    def('lk_show', { message0: '%1', args0: [{ type: 'field_dropdown', name: 'VIS', options: [['zeige mich', '1'], ['verstecke mich', '0']] }], previousStatement: null, nextStatement: null, style: 'looks_blocks', tooltip: 'Versteckte Objekte berühren nichts.' }),
+    def('lk_scale', xyz('setze Größe x %1 y %2 z %3', 'looks_blocks')),
+    def('lk_hud', { message0: 'Anzeige %1 %2', args0: [{ type: 'field_input', name: 'TEXT', text: 'Punkte:' }, { type: 'input_value', name: 'VALUE', check: ['Number', 'Boolean'] }], inputsInline: true, previousStatement: null, nextStatement: null, style: 'looks_blocks', tooltip: 'Text und Zahl oben links (eine Zeile pro Objekt).' }),
+    def('lk_hudtext', { message0: 'Anzeige %1', args0: [{ type: 'field_input', name: 'TEXT', text: 'Hallo!' }], previousStatement: null, nextStatement: null, style: 'looks_blocks' }),
+
+    def('cam_follow', { message0: 'Kamera folgt mir Abstand %1 Höhe %2', args0: [{ type: 'input_value', name: 'DIST', check: 'Number' }, { type: 'input_value', name: 'H', check: 'Number' }], inputsInline: true, previousStatement: null, nextStatement: null, style: 'cam_blocks' }),
+    def('cam_pos', xyz('setze Kamera auf x %1 y %2 z %3', 'cam_blocks')),
+    def('cam_look', { message0: 'Kamera schaut auf mich', previousStatement: null, nextStatement: null, style: 'cam_blocks' }),
+    def('gm_restart', { message0: 'Spiel neu starten', previousStatement: null, style: 'cam_blocks' }),
+
+    def('sn_held', { message0: 'Taste %1 gehalten?', args0: [{ type: 'field_dropdown', name: 'BTN', options: BTN_OPTS }], output: 'Boolean', style: 'sense_blocks' }),
+    def('sn_get', { message0: 'meine %1', args0: [{ type: 'field_dropdown', name: 'PROP', options: PROPS }], output: 'Number', style: 'sense_blocks' }),
+    def('sn_getof', { message0: '%1 von %2', args0: [{ type: 'field_dropdown', name: 'PROP', options: PROPS }, { type: 'field_dropdown', name: 'TARGET', options: targets }], output: 'Number', style: 'sense_blocks' }),
+    def('sn_dist', { message0: 'Entfernung zu %1', args0: [{ type: 'field_dropdown', name: 'TARGET', options: targets }], output: 'Number', style: 'sense_blocks' }),
+    def('sn_touching', { message0: 'berühre ich %1?', args0: [{ type: 'field_dropdown', name: 'TARGET', options: targetsAny }], output: 'Boolean', style: 'sense_blocks' }),
+    def('sn_time', { message0: 'Zeit in Sekunden', output: 'Number', style: 'sense_blocks' })
+  ]);
+
+  var N = function (v) { return { shadow: { type: 'math_number', fields: { NUM: v } } }; };
+  function blk(type, inputs, fields) {
+    var o = { kind: 'block', type: type }; if (fields) o.fields = fields;
+    if (inputs) { o.inputs = {}; Object.keys(inputs).forEach(function (k) { o.inputs[k] = N(inputs[k]); }); }
+    return o;
+  }
+  var TOOLBOX = { kind: 'categoryToolbox', contents: [
+    { kind: 'category', name: 'Ereignisse', colour: '#e8a530', contents: [blk('ev_start'), blk('ev_tick'), blk('ev_press'), blk('ev_touch', null, { TARGET: '*' })] },
+    { kind: 'category', name: 'Bewegung', colour: '#4c97ff', contents: [blk('mv_forward', { N: 0.1 }), blk('mv_move', { X: 0, Y: 0.1, Z: 0 }), blk('mv_rotate', { X: 0, Y: 3, Z: 0 }),
+      blk('mv_setpos', { X: 0, Y: 0.5, Z: 0 }), blk('mv_setrot', { X: 0, Y: 0, Z: 0 }), blk('mv_undo')] },
+    { kind: 'category', name: 'Aussehen', colour: '#9966ff', contents: [blk('lk_color'), blk('lk_show'), blk('lk_scale', { X: 1, Y: 1, Z: 1 }), blk('lk_hud', { VALUE: 0 }), blk('lk_hudtext')] },
+    { kind: 'category', name: 'Kamera & Spiel', colour: '#e8663a', contents: [blk('cam_follow', { DIST: 6, H: 3 }), blk('cam_look'), blk('cam_pos', { X: 0, Y: 6, Z: 10 }), blk('gm_restart')] },
+    { kind: 'category', name: 'Fühlen', colour: '#3cb4d8', contents: [blk('sn_held'), blk('sn_touching', null, { TARGET: '*' }), blk('sn_get'), blk('sn_getof'), blk('sn_dist'), blk('sn_time')] },
+    { kind: 'sep' },
+    { kind: 'category', name: 'Steuerung', colour: '#d6a12a', contents: [{ kind: 'block', type: 'controls_if' },
+      { kind: 'block', type: 'controls_if', extraState: { hasElse: true } }, blk('controls_repeat_ext', { TIMES: 10 })] },
+    { kind: 'category', name: 'Logik', colour: '#59c059', contents: [{ kind: 'block', type: 'logic_compare' }, { kind: 'block', type: 'logic_operation' }, { kind: 'block', type: 'logic_negate' }, { kind: 'block', type: 'logic_boolean' }] },
+    { kind: 'category', name: 'Mathe', colour: '#40bf4a', contents: [blk('math_number', null, { NUM: 0 }), blk('math_arithmetic', { A: 1, B: 1 }), blk('math_random_int', { FROM: 1, TO: 10 }),
+      blk('math_modulo', { DIVIDEND: 10, DIVISOR: 3 }), blk('math_round', { NUM: 3.1 }), blk('math_single', { NUM: 9 }), blk('math_trig', { NUM: 45 })] },
+    { kind: 'category', name: 'Variablen', colour: '#ff8c1a', custom: 'VARIABLE' }
+  ] };
+
+  var theme = Blockly.Theme.defineTheme('blockwerk', {
+    base: Blockly.Themes.Classic,
+    blockStyles: {
+      event_blocks: { colourPrimary: '#e8a530', colourSecondary: '#f0c060', colourTertiary: '#b8811c', hat: 'cap' },
+      motion_blocks: { colourPrimary: '#4c97ff', colourSecondary: '#7db5ff', colourTertiary: '#3373cc' },
+      looks_blocks: { colourPrimary: '#9966ff', colourSecondary: '#b38cff', colourTertiary: '#774dcb' },
+      cam_blocks: { colourPrimary: '#e8663a', colourSecondary: '#f08a66', colourTertiary: '#b84a24' },
+      sense_blocks: { colourPrimary: '#3cb4d8', colourSecondary: '#6cc8e4', colourTertiary: '#2b8eab' },
+      logic_blocks: { colourPrimary: '#59c059', colourSecondary: '#7fd07f', colourTertiary: '#389438' },
+      loop_blocks: { colourPrimary: '#d6a12a', colourSecondary: '#e4bb5e', colourTertiary: '#a67b1a' },
+      math_blocks: { colourPrimary: '#40bf4a', colourSecondary: '#6dd075', colourTertiary: '#2e8f36' },
+      variable_blocks: { colourPrimary: '#ff8c1a', colourSecondary: '#ffa64d', colourTertiary: '#db6e00' }
+    },
+    componentStyles: {
+      workspaceBackgroundColour: '#171a21', toolboxBackgroundColour: '#1b1f27', toolboxForegroundColour: '#e6e4df',
+      flyoutBackgroundColour: '#232835', flyoutForegroundColour: '#e6e4df', flyoutOpacity: 0.97,
+      scrollbarColour: '#4a5163', scrollbarOpacity: 0.6, insertionMarkerColour: '#ffffff', insertionMarkerOpacity: 0.3, cursorColour: '#d0d0d0'
+    },
+    fontStyle: { family: 'Inter, system-ui, sans-serif', weight: '600', size: 11 }
+  });
+
+  var ws = Blockly.inject('blocklyDiv', {
+    toolbox: TOOLBOX, theme: theme, renderer: 'zelos', trashcan: false, sounds: false,
+    zoom: { controls: false, wheel: true, startScale: 0.72, maxScale: 2, minScale: 0.3 },
+    move: { scrollbars: true, drag: true, wheel: false }, grid: { spacing: 24, length: 2, colour: '#232835', snap: false }
+  });
+  new ResizeObserver(function () { Blockly.svgResize(ws); }).observe($('#blocklyWrap'));
+
+  /* ---------------- project ---------------- */
+  var project, selId = null, uid = 1;
+  function newId() { return 'o' + Date.now().toString(36) + (uid++); }
+
+  // helpers to author block scripts in code (sample project)
+  function B(type, fields, inputs, next) {
+    var b = { type: type }; if (fields) b.fields = fields;
+    if (inputs) { b.inputs = {}; Object.keys(inputs).forEach(function (k) { var v = inputs[k]; b.inputs[k] = typeof v === 'number' ? N(v) : { block: v }; }); }
+    if (next) b.next = { block: next };
+    return b;
+  }
+  function chain() { var a = Array.prototype.slice.call(arguments); for (var i = 0; i < a.length - 1; i++) a[i].next = { block: a[i + 1] }; return a[0]; }
+  function hat(type, fields, body, x, y) { var h = B(type, fields); h.x = x; h.y = y; if (body) h.next = { block: body }; return h; }
+  function script() { return { blocks: { languageVersion: 0, blocks: Array.prototype.slice.call(arguments) } }; }
+  function held(btn) { return B('sn_held', { BTN: btn }); }
+  function vget(id) { return B('variables_get', { VAR: { id: id } }); }
+  function ifb(cond, body) { return B('controls_if', null, { IF0: cond, DO0: body }); }
+  function obj(name, shape, pos, rot, scale, color, sc) { return { id: newId(), name: name, shape: shape, pos: pos, rot: rot, scale: scale, color: color, script: sc || null }; }
+
+  function sampleProject() {
+    var coinScript = function (x) {
+      return script(
+        hat('ev_tick', null, B('mv_rotate', null, { X: 0, Y: 4, Z: 0 }), 20, 20),
+        hat('ev_touch', { TARGET: 'Spieler' }, chain(B('lk_show', { VIS: '0' }), B('math_change', { VAR: { id: 'v_muenzen' } }, { DELTA: 1 })), 20, 160)
+      );
+    };
+    var player = script(
+      hat('ev_tick', null, chain(
+        ifb(held('UP'), B('mv_forward', null, { N: 0.12 })),
+        ifb(held('DOWN'), B('mv_forward', null, { N: -0.08 })),
+        ifb(held('LEFT'), B('mv_rotate', null, { X: 0, Y: 3, Z: 0 })),
+        ifb(held('RIGHT'), B('mv_rotate', null, { X: 0, Y: -3, Z: 0 })),
+        B('cam_follow', null, { DIST: 7, H: 4 }),
+        B('lk_hud', { TEXT: 'Münzen:' }, { VALUE: vget('v_muenzen') }),
+        ifb(B('logic_compare', { OP: 'GTE' }, { A: vget('v_muenzen'), B: 4 }), B('lk_hudtext', { TEXT: 'Gewonnen! START = neu' }))
+      ), 20, 20),
+      hat('ev_touch', { TARGET: 'Stein' }, B('mv_undo'), 440, 20),
+      hat('ev_touch', { TARGET: 'Mauer' }, B('mv_undo'), 440, 150),
+      hat('ev_press', { BTN: 'START' }, B('gm_restart'), 440, 280),
+      hat('ev_press', { BTN: 'CROSS' }, B('lk_color', { COLOR: '#3498db' }), 440, 410),
+      hat('ev_press', { BTN: 'CIRCLE' }, B('lk_color', { COLOR: '#e74c3c' }), 440, 540)
+    );
+    var stone = script(hat('ev_tick', null, B('mv_rotate', null, { X: 0, Y: 1, Z: 0 }), 20, 20));
+    return {
+      version: 1, name: 'Münzjäger', sky: '#7fb2e0',
+      camera: { pos: [0, 9, 14], target: [0, 0, 0] },
+      variables: [{ name: 'Münzen', id: 'v_muenzen' }],
+      objects: [
+        obj('Boden', 'plane', [0, 0, 0], [0, 0, 0], [30, 1, 30], '#5aa85a'),
+        obj('Spieler', 'cube', [0, 0.5, 0], [0, 0, 0], [1, 1, 1.4], '#e74c3c', player),
+        obj('Münze1', 'cylinder', [5, 0.8, -4], [90, 0, 0], [0.8, 0.12, 0.8], '#f1c40f', coinScript()),
+        obj('Münze2', 'cylinder', [-6, 0.8, -7], [90, 0, 0], [0.8, 0.12, 0.8], '#f1c40f', coinScript()),
+        obj('Münze3', 'cylinder', [-4, 0.8, 6], [90, 0, 0], [0.8, 0.12, 0.8], '#f1c40f', coinScript()),
+        obj('Münze4', 'cylinder', [8, 0.8, 7], [90, 0, 0], [0.8, 0.12, 0.8], '#f1c40f', coinScript()),
+        obj('Stein', 'cube', [2, 0.75, -9], [0, 20, 0], [2, 1.5, 2], '#95a5a6', stone),
+        obj('Mauer', 'cube', [-3, 1, -3], [0, 0, 0], [0.6, 2, 7], '#8e5b3a')
+      ]
+    };
+  }
+  function emptyProject() {
+    return { version: 1, name: 'Neues Spiel', sky: '#7fb2e0', camera: { pos: [0, 6, 10], target: [0, 0, 0] }, variables: [],
+      objects: [obj('Boden', 'plane', [0, 0, 0], [0, 0, 0], [20, 1, 20], '#5aa85a')] };
+  }
+  function normalize(p) {
+    if (!p || !Array.isArray(p.objects)) throw new Error('Keine Blockwerk-Projektdatei.');
+    p.name = p.name || 'Spiel'; p.sky = p.sky || '#7fb2e0'; p.variables = p.variables || [];
+    p.camera = p.camera || { pos: [0, 6, 10], target: [0, 0, 0] };
+    p.objects.forEach(function (o) { o.id = o.id || newId(); o.rot = o.rot || [0, 0, 0]; o.scale = o.scale || [1, 1, 1]; o.pos = o.pos || [0, 0, 0]; o.color = o.color || '#cccccc'; });
+    return p;
+  }
+
+  /* ---------------- three.js editor view ---------------- */
+  var view = $('#viewWrap');
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  view.appendChild(renderer.domElement);
+  var scene = new THREE.Scene();
+  BW.lights(scene);
+  var grid = new THREE.GridHelper(40, 40, 0x445066, 0x2a3140); grid.position.y = -0.002; scene.add(grid);
+  var camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1000);
+  var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+  orbit.enableDamping = true;
+  var gizmo = new THREE.TransformControls(camera, renderer.domElement);
+  gizmo.setSize(0.9);
+  scene.add(gizmo);
+  gizmo.addEventListener('dragging-changed', function (e) { orbit.enabled = !e.value; if (!e.value) { saveLocal(); } });
+  gizmo.addEventListener('objectChange', function () {
+    var o = selObj(), m = gizmo.object; if (!o || !m) return;
+    o.pos = [m.position.x, m.position.y, m.position.z].map(r3);
+    o.rot = [m.rotation.x / D, m.rotation.y / D, m.rotation.z / D].map(r1);
+    o.scale = [m.scale.x, m.scale.y, m.scale.z].map(r3);
+    fillVec();
+  });
+  // camera marker shows where the game camera starts
+  var camMarker = new THREE.Group();
+  (function () {
+    var body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.4, 0.5), new THREE.MeshBasicMaterial({ color: 0xffb547, wireframe: true }));
+    var lens = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.5, 4, 1, true), new THREE.MeshBasicMaterial({ color: 0xffb547, wireframe: true }));
+    lens.rotation.x = Math.PI / 2; lens.position.z = -0.45; camMarker.add(body); camMarker.add(lens);
+  })();
+  scene.add(camMarker);
+
+  function r3(v) { return Math.round(v * 1000) / 1000; }
+  function r1(v) { return Math.round(v * 10) / 10; }
+  var meshes = {};
+  function rebuildMeshes() {
+    Object.keys(meshes).forEach(function (k) { var m = meshes[k]; scene.remove(m); m.geometry.dispose(); m.material.dispose(); });
+    meshes = {};
+    project.objects.forEach(function (o) { var m = new THREE.Mesh(BW.geometry(o.shape), BW.material(o.color, o.shape)); m.userData.id = o.id; meshes[o.id] = m; scene.add(m); syncMesh(o); });
+    attachGizmo();
+  }
+  function syncMesh(o) {
+    var m = meshes[o.id]; if (!m) return;
+    m.position.set(o.pos[0], o.pos[1], o.pos[2]);
+    m.rotation.set(o.rot[0] * D, o.rot[1] * D, o.rot[2] * D);
+    m.scale.set(o.scale[0] || 1e-4, o.scale[1] || 1e-4, o.scale[2] || 1e-4);
+    m.material.color.set(o.color);
+  }
+  function syncCamMarker() {
+    var c = project.camera; camMarker.position.set(c.pos[0], c.pos[1], c.pos[2]); camMarker.lookAt(c.target[0], c.target[1], c.target[2]);
+    scene.background = new THREE.Color(project.sky);
+  }
+  function attachGizmo() { var m = selId && meshes[selId]; if (m) gizmo.attach(m); else gizmo.detach(); }
+  function resize() {
+    var w = view.clientWidth, h = view.clientHeight; if (!w || !h) return;
+    renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(view);
+  (function loop() { orbit.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
+
+  // click to select
+  var ray = new THREE.Raycaster(), downAt = null;
+  renderer.domElement.addEventListener('pointerdown', function (e) { downAt = [e.clientX, e.clientY]; });
+  renderer.domElement.addEventListener('pointerup', function (e) {
+    if (!downAt || Math.abs(e.clientX - downAt[0]) + Math.abs(e.clientY - downAt[1]) > 4 || gizmo.dragging || e.button !== 0) return;
+    var r = renderer.domElement.getBoundingClientRect();
+    ray.setFromCamera({ x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -((e.clientY - r.top) / r.height) * 2 + 1 }, camera);
+    var hits = ray.intersectObjects(Object.keys(meshes).map(function (k) { return meshes[k]; }));
+    select(hits.length ? hits[0].object.userData.id : null);
+  });
+  document.querySelectorAll('#gizmoBar [data-mode]').forEach(function (b) {
+    b.addEventListener('click', function () { setMode(b.dataset.mode); });
+  });
+  function setMode(m) { gizmo.setMode(m); document.querySelectorAll('#gizmoBar [data-mode]').forEach(function (x) { x.classList.toggle('on', x.dataset.mode === m); }); }
+  window.addEventListener('keydown', function (e) {
+    if (player || e.target.closest && e.target.closest('input,textarea,.blocklyWidgetDiv,#blocklyDiv,select')) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.code === 'KeyW') setMode('translate'); else if (e.code === 'KeyE') setMode('rotate'); else if (e.code === 'KeyR') setMode('scale');
+    else if ((e.code === 'Delete') && selId) deleteSel();
+    else if (e.code === 'KeyF' && selObj()) focusSel();
+  });
+  function focusSel() { var o = selObj(); orbit.target.set(o.pos[0], o.pos[1], o.pos[2]); }
+
+  /* ---------------- scene list + inspector ---------------- */
+  function selObj() { return project.objects.find(function (o) { return o.id === selId; }) || null; }
+  var SHAPE_DE = { cube: 'Würfel', sphere: 'Kugel', cylinder: 'Zylinder', plane: 'Fläche' };
+  function renderList() {
+    var ul = $('#objList'); ul.innerHTML = '';
+    project.objects.forEach(function (o) {
+      var li = document.createElement('li'); if (o.id === selId) li.className = 'sel';
+      var n = BW.indexScript(o.script); var count = n.start.length + n.tick.length + n.press.length + n.touch.length;
+      li.innerHTML = '<span class="sw"></span><span class="nm"></span><span class="badge"></span>';
+      li.querySelector('.sw').style.background = o.color;
+      li.querySelector('.nm').textContent = o.name;
+      li.querySelector('.badge').textContent = count ? count + ' ⚑' : '';
+      li.title = SHAPE_DE[o.shape] + (count ? ' · ' + count + ' Ereignis-Skripte' : '');
+      li.addEventListener('click', function () { select(o.id); });
+      li.addEventListener('dblclick', function () { select(o.id); focusSel(); });
+      ul.appendChild(li);
+    });
+    $('#sceneSettings').classList.toggle('sel', selId === null);
+  }
+  $('#sceneSettings').addEventListener('click', function () { select(null); });
+
+  function vecField(label, key) {
+    return '<div class="field"><span class="lbl">' + label + '</span><div class="vec" data-key="' + key + '">' +
+      ['X', 'Y', 'Z'].map(function (a, i) { return '<div><span>' + a + '</span><input class="inp" type="number" step="0.1" id="f-' + key + i + '" data-i="' + i + '" aria-label="' + label + ' ' + a + '"></div>'; }).join('') + '</div></div>';
+  }
+  function renderInspector() {
+    var o = selObj(), body = $('#inspBody');
+    if (!o) {
+      body.innerHTML = '<div class="field"><label for="f-sky">Himmelsfarbe</label><input class="inp" type="color" id="f-sky"></div>' +
+        vecField('Startkamera Position', 'campos') + vecField('Startkamera schaut auf', 'camtgt') +
+        '<div class="row2"><button class="btn" id="bCamFromView">Aktuelle Ansicht übernehmen</button></div>' +
+        '<p class="hint">Die gelbe Drahtkamera zeigt, wo das Spiel startet. Blöcke unter „Kamera &amp; Spiel“ bewegen sie während des Spiels.</p>' +
+        '<p class="hint">Steuerung beim Spielen: <kbd>←↑↓→</kbd>/<kbd>WASD</kbd> Steuerkreuz, <kbd>Leertaste</kbd> ✕, <kbd>K</kbd> ○, <kbd>U</kbd> □, <kbd>I</kbd> △, <kbd>Enter</kbd> START, <kbd>Q</kbd>/<kbd>E</kbd> L1/R1. Gamepads werden erkannt.</p>';
+      $('#f-sky').value = project.sky;
+      $('#f-sky').addEventListener('input', function (e) { project.sky = e.target.value; syncCamMarker(); saveLocal(); });
+      $('#bCamFromView').addEventListener('click', function () {
+        project.camera.pos = [camera.position.x, camera.position.y, camera.position.z].map(r3);
+        project.camera.target = [orbit.target.x, orbit.target.y, orbit.target.z].map(r3);
+        fillVec(); syncCamMarker(); saveLocal(); toast('Startkamera gesetzt');
+      });
+    } else {
+      body.innerHTML = '<div class="field"><label for="f-name">Name</label><input class="inp" id="f-name" maxlength="40"></div>' +
+        '<div class="field"><span class="lbl">Form</span><span>' + SHAPE_DE[o.shape] + '</span></div>' +
+        vecField('Position', 'pos') + vecField('Drehung (Grad)', 'rot') + vecField('Größe', 'scale') +
+        '<div class="field"><label for="f-color">Farbe</label><input class="inp" type="color" id="f-color"></div>' +
+        '<div class="row2"><button class="btn" id="bDup">Duplizieren</button><button class="btn" id="bDel">Löschen</button></div>';
+      $('#f-name').value = o.name;
+      $('#f-name').addEventListener('change', function (e) { renameObj(o, e.target.value); });
+      $('#f-color').value = o.color;
+      $('#f-color').addEventListener('input', function (e) { o.color = e.target.value; syncMesh(o); renderList(); saveLocal(); });
+      $('#bDel').addEventListener('click', deleteSel);
+      $('#bDup').addEventListener('click', function () {
+        var c = JSON.parse(JSON.stringify(o)); c.id = newId(); c.name = uniqueName(o.name.replace(/\d+$/, '') || o.name); c.pos[0] += 1.5;
+        project.objects.push(c); rebuildMeshes(); select(c.id); saveLocal();
+      });
+    }
+    body.querySelectorAll('.vec').forEach(function (v) {
+      v.addEventListener('input', function (e) {
+        var key = v.dataset.key, i = +e.target.dataset.i, x = parseFloat(e.target.value); if (!isFinite(x)) return;
+        if (key === 'campos') project.camera.pos[i] = x; else if (key === 'camtgt') project.camera.target[i] = x;
+        else { var ob = selObj(); ob[key][i] = x; syncMesh(ob); }
+        syncCamMarker(); saveLocal();
+      });
+    });
+    fillVec();
+  }
+  function fillVec() {
+    var o = selObj();
+    var map = o ? { pos: o.pos, rot: o.rot, scale: o.scale } : { campos: project.camera.pos, camtgt: project.camera.target };
+    Object.keys(map).forEach(function (k) { for (var i = 0; i < 3; i++) { var el = document.getElementById('f-' + k + i); if (el && document.activeElement !== el) el.value = map[k][i]; } });
+  }
+  function uniqueName(base) {
+    var names = project.objects.map(function (o) { return o.name; }), n = 1, nm = base;
+    while (names.indexOf(nm) >= 0) nm = base + (++n);
+    return nm;
+  }
+  function renameObj(o, name) {
+    name = (name || '').trim() || o.name;
+    if (name === o.name) return;
+    if (project.objects.some(function (x) { return x !== o && x.name === name; })) { name = uniqueName(name); toast('Name vergeben – heißt jetzt „' + name + '“'); }
+    var old = o.name; o.name = name;
+    // keep references in every script
+    project.objects.forEach(function (x) {
+      walkBlocks(x.script, function (b) { if (b.fields && b.fields.TARGET === old) b.fields.TARGET = name; });
+    });
+    loadWorkspace(); renderList(); renderInspector(); saveLocal();
+  }
+  function walkBlocks(sc, fn) {
+    function w(b) { if (!b) return; fn(b); if (b.inputs) Object.keys(b.inputs).forEach(function (k) { w(b.inputs[k].block); w(b.inputs[k].shadow); }); if (b.next) w(b.next.block); }
+    ((sc && sc.blocks && sc.blocks.blocks) || []).forEach(w);
+  }
+  function deleteSel() {
+    var o = selObj(); if (!o) return;
+    project.objects = project.objects.filter(function (x) { return x !== o; });
+    selId = null; rebuildMeshes(); select(null); saveLocal(); toast('„' + o.name + '“ gelöscht');
+  }
+  document.querySelectorAll('[data-add]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var s = b.dataset.add, base = SHAPE_DE[s];
+      var o = obj(uniqueName(base), s, [r3(orbit.target.x), s === 'plane' ? 0 : 0.5, r3(orbit.target.z)], [0, 0, 0], s === 'plane' ? [4, 1, 4] : [1, 1, 1], ['#3498db', '#e74c3c', '#f1c40f', '#9b59b6', '#1abc9c'][project.objects.length % 5]);
+      project.objects.push(o); rebuildMeshes(); select(o.id); saveLocal();
+    });
+  });
+
+  /* ---------------- blockly <-> object scripts ---------------- */
+  var loading = false;
+  function loadWorkspace() {
+    var o = selObj();
+    loading = true;
+    Blockly.Events.disable();
+    try {
+      ws.clear();
+      var data = JSON.parse(JSON.stringify((o && o.script) || {}));
+      data.variables = project.variables.slice();
+      Blockly.serialization.workspaces.load(data, ws);
+    } catch (e) { console.error(e); toast('Skript konnte nicht geladen werden: ' + e.message); }
+    finally { Blockly.Events.enable(); }
+    loading = false;
+    $('#noSel').hidden = !!o;
+    $('#codeFor').textContent = o ? o.name : '–';
+  }
+  ws.addChangeListener(function (e) {
+    if (loading || e.isUiEvent) return;
+    var o = selObj();
+    var data = Blockly.serialization.workspaces.save(ws);
+    // variables are global (shared by all objects)
+    var vars = data.variables || [];
+    if (e.type === Blockly.Events.VAR_DELETE) project.variables = project.variables.filter(function (v) { return v.id !== e.varId; });
+    vars.forEach(function (v) {
+      var ex = project.variables.find(function (x) { return x.id === v.id; });
+      if (ex) ex.name = v.name; else project.variables.push({ name: v.name, id: v.id });
+    });
+    if (!o) return;
+    delete data.variables;
+    o.script = data;
+    clearTimeout(listTimer); listTimer = setTimeout(renderList, 300);
+    saveLocal();
+  });
+  var listTimer;
+
+  function select(id) {
+    selId = id;
+    attachGizmo(); renderList(); renderInspector(); loadWorkspace();
+  }
+
+  /* ---------------- persistence ---------------- */
+  var saveTimer;
+  function saveLocal() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { try { localStorage.setItem('blockwerk.project', JSON.stringify(project)); } catch (e) { } }, 400);
+  }
+  function setProject(p) {
+    if (player) togglePlay();
+    project = normalize(p); selId = null;
+    $('#projName').value = project.name;
+    rebuildMeshes(); syncCamMarker();
+    camera.position.set(project.camera.pos[0] + 4, project.camera.pos[1] + 4, project.camera.pos[2] + 6);
+    orbit.target.set(0, 0, 0);
+    var player0 = project.objects.find(function (o) { return o.script; });
+    select(player0 ? player0.id : null);
+    saveLocal();
+  }
+  $('#projName').addEventListener('change', function (e) { project.name = e.target.value.trim() || 'Spiel'; saveLocal(); });
+
+  var downloads = null;
+  if (window.claude && window.claude.use) window.claude.use('downloads').then(function (d) { downloads = d; }, function () { });
+  function saveFile(name, data) {
+    if (downloads) {
+      return downloads.save({ filename: name, data: data }).then(function () { toast('Gespeichert: ' + name); }, function (e) {
+        if (e && e.code === 'declined') return;
+        toast('Speichern ging nicht (' + ((e && (e.message || e.code)) || 'Fehler') + ').');
+      });
+    }
+    var blob = data instanceof Blob ? data : new Blob([data]);
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+    toast('Gespeichert: ' + name);
+    return Promise.resolve();
+  }
+  function slug(s) { return (s || 'spiel').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'spiel'; }
+
+  $('#bSave').addEventListener('click', function () { saveFile(slug(project.name) + '.blockwerk.json', JSON.stringify(project, null, 1)); });
+  $('#fileOpen').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (t) { setProject(JSON.parse(t)); toast('„' + project.name + '“ geöffnet'); })
+      .catch(function (err) { toast('Datei nicht lesbar: ' + err.message); });
+    e.target.value = '';
+  });
+  $('#bNew').addEventListener('click', function () { confirmBox('Neues Projekt', 'Das aktuelle Projekt wird ersetzt. Vorher speichern?', 'Ersetzen', function () { setProject(emptyProject()); }); });
+  $('#bSample').addEventListener('click', function () { confirmBox('Beispiel laden', 'Lädt das Beispielspiel „Münzjäger“ und ersetzt das aktuelle Projekt.', 'Laden', function () { setProject(sampleProject()); }); });
+
+  /* ---------------- play ---------------- */
+  var player = null, keysEl = null;
+  function togglePlay() {
+    var b = $('#bPlay');
+    if (player) {
+      player.stop(); player = null; $('#playHost').remove(); keysEl = null;
+      b.textContent = '▶ Spielen'; b.classList.remove('stop'); $('#status').textContent = '';
+      return;
+    }
+    var host = document.createElement('div'); host.id = 'playHost'; view.appendChild(host);
+    keysEl = document.createElement('div'); keysEl.className = 'keys';
+    keysEl.innerHTML = '<kbd>←↑↓→</kbd><span>Steuerkreuz</span><kbd>Leer</kbd><span>✕</span><kbd>K</kbd><span>○</span><kbd>Enter</kbd><span>START</span>';
+    host.appendChild(keysEl);
+    document.activeElement && document.activeElement.blur && document.activeElement.blur();
+    player = BW.play(JSON.parse(JSON.stringify(project)), host, { onError: function (e) { toast('Fehler im Spiel: ' + e.message); } });
+    b.textContent = '■ Stopp'; b.classList.add('stop'); $('#status').textContent = 'Spiel läuft · 60 Hz · 4:3';
+  }
+  $('#bPlay').addEventListener('click', togglePlay);
+
+  /* ---------------- export: web ---------------- */
+  function webExport() {
+    var rt = document.getElementById('bw-runtime').textContent;
+    var data = JSON.stringify(project).replace(/</g, '\\u003c');
+    var title = project.name.replace(/[<&]/g, '');
+    return '<!doctype html>\n<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>' + title + '</title><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#g{position:fixed;inset:0}</style></head>' +
+      '<body><div id="g"></div>\n<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>\n<script>' + rt + '<\/script>\n' +
+      '<script>BW.play(' + data + ', document.getElementById("g"));<\/script>\n</body></html>\n';
+  }
+  $('#bWeb').addEventListener('click', function () { saveFile(slug(project.name) + '.html', webExport()); });
+
+  /* ---------------- export: PS2 (C) ---------------- */
+  function cnum(n) {
+    n = Number(n); if (!isFinite(n)) n = 0;
+    var s = String(n); if (/e/i.test(s)) s = n.toFixed(6);
+    if (s.indexOf('.') < 0) s += '.0';
+    return n < 0 ? '(' + s + 'f)' : s + 'f';
+  }
+  function cstr(s) { return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/[\x00-\x1f]/g, ' ').replace(/\?\?/g, '?\\?') + '"'; }
+  function chex(c) { return '0x' + String(c || '#cccccc').replace('#', '').slice(0, 6).padStart(6, '0'); }
+  var SHAPE_C = { cube: 'SHAPE_CUBE', sphere: 'SHAPE_SPHERE', plane: 'SHAPE_PLANE', cylinder: 'SHAPE_CYLINDER' };
+
+  function genGameC(p) {
+    var issues = [];
+    var vnames = {}, used = {};
+    p.variables.forEach(function (v) {
+      var base = 'v_' + (slug(v.name).replace(/-/g, '_') || 'var'), n = base, k = 1;
+      while (used[n]) n = base + '_' + (++k);
+      used[n] = 1; vnames[v.id] = n;
+    });
+    var loopN = 0;
+    function I(b, n) { var i = b.inputs && b.inputs[n]; return i ? (i.block || i.shadow || null) : null; }
+    function F(b, n) { return b.fields ? b.fields[n] : undefined; }
+    function vref(b) { var v = F(b, 'VAR'), id = v && typeof v === 'object' ? v.id : v; if (!vnames[id]) { vnames[id] = 'v_unknown_' + Object.keys(vnames).length; } return vnames[id]; }
+    function E(b, n) { var x = I(b, n); return x ? ex(x) : '0.0f'; }
+    function tgt(name) { return 'rt_find(' + cstr(name) + ')'; }
+    function ex(b) {
+      switch (b.type) {
+        case 'math_number': return cnum(F(b, 'NUM'));
+        case 'logic_boolean': return F(b, 'BOOL') === 'TRUE' ? '1' : '0';
+        case 'variables_get': return vref(b);
+        case 'math_arithmetic': {
+          var a = E(b, 'A'), c = E(b, 'B');
+          return { ADD: '(' + a + ' + ' + c + ')', MINUS: '(' + a + ' - ' + c + ')', MULTIPLY: '(' + a + ' * ' + c + ')', DIVIDE: 'rt_div(' + a + ', ' + c + ')', POWER: 'powf(' + a + ', ' + c + ')' }[F(b, 'OP')] || '0.0f';
+        }
+        case 'math_single': { var x = E(b, 'NUM'); return { ROOT: 'sqrtf(' + x + ')', ABS: 'fabsf(' + x + ')', NEG: '(-(' + x + '))', LN: 'logf(' + x + ')', LOG10: 'log10f(' + x + ')', EXP: 'expf(' + x + ')', POW10: 'powf(10.0f, ' + x + ')' }[F(b, 'OP')] || x; }
+        case 'math_trig': { var y = E(b, 'NUM'), R = '0.017453292519943295f'; return { SIN: 'sinf(' + y + ' * ' + R + ')', COS: 'cosf(' + y + ' * ' + R + ')', TAN: 'tanf(' + y + ' * ' + R + ')', ASIN: '(asinf(' + y + ') / ' + R + ')', ACOS: '(acosf(' + y + ') / ' + R + ')', ATAN: '(atanf(' + y + ') / ' + R + ')' }[F(b, 'OP')] || y; }
+        case 'math_round': { var z = E(b, 'NUM'); return (F(b, 'OP') === 'ROUNDUP' ? 'ceilf(' : F(b, 'OP') === 'ROUNDDOWN' ? 'floorf(' : 'roundf(') + z + ')'; }
+        case 'math_modulo': return 'rt_mod(' + E(b, 'DIVIDEND') + ', ' + E(b, 'DIVISOR') + ')';
+        case 'math_random_int': return 'rt_randint(' + E(b, 'FROM') + ', ' + E(b, 'TO') + ')';
+        case 'logic_compare': return '(' + E(b, 'A') + ' ' + ({ EQ: '==', NEQ: '!=', LT: '<', LTE: '<=', GT: '>', GTE: '>=' }[F(b, 'OP')] || '==') + ' ' + E(b, 'B') + ')';
+        case 'logic_operation': return '(' + (I(b, 'A') ? ex(I(b, 'A')) : '0') + (F(b, 'OP') === 'AND' ? ' && ' : ' || ') + (I(b, 'B') ? ex(I(b, 'B')) : '0') + ')';
+        case 'logic_negate': return '(!' + (I(b, 'BOOL') ? ex(I(b, 'BOOL')) : '0') + ')';
+        case 'sn_held': return 'rt_held(BTN_' + F(b, 'BTN') + ')';
+        case 'sn_get': return 'rt_get(self, ' + (+F(b, 'PROP') || 0) + ')';
+        case 'sn_getof': return 'rt_get(' + tgt(F(b, 'TARGET')) + ', ' + (+F(b, 'PROP') || 0) + ')';
+        case 'sn_dist': return 'rt_distance(self, ' + tgt(F(b, 'TARGET')) + ')';
+        case 'sn_touching': return F(b, 'TARGET') === '*' ? 'rt_touching_any(self)' : 'rt_touching(self, ' + tgt(F(b, 'TARGET')) + ')';
+        case 'sn_time': return 'rt_time()';
+      }
+      issues.push('Block „' + b.type + '“ wird auf der PS2 nicht unterstützt (als 0 übersetzt).');
+      return '0.0f';
+    }
+    function body(b, ind) { var out = ''; while (b) { out += st(b, ind); b = b.next && b.next.block; } return out; }
+    function xyz(fn, b) { return fn + '(self, ' + E(b, 'X') + ', ' + E(b, 'Y') + ', ' + E(b, 'Z') + ');'; }
+    function st(b, ind) {
+      var pad = '  '.repeat(ind), c;
+      switch (b.type) {
+        case 'controls_if': {
+          var es = b.extraState || {}, n = es.elseIfCount || 0, s = '';
+          for (var i = 0; i <= n; i++) s += (i ? ' else if (' : pad + 'if (') + (I(b, 'IF' + i) ? ex(I(b, 'IF' + i)) : '0') + ') {\n' + body(I(b, 'DO' + i), ind + 1) + pad + '}';
+          if (es.hasElse) s += ' else {\n' + body(I(b, 'ELSE'), ind + 1) + pad + '}';
+          return s + '\n';
+        }
+        case 'controls_repeat_ext': { var v = 'i' + (loopN++); return pad + '{ int ' + v + '; for (' + v + ' = 0; ' + v + ' < (int)' + E(b, 'TIMES') + '; ' + v + '++) {\n' + body(I(b, 'DO'), ind + 1) + pad + '} }\n'; }
+        case 'variables_set': c = vref(b) + ' = (float)(' + E(b, 'VALUE') + ');'; break;
+        case 'math_change': c = vref(b) + ' += ' + E(b, 'DELTA') + ';'; break;
+        case 'mv_move': c = xyz('rt_move', b); break;
+        case 'mv_setpos': c = xyz('rt_setpos', b); break;
+        case 'mv_forward': c = 'rt_forward(self, ' + E(b, 'N') + ');'; break;
+        case 'mv_rotate': c = xyz('rt_rotate', b); break;
+        case 'mv_setrot': c = xyz('rt_setrot', b); break;
+        case 'mv_undo': c = 'rt_undo(self);'; break;
+        case 'lk_color': c = 'rt_setcolor(self, ' + chex(F(b, 'COLOR')) + ');'; break;
+        case 'lk_show': c = 'rt_setvisible(self, ' + (F(b, 'VIS') === '1' ? 1 : 0) + ');'; break;
+        case 'lk_scale': c = xyz('rt_setscale', b); break;
+        case 'lk_hud': c = 'rt_hud(self, ' + cstr(F(b, 'TEXT') || '') + ', (float)(' + E(b, 'VALUE') + '));'; break;
+        case 'lk_hudtext': c = 'rt_hudtext(self, ' + cstr(F(b, 'TEXT') || '') + ');'; break;
+        case 'cam_follow': c = 'rt_camfollow(self, ' + E(b, 'DIST') + ', ' + E(b, 'H') + ');'; break;
+        case 'cam_pos': c = 'rt_campos(' + E(b, 'X') + ', ' + E(b, 'Y') + ', ' + E(b, 'Z') + ');'; break;
+        case 'cam_look': c = 'rt_camlook(self);'; break;
+        case 'gm_restart': c = 'rt_restart();'; break;
+        default: issues.push('Block „' + b.type + '“ wird auf der PS2 nicht unterstützt (übersprungen).'); c = '/* ' + b.type + ' */';
+      }
+      return pad + c + '\n';
+    }
+
+    var L = [];
+    L.push('/* Generated by Blockwerk – do not edit, re-export instead. */');
+    L.push('#include <math.h>', '#include "rt.h"', '');
+    L.push('const char GAME_NAME[] = ' + cstr(p.name) + ';');
+    L.push('const int GAME_NOBJS = ' + p.objects.length + ';');
+    L.push('const unsigned int GAME_SKY = ' + chex(p.sky) + ';');
+    L.push('const float GAME_CAM_POS[3] = {' + p.camera.pos.map(cnum).join(', ') + '};');
+    L.push('const float GAME_CAM_TARGET[3] = {' + p.camera.target.map(cnum).join(', ') + '};', '');
+    L.push('const ObjInit GAME_OBJS[] = {');
+    p.objects.forEach(function (o) {
+      L.push('  {' + cstr(o.name) + ', ' + SHAPE_C[o.shape] + ', {' + o.pos.map(cnum).join(', ') + '}, {' + o.rot.map(cnum).join(', ') + '}, {' + o.scale.map(cnum).join(', ') + '}, ' + chex(o.color) + '},');
+    });
+    if (!p.objects.length) L.push('  {"", SHAPE_CUBE, {0,0,0}, {0,0,0}, {0,0,0}, 0}');
+    L.push('};', '');
+    var funcs = [];
+    p.objects.forEach(function (o, i) {
+      var s = BW.indexScript(o.script), f = 'o' + i, row = [];
+      L.push('/* ' + o.name.replace(/\*\//g, '') + ' */');
+      if (s.start.length) { L.push('static void ' + f + '_start(Obj *self)', '{', '  (void)self;'); s.start.forEach(function (b) { L.push(body(b, 1).replace(/\n$/, '')); }); L.push('}'); row.push(f + '_start'); } else row.push('0');
+      if (s.tick.length) { L.push('static void ' + f + '_tick(Obj *self)', '{', '  (void)self;'); s.tick.forEach(function (b) { L.push(body(b, 1).replace(/\n$/, '')); }); L.push('}'); row.push(f + '_tick'); } else row.push('0');
+      if (s.press.length) {
+        L.push('static void ' + f + '_press(Obj *self, int btn)', '{', '  (void)self;');
+        s.press.forEach(function (h) { if (h.btn < 0) return; L.push('  if (btn == BTN_' + BW.BTNS[h.btn] + ') {', body(h.body, 2).replace(/\n$/, ''), '  }'); });
+        L.push('}'); row.push(f + '_press');
+      } else row.push('0');
+      if (s.touch.length) {
+        L.push('static void ' + f + '_collide(Obj *self, Obj *other)', '{', '  (void)self; (void)other;');
+        s.touch.forEach(function (h) { L.push('  if (' + (h.target === '*' ? '1' : 'other == ' + tgt(h.target)) + ') {', body(h.body, 2).replace(/\n$/, ''), '  }'); });
+        L.push('}'); row.push(f + '_collide');
+      } else row.push('0');
+      funcs.push('  {' + row.join(', ') + '},');
+      L.push('');
+    });
+    var vlist = Object.keys(vnames).map(function (k) { return vnames[k]; });
+    var VL = vlist.map(function (v) { return 'static float ' + v + ';'; });
+    L.splice(L.indexOf('const ObjInit GAME_OBJS[] = {'), 0, '/* global block variables */'.concat(VL.length ? '' : ' /* none */'), VL.join('\n'), '');
+    L.push('void game_reset_vars(void)', '{');
+    vlist.forEach(function (v) { L.push('  ' + v + ' = 0.0f;'); });
+    L.push('}', '');
+    L.push('const Script GAME_SCRIPTS[] = {');
+    L.push(funcs.length ? funcs.join('\n') : '  {0, 0, 0, 0}');
+    L.push('};', '');
+    return { code: L.join('\n'), issues: issues.filter(function (x, i, a) { return a.indexOf(x) === i; }) };
+  }
+
+  function ps2Readme(p) {
+    return '# ' + p.name + ' – PlayStation 2\n\n' +
+      'Mit **Blockwerk** erstellt. Dieses Verzeichnis ist ein vollständiges PS2SDK-Projekt (C, gsKit, libpad).\n\n' +
+      '## Bauen\n\n' +
+      'Am einfachsten mit dem offiziellen ps2dev-Docker-Image (Linux, macOS, Windows mit Docker Desktop):\n\n' +
+      '```sh\ndocker run --rm -v "$PWD":/src -w /src ps2dev/ps2dev sh build.sh\n```\n\n' +
+      'Mit lokal installiertem PS2SDK (`$PS2SDK` und `$GSKIT` gesetzt) geht auch `make` oder `sh build.sh`.\n' +
+      'Ergebnis: `game.elf`.\n\n' +
+      'Auf GitHub baut `.github/workflows/ps2.yml` die ELF automatisch bei jedem Push (Download unter „Actions“ → Artifacts).\n\n' +
+      '## Starten\n\n' +
+      '- **Emulator:** PCSX2 → *System → Run ELF* → `game.elf` (benötigt ein eigenes PS2-BIOS).\n' +
+      '- **Echte PS2:** `game.elf` auf einen USB-Stick kopieren und mit wLaunchELF/uLaunchELF starten (z. B. über FreeMcBoot oder OpenTuna).\n\n' +
+      '## Steuerung\n\nController 1. Die Tasten entsprechen den Blöcken: ✕ ○ □ △, Steuerkreuz, START, SELECT, L1, R1.\n\n' +
+      '## Auf dem PC testen (ohne PS2)\n\n' +
+      '```sh\ncc -O2 -Isrc -o game_test src/main_host.c src/rt.c src/render.c src/game.c -lm\n./game_test 600 bild.ppm\n```\n' +
+      'Das simuliert 600 Frames mit vorgegebenen Tasten, gibt die Positionen aller Objekte aus und speichert mit dem PS2-Renderer ein Bild (`bild.ppm`).\n\n' +
+      '## Dateien\n\n' +
+      '| Datei | Inhalt |\n|---|---|\n' +
+      '| `src/game.c` | Szene und deine Blöcke als C-Code (generiert) |\n' +
+      '| `src/rt.c` | Spiel-Logik: Ereignisse, Bewegung, Kollision, Kamera |\n' +
+      '| `src/render.c` | 3D: Transformation, Clipping, Licht (Software, flach schattiert) |\n' +
+      '| `src/main_ps2.c` | PS2: gsKit-Grafik, Controller, Schrift |\n' +
+      '| `project.blockwerk.json` | Dein Projekt – in Blockwerk wieder öffnen |\n\n' +
+      '## Grenzen\n\n' +
+      '- Höchstens 128 Objekte. Kollision nutzt achsenparallele Boxen (Drehung wird dabei ignoriert).\n' +
+      '- Läuft mit 60 Hz (NTSC). Auf PAL-Konsolen läuft die Logik bei 50 Hz etwas langsamer.\n' +
+      '- Anzeige-Texte nutzen die PS2-ROM-Schrift; Umlaute können je nach Konsole fehlen.\n';
+  }
+  var WORKFLOW = 'name: PS2 build\non: [push, workflow_dispatch]\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n' +
+    '      - name: Build game.elf\n        run: docker run --rm -v "$PWD":/src -w /src ps2dev/ps2dev:latest sh build.sh\n' +
+    '      - uses: actions/upload-artifact@v4\n        with:\n          name: game-elf\n          path: game.elf\n';
+  function src(id) { return document.getElementById('c-' + id).textContent.replace(/^\n/, ''); }
+
+  function ps2Files() {
+    var g = genGameC(project);
+    return { issues: g.issues, files: {
+      'README.md': ps2Readme(project), 'build.sh': src('build.sh'), 'Makefile': src('Makefile'),
+      '.github/workflows/ps2.yml': WORKFLOW, 'project.blockwerk.json': JSON.stringify(project, null, 1),
+      'src/game.c': g.code, 'src/rt.h': src('rt.h'), 'src/rt.c': src('rt.c'), 'src/render.c': src('render.c'),
+      'src/main_ps2.c': src('main_ps2.c'), 'src/main_host.c': src('main_host.c')
+    } };
+  }
+  window.blockwerkPS2Files = ps2Files; // handy for tests / console
+
+  $('#bPS2').addEventListener('click', function () {
+    var r = ps2Files(), names = Object.keys(r.files), cur = 'src/game.c';
+    var issues = r.issues.length ? '<p><b>Hinweis:</b> ' + r.issues.map(esc).join(' ') + '</p>' : '';
+    openModal('PS2-Export', '<p>Dein Spiel wird zu <b>C-Code für die PlayStation 2</b> übersetzt (PS2SDK + gsKit). Das .zip enthält alles zum Bauen von <b>game.elf</b> – inklusive Docker-Befehl und GitHub-Workflow. Anleitung in README.md.</p>' + issues +
+      '<div class="row2" style="padding:0 0 12px"><button class="btn ps2" id="bZip">.zip herunterladen</button><button class="btn" id="bCopy">Datei kopieren</button></div>' +
+      '<div class="tabs" id="fTabs"></div><pre id="fView"></pre>');
+    function show(n) {
+      cur = n; $('#fView').textContent = r.files[n];
+      document.querySelectorAll('#fTabs .btn').forEach(function (b) { b.classList.toggle('on', b.dataset.f === n); });
+    }
+    names.forEach(function (n) { var b = document.createElement('button'); b.className = 'btn'; b.dataset.f = n; b.textContent = n; b.addEventListener('click', function () { show(n); }); $('#fTabs').appendChild(b); });
+    show(cur);
+    $('#bZip').addEventListener('click', function () {
+      var zip = new JSZip(), dir = zip.folder(slug(project.name) + '-ps2');
+      names.forEach(function (n) { dir.file(n, r.files[n], n === 'build.sh' ? { unixPermissions: '755' } : undefined); });
+      zip.generateAsync({ type: 'blob', platform: 'UNIX' }).then(function (blob) { return saveFile(slug(project.name) + '-ps2.zip', blob); });
+    });
+    $('#bCopy').addEventListener('click', function () {
+      var text = r.files[cur];
+      navigator.clipboard.writeText(text).then(function () { toast(cur + ' kopiert'); }, function () {
+        var sel = window.getSelection(), rg = document.createRange(); rg.selectNodeContents($('#fView')); sel.removeAllRanges(); sel.addRange(rg); toast('Text markiert – mit Strg+C kopieren');
+      });
+    });
+  });
+
+  /* ---------------- modal / toast ---------------- */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function openModal(title, html) { $('#mTitle').textContent = title; $('#mBody').innerHTML = html; $('#modal').hidden = false; $('#mClose').focus(); }
+  function closeModal() { $('#modal').hidden = true; }
+  $('#mClose').addEventListener('click', closeModal);
+  $('#modal').addEventListener('click', function (e) { if (e.target.id === 'modal') closeModal(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+  function confirmBox(title, text, ok, fn) {
+    openModal(title, '<p>' + esc(text) + '</p><div class="row2" style="padding:0"><button class="btn primary" id="cOk">' + esc(ok) + '</button><button class="btn" id="cNo">Abbrechen</button></div>');
+    $('#cOk').addEventListener('click', function () { closeModal(); fn(); });
+    $('#cNo').addEventListener('click', closeModal);
+  }
+  var toastT;
+  function toast(t) { var el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, 2600); }
+
+  /* ---------------- boot ---------------- */
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem('blockwerk.project') || 'null'); } catch (e) { saved = null; }
+  try { setProject(saved || sampleProject()); } catch (e) { setProject(sampleProject()); }
+  resize();
+})();
+</script>

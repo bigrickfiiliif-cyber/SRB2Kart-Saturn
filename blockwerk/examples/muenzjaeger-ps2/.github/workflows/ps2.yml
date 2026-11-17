@@ -1,0 +1,13 @@
+name: PS2 build
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build game.elf
+        run: docker run --rm -v "$PWD":/src -w /src ps2dev/ps2dev:latest sh build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-elf
+          path: game.elf
