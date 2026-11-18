@@ -59,6 +59,8 @@ select{background:var(--paper);border:1px solid var(--line);border-radius:10px;p
 .role{display:block;font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.pm{display:flex;gap:8px;align-items:center;margin-top:3px;font-size:12px}.dots{display:inline-flex;gap:2px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent,#e23d28)}.star{color:#c98a00;font-weight:700;white-space:nowrap}
+.simrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(132px,150px);gap:14px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x proximity}.simrow .card{scroll-snap-align:start}
 .chip small{font-family:var(--f-mono);font-weight:400;opacity:.65;margin-left:4px}
 .years{display:flex;gap:0;overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--paper);scrollbar-width:none}
 .years button{flex:1 0 auto;border:0;background:transparent;padding:8px 12px;font-family:var(--f-mono);font-size:13px;font-weight:600;cursor:pointer;border-right:1px solid var(--line);color:var(--muted)}
@@ -189,7 +191,7 @@ footer{border-top:1px solid var(--line);padding-block:20px;color:var(--muted);fo
         </label>
         <select id="land" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select>
         <select id="avail" aria-label="Verfügbarkeit"><option value="">Digital &amp; physisch</option><option value="digital">Digital verfügbar</option><option value="phys">Nicht digital (nur CD/Vinyl/Tape)</option><option value="late">Erst später digital</option></select>
-        <select id="sort" aria-label="Sortierung"><option value="year">Nach Jahr</option><option value="title">Album A–Z</option><option value="artist">Artist A–Z</option></select>
+        <select id="sort" aria-label="Sortierung"><option value="year">Nach Jahr</option><option value="title">Album A–Z</option><option value="artist">Artist A–Z</option><option value="pop">Bekanntheit</option><option value="rating">Bewertung</option></select>
       </div>
       <div class="fgroup"><span class="flabel">Typ</span><div class="chips" id="types" role="group" aria-label="Release-Typ (mehrere wählbar)"></div></div>
       <div class="fgroup"><span class="flabel">Genre</span><div class="chips" id="genres" role="group" aria-label="Genre-Filter"></div></div>
@@ -263,14 +265,47 @@ function matches(a){
 }
 A.forEach(a=>{a._s=[a.title,a.artist,a.label,a.producers.join(' '),a.genres.join(' '),a.year,(a.tracks||[]).map(t=>t.t).join(' '),a.guests.join(' ')].join(' ').toLowerCase()});
 
+function similar(a){
+  const ga=new Set(a.genres),pa=new Set(a.producers),ar=new Set(a.artists),gu=new Set(a.guests);
+  const ppl=new Set([...ar,...gu]);
+  const res=[];
+  for(const b of A){
+    if(b.id===a.id) continue;
+    let s=0;const why=[];
+    const same=b.artists.some(n=>ar.has(n));
+    const gs=b.genres.filter(g=>ga.has(g));s+=gs.length*2;
+    if(gs.length&&gs.length===Math.max(a.genres.length,b.genres.length))s+=1.5;
+    const pr=b.producers.filter(p=>pa.has(p));if(pr.length){s+=4;why.push('Producer: '+pr[0])}
+    const conn=[...b.artists,...b.guests].filter(n=>ppl.has(n)&&!(same&&ar.has(n)));
+    if(conn.length){s+=Math.min(3,conn.length)*2.5;why.push((b.artists.some(n=>ppl.has(n))?'Mit ':'Gast: ')+conn[0])}
+    if(a.label&&b.label&&a.label===b.label){s+=2;why.push('Label: '+b.label)}
+    const dy=Math.abs(a.year-b.year);s+=dy===0?1.5:dy===1?1:dy<=2?.5:0;
+    if(a.land===b.land)s+=a.land==='DE'?.3:1.5;
+    if(a.type===b.type)s+=.5;
+    if(same)s+=1.5;
+    if(b.pop)s+=b.pop/100;
+    if(!why.length&&gs.length)why.push(gs.slice(0,2).join(' / '));
+    if(s>=4)res.push([s,b,same,why]);
+  }
+  res.sort((x,y)=>y[0]-x[0]);
+  const out=[];let own=0;const per={};
+  for(const r of res){const ks=r[1].artists.length?r[1].artists:[r[1].artist];if(r[2]){if(own>=2)continue;own++}else{if(ks.some(k=>(per[k]||0)>=2))continue;ks.forEach(k=>per[k]=(per[k]||0)+1)}out.push(r);if(out.length>=10)break}
+  return out;
+}
+function simHTML(a){
+  const l=similar(a);if(!l.length)return '';
+  return `<h3 class="sec">Ähnlich wie ${esc(a.title)}</h3><div class="simrow">${l.map(([s,b,same,why])=>card(b).replace('</div></div></a>',`<span class="role">${esc(same?'Gleicher Artist':why[0]||'')}</span></div></div></a>`)).join('')}</div>`;
+}
+function fmtN(n){return (n||0).toLocaleString('de-DE')}
+function popDots(p){const n=Math.max(1,Math.round(p/20));return `<span class="dots" role="img" aria-label="Bekanntheit ${n} von 5">${[1,2,3,4,5].map(i=>`<i class="${i<=n?'on':''}"></i>`).join('')}</span>`}
 function card(a){
   const bd=a.src!=='itunes'?'<span class="badge">nicht digital</span>':a.late?`<span class="badge">digital ${a.late}</span>`:'';
-  return `<a class="card" href="#album-${a.id}"><div style="position:relative">${cover(a,180)}${bd}</div><div class="meta"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="g"><span class="flag">${a.land}</span>${a.type!=='Album'?esc(a.type)+' · ':''}${esc(a.genres.slice(0,2).join(' / '))}</div></div></a>`;
+  return `<a class="card" href="#album-${a.id}"><div style="position:relative">${cover(a,180)}${bd}</div><div class="meta"><div class="t">${esc(a.title)}</div><div class="a">${esc(a.artist)}</div><div class="g"><span class="flag">${a.land}</span>${a.type!=='Album'?esc(a.type)+' · ':''}${esc(a.genres.slice(0,2).join(' / '))}</div>${(a.r&&a.r[1]>=2)||a.pop?`<div class="pm">${a.pop?popDots(a.pop):''}${a.r&&a.r[1]>=2?`<span class="star" title="${a.r[1]} Stimmen bei MusicBrainz">★ ${a.r[0].toFixed(1)}</span>`:''}</div>`:''}</div></a>`;
 }
 function renderAlben(){
   let list=A.filter(matches);
   const cmp={year:(x,y)=>x.year-y.year||x.artist.localeCompare(y.artist,'de')||x.title.localeCompare(y.title,'de'),
-    title:(x,y)=>x.title.localeCompare(y.title,'de'),artist:(x,y)=>x.artist.localeCompare(y.artist,'de')||x.year-y.year}[st.sort];
+    title:(x,y)=>x.title.localeCompare(y.title,'de'),pop:(x,y)=>(y.fans||0)-(x.fans||0)||(y.r?y.r[1]:0)-(x.r?x.r[1]:0)||x.year-y.year,rating:(x,y)=>(y.r?1:0)-(x.r?1:0)||(y.r&&x.r?(y.r[0]*y.r[1]+3*3)/(y.r[1]+3)-(x.r[0]*x.r[1]+3*3)/(x.r[1]+3):0)||(y.fans||0)-(x.fans||0),artist:(x,y)=>x.artist.localeCompare(y.artist,'de')||x.year-y.year}[st.sort];
   list.sort(cmp);
   $('#rinfo').textContent=list.length===A.length?`Alle ${A.length} Releases`:`${list.length} von ${A.length} Releases`;
   $('#reset').hidden=!(st.q||st.genres.size||st.year||st.land||st.types.size||st.avail);
@@ -306,7 +341,7 @@ function links(a){
   if(a.apple) L.push(['Apple Music / iTunes',a.apple,'#fa2d48']); else L.push(['Apple Music suchen','https://music.apple.com/de/search?term='+q,'#fa2d48']);
   L.push(['Spotify','https://open.spotify.com/search/'+q,'#1db954']);
   L.push(['YouTube','https://www.youtube.com/results?search_query='+q,'#ff0000']);
-  L.push(['Deezer','https://www.deezer.com/search/'+q,'#a238ff']);
+  L.push(['Deezer',a.dz?'https://www.deezer.com/album/'+a.dz:'https://www.deezer.com/search/'+q,'#a238ff']);
   L.push(['Discogs','https://www.discogs.com/search/?type=all&q='+q,'#888']);
   L.push(['Genius','https://genius.com/search?q='+q,'#e8d000']);
   return L.map(([n,u,c])=>`<a href="${u}" target="_blank" rel="noopener"><i style="background:${c}"></i>${n}</a>`).join('');
@@ -324,6 +359,8 @@ function openAlbum(id){
     <dt>Genre</dt><dd>${a.genres.map(g=>`<a href="#alben" data-genre="${esc(g)}">${esc(g)}</a>`).join(', ')}</dd>
     <dt>Producer</dt><dd>${a.producers.length?artistLinks(a.producers):'<span style="color:var(--muted)">nicht erfasst</span>'}</dd>
     <dt>Label</dt><dd>${esc(a.label)||'<span style="color:var(--muted)">nicht erfasst</span>'}</dd>
+    ${a.fans!=null?`<dt>Bekanntheit</dt><dd>${popDots(a.pop)} ${fmtN(a.fans)} Fans bei Deezer</dd>`:''}
+    ${a.r?`<dt>Bewertung</dt><dd><span class="star">★ ${a.r[0].toFixed(1)}</span> / 5 · ${a.r[1]} ${a.r[1]===1?'Stimme':'Stimmen'} bei MusicBrainz</dd>`:''}
     ${a.guests.length?`<dt>Gäste</dt><dd>${artistLinks(a.guests)}</dd>`:''}
     ${tl.length?`<dt>Länge</dt><dd>${tl.length} Tracks · ${Math.round(dur/60000)} Min.</dd>`:''}
     <dt>Verfügbar</dt><dd>${a.src==='itunes'?(a.late?`Digital seit ${a.late} (Original ${a.year})`:'Digital (Streaming/Download)'):'Nicht digital gefunden, nur physisch oder als Free-Download'}</dd>
@@ -331,7 +368,8 @@ function openAlbum(id){
   </dl>
   <h3 class="sec">Anhören &amp; nachschlagen</h3><div class="links">${links(a)}</div>
   <h3 class="sec">Tracklist</h3>${tracks}
-  <p class="note">${a.src==='itunes'?'Cover und Tracklist aus dem iTunes-Katalog'+(a.mb?', Erstveröffentlichung laut MusicBrainz.':'. Jahreszahlen von Neuauflagen können abweichen.'):a.src==='mb'?'Dieser Release ist nicht im iTunes-Katalog. Tracklist, Label und Jahr stammen aus MusicBrainz, das Cover ist ein Platzhalter.':'Dieser Release ist nicht im iTunes-Katalog. Die Angaben stammen aus dem Archiv selbst, ohne Gewähr.'}${a.mb?` <a href="https://musicbrainz.org/release-group/${a.mb}" target="_blank" rel="noopener">MusicBrainz-Eintrag</a>`:''}</p>`;
+  ${simHTML(a)}
+  <p class="note">${a.src==='itunes'?'Cover und Tracklist aus dem iTunes-Katalog'+(a.mb?', Erstveröffentlichung laut MusicBrainz.':'. Jahreszahlen von Neuauflagen können abweichen.'):a.src==='mb'?'Dieser Release ist nicht im iTunes-Katalog. Tracklist, Label und Jahr stammen aus MusicBrainz, '+(a.cover?'das Cover aus dem Cover Art Archive.':'das Cover ist ein Platzhalter.'):'Dieser Release ist nicht im iTunes-Katalog. Die Angaben stammen aus dem Archiv selbst, ohne Gewähr.'}${a.mb?` <a href="https://musicbrainz.org/release-group/${a.mb}" target="_blank" rel="noopener">MusicBrainz-Eintrag</a>`:''}</p>`;
   $('#sheet').hidden=false;$('#sheetbg').hidden=false;document.body.style.overflow='hidden';$('#sheet').scrollTop=0;
   $('#closeSheet').onclick=closeSheet;$('#closeSheet').focus({preventScroll:true});
   return true;
@@ -353,12 +391,14 @@ function renderArtists(){
     v.innerHTML=`<div class="intro"><div><h1>Artists</h1><p>Rapper:innen, Crews, Producer und Gäste. Jede Seite zeigt eigene Releases, Features und Produktionen.</p></div></div>
     <div class="controls"><div class="searchrow"><label class="search" for="aq"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="aq" type="search" placeholder="Artist suchen" autocomplete="off"></label>
     <select id="arole" aria-label="Rolle"><option value="">Alle Rollen</option><option value="main">Mit eigenen Releases</option><option value="feat">Nur Features</option><option value="prod">Producer</option></select>
+    <select id="asort" aria-label="Sortierung"><option value="">Nach Aktivität</option><option value="pop">Nach Bekanntheit</option></select>
     <select id="aland" aria-label="Land"><option value="">Alle Länder</option><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option></select></div>
     <div class="letters" id="letters"><button type="button" data-l="" aria-pressed="true">#</button>${letters.map(l=>`<button type="button" data-l="${l}" aria-pressed="false">${l}</button>`).join('')}</div>
     <div class="resultinfo" style="margin-bottom:10px"><span id="ainfo"></span></div></div><div class="alist" id="alist"></div>`;
     v.dataset.built=1;
     $('#aq').oninput=e=>{ast.q=e.target.value.trim().toLowerCase();drawA()};
     $('#arole').onchange=e=>{ast.role=e.target.value;drawA()};
+    $('#asort').onchange=e=>{ast.sort=e.target.value;drawA()};
     $('#aland').onchange=e=>{ast.land=e.target.value;drawA()};
     $('#letters').onclick=e=>{const b=e.target.closest('button');if(!b)return;ast.letter=b.dataset.l;document.querySelectorAll('#letters button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawA()};
   }
@@ -367,7 +407,7 @@ function renderArtists(){
 function drawA(){
   let l=AR.filter(a=>(!ast.q||a.name.toLowerCase().includes(ast.q))&&(!ast.letter||a.letter===ast.letter)&&(!ast.land||a.land===ast.land)
     &&(!ast.role||(ast.role==='main'&&a.main.length)||(ast.role==='feat'&&!a.main.length&&a.feats.length)||(ast.role==='prod'&&a.prod.length)));
-  l.sort((x,y)=>(y.main.length*3+y.feats.length+y.prod.length)-(x.main.length*3+x.feats.length+x.prod.length)||x.name.localeCompare(y.name,'de'));
+  if(ast.sort==='pop') l.sort((x,y)=>(y.fans||0)-(x.fans||0)||x.name.localeCompare(y.name,'de')); else l.sort((x,y)=>(y.main.length*3+y.feats.length+y.prod.length)-(x.main.length*3+x.feats.length+x.prod.length)||x.name.localeCompare(y.name,'de'));
   $('#ainfo').textContent=`${l.length} Artists`;
   const shown=l.slice(0,300);
   $('#alist').innerHTML=shown.map(a=>{
@@ -402,6 +442,7 @@ function renderArtist(slug){
     <div class="tile"><b>${main.length}</b><span class="label">Eigene Releases</span></div>
     <div class="tile"><b>${a.feats.length}</b><span class="label">Gastparts</span></div>
     <div class="tile"><b>${a.prod.length}</b><span class="label">Produktionen</span></div>
+    ${a.fans!=null?`<div class="tile"><b>${fmtN(a.fans)}</b><span class="label">Fans bei Deezer</span></div>`:''}${a.r?`<div class="tile"><b>★ ${a.r[0].toFixed(1)}</b><span class="label">Bewertung (${a.r[1]} Stimmen, MusicBrainz)</span></div>`:''}
     <div class="tile"><b>${songs}</b><span class="label">Songs auf eig. Releases</span></div>
     <div class="tile"><b style="font-size:24px">${span}</b><span class="label">Aktiv im Archiv</span></div>
   </div>
@@ -413,7 +454,7 @@ function renderArtist(slug){
 }
 
 /* ---------- stats ---------- */
-function bars(entries,linkFn,hl){const max=Math.max(...entries.map(e=>e[1]));return `<div class="bars">${entries.map(([k,v])=>`<div class="brow${hl&&hl(k)?' hl':''}"><span class="bl">${linkFn?linkFn(k):esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v/max*100}%"></span></span><span class="v">${v}</span></div>`).join('')}</div>`}
+function bars(entries,linkFn,hl){const max=Math.max(...entries.map(e=>e[1]));return `<div class="bars">${entries.map(([k,v])=>`<div class="brow${hl&&hl(k)?' hl':''}"><span class="bl">${linkFn?linkFn(k):esc(k)}</span><span class="track"><span class="fill" style="display:block;width:${v/max*100}%"></span></span><span class="v">${typeof v==='number'?v.toLocaleString('de-DE'):v}</span></div>`).join('')}</div>`}
 function renderStats(){
   const v=$('#v-stats'); if(v.dataset.built) return; v.dataset.built=1;
   const perY={};A.forEach(a=>perY[a.year]=(perY[a.year]||0)+1);
@@ -428,6 +469,10 @@ function renderStats(){
   const lab={};A.forEach(a=>{if(a.label)lab[a.label]=(lab[a.label]||0)+1});
   const longest=A.filter(a=>a.tracks&&a.tracks.length).map(a=>[a,a.tracks.reduce((s,t)=>s+(t.ms||0),0)]).sort((x,y)=>y[1]-x[1]).slice(0,8);
   const featRate=A.filter(a=>a.tracks&&a.tracks.length>5).map(a=>[a,a.tracks.filter(t=>t.f&&t.f.length).length]).sort((x,y)=>y[1]-x[1]).slice(0,8);
+  const topPop=A.filter(a=>a.fans).sort((x,y)=>y.fans-x.fans).slice(0,12);
+  const topRated=A.filter(a=>a.r&&a.r[1]>=2).sort((x,y)=>(y.r[0]*y.r[1]+9)/(y.r[1]+3)-(x.r[0]*x.r[1]+9)/(x.r[1]+3)).slice(0,12);
+  const topArt=ar.filter(a=>a.fans&&a.main.length).sort((x,y)=>y.fans-x.fans).slice(0,12).map(a=>[a.name,a.fans]);
+  const alink=id=>{const x=byId.get(id);return `<a href="#album-${id}">${esc(x.title)}</a> <span style="color:var(--muted)">${esc(x.artist)}</span>`};
   const al=k=>{const s=DATA.slugOf[k];return s?`<a href="#artist-${s}">${esc(k)}</a>`:esc(k)};
   const genreYear=GEN.slice(0,6).map(g=>{const c={};A.filter(a=>a.genres.includes(g)).forEach(a=>c[a.year]=(c[a.year]||0)+1);return [g,c]});
   const gmax=Math.max(...genreYear.flatMap(([g,c])=>Object.values(c)));
@@ -437,6 +482,9 @@ function renderStats(){
     <div class="panel"><h2>Genres</h2>${bars(top(gCount,14),k=>`<a href="#alben" data-genre="${esc(k)}">${esc(k)}</a>`)}</div>
     <div class="panel"><h2>Genres im Zeitverlauf</h2><div class="scroll"><table class="apptable" style="font-size:12px"><tr><td></td>${[...Array(10)].map((_,i)=>`<td style="text-align:center;width:auto">${String(i).padStart(2,'0')}</td>`).join('')}</tr>${genreYear.map(([g,c])=>`<tr><td style="font-family:var(--f-body);color:var(--ink);width:auto;white-space:nowrap">${esc(g)}</td>${[...Array(10)].map((_,i)=>{const n=c[2000+i]||0;return `<td style="text-align:center;width:auto"><span title="${n}" style="display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--accent);opacity:${n?0.15+0.85*n/gmax:0.06}"></span></td>`}).join('')}</tr>`).join('')}</table></div><p class="note">Je kräftiger der Punkt, desto mehr Releases im Jahr (00 = 2000).</p></div>
     <div class="panel"><h2>Länder</h2>${bars(top(land,3))}<h2 style="margin-top:18px">Release-Typen</h2>${bars(top(typ,10))}</div>
+    <div class="panel"><h2>Bekannteste Releases</h2>${bars(topPop.map(x=>[x.id,x.fans]),alink)}<p class="note">Fans bei Deezer (Stand heute, nicht 2000–2009)</p></div>
+    ${topRated.length?`<div class="panel"><h2>Bestbewertete Releases</h2>${bars(topRated.map(x=>[x.id,+x.r[0].toFixed(2)]),alink)}<p class="note">MusicBrainz-Nutzerwertung (1–5), mind. 2 Stimmen</p></div>`:''}
+    <div class="panel"><h2>Bekannteste Artists</h2>${bars(topArt,al)}<p class="note">Fans bei Deezer</p></div>
     <div class="panel"><h2>Meiste Releases</h2>${bars(mostRel,al)}</div>
     <div class="panel"><h2>Meiste Gastparts</h2>${bars(mostFeat,al)}</div>
     ${mostProd.length?`<div class="panel"><h2>Meiste Produktionen (erfasst)</h2>${bars(mostProd,al)}</div>`:''}

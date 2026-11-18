@@ -1,6 +1,22 @@
 import json,os,datetime
 d=json.load(open('built.json'))
 from PIL import Image
+import zlib,math
+def synth(i): return 9000000000000+zlib.crc32(i.encode())
+DZ=json.load(open('dz.json')) if os.path.exists('dz.json') else {'al':{},'ar':{}}
+RT=json.load(open('mbrate.json')) if os.path.exists('mbrate.json') else {'rg':{},'artist':{}}
+for a in d['albums']:
+    if not a.get('_cid') and os.path.exists(f"out/covers/{synth(a['id'])}.jpg"): a['_cid']=synth(a['id']); a['csrc']='ext'
+    z=DZ['al'].get(a['id'])
+    if z: a['dz']=z['id']; a['fans']=z.get('fans') or 0
+    if a.get('mb') and a['mb'] in RT['rg']: a['r']=RT['rg'][a['mb']]
+mx=max([a.get('fans',0) for a in d['albums']]+[1])
+for a in d['albums']:
+    if 'fans' in a: a['pop']=round(100*math.log10(1+a['fans'])/math.log10(1+mx))
+for x in d['artists']:
+    z=DZ['ar'].get(x['name'])
+    if z: x['fans']=z.get('fans') or 0; x['dz']=z['id']
+    if x['name'] in RT['artist']: x['r']=RT['artist'][x['name']]
 G=8;S=200
 cids=sorted({str(a['_cid']) for a in d['albums'] if a.get('_cid') and os.path.exists(f"out/covers/{a['_cid']}.jpg")})
 os.makedirs('out/sprites',exist_ok=True)
