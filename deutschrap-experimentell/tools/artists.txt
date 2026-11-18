@@ -1,0 +1,78 @@
+# Name|Land|Primary,Secondary...  (erstes Genre = Primary, Rest = Secondary; AOTY-Stil)
+# --- Wegbereiter 90er/00er ---
+Kinderzimmer Productions|DE|Abstract Hip Hop,Jazz Rap,Sound Collage
+Fischmob|DE|Alternative Hip Hop,Comedy Rap,Funk
+Fünf Sterne Deluxe|DE|Alternative Hip Hop,Comedy Rap,Electro
+Deichkind|DE|Electro-Rap,Electroclash,Electropunk
+Mediengruppe Telekommander|DE|Electroclash,Electropunk,Post-Punk
+Huss und Hodn|DE|Abstract Hip Hop,Boom Bap,Comedy Rap
+Hulk Hodn|DE|Instrumental Hip Hop,Abstract Hip Hop,Sound Collage
+Retrogott|DE|Abstract Hip Hop,Boom Bap,Jazz Rap
+Twit One|DE|Instrumental Hip Hop,Jazz Rap,Sound Collage
+Morlockk Dilemma|DE|Abstract Hip Hop,Horrorcore,Industrial Hip Hop
+Hiob|DE|Abstract Hip Hop,Boom Bap,Dark Ambient
+Hiob & Morlockk Dilemma|DE|Abstract Hip Hop,Industrial Hip Hop,Dark Ambient
+Mädness|DE|Boom Bap,Abstract Hip Hop,Jazz Rap
+Döll|DE|Boom Bap,Abstract Hip Hop
+Dexter|DE|Instrumental Hip Hop,Jazz Rap,Sound Collage
+Maeckes|DE|Experimental Hip Hop,Art Pop,Singer-Songwriter
+Kaas|DE|Alternative Hip Hop,Comedy Rap
+Die Orsons|DE|Alternative Hip Hop,Pop Rap,Experimental Hip Hop
+Tua|DE|Experimental Hip Hop,Electronic,Art Pop
+Prezident|DE|Abstract Hip Hop,Conscious Hip Hop,Boom Bap
+Waving the Guns|DE|Political Hip Hop,Boom Bap,Abstract Hip Hop
+Audio88 & Yassin|DE|Abstract Hip Hop,Political Hip Hop,Electronic
+Audio88|DE|Abstract Hip Hop,Electronic
+Yassin|DE|Abstract Hip Hop,Electronic
+Antilopen Gang|DE|Political Hip Hop,Alternative Hip Hop,Punk Rap
+Zugezogen Maskulin|DE|Experimental Hip Hop,Electronic,Political Hip Hop
+Grim104|DE|Experimental Hip Hop,Electronic,Post-Punk
+Edgar Wasser|DE|Conscious Hip Hop,Abstract Hip Hop,Comedy Rap
+Fatoni|DE|Alternative Hip Hop,Conscious Hip Hop
+Juse Ju|DE|Alternative Hip Hop,Conscious Hip Hop
+Ahzumjot|DE|Experimental Hip Hop,Alternative R&B,Electronic
+Morlockk Dilemma & Hiob|DE|Abstract Hip Hop,Industrial Hip Hop
+Shacke One|DE|Abstract Hip Hop,Boom Bap
+Sierra Kidd|DE|Emo Rap,Cloud Rap,Pop Rap
+OG Keemo|DE|Experimental Hip Hop,Hardcore Hip Hop,Conscious Hip Hop
+Trettmann|DE|Dancehall,Alternative R&B,Electronic
+Kitschkrieg|DE|Electronic,Dancehall,Experimental Hip Hop
+Haiyti|DE|Cloud Rap,Trap,Experimental Hip Hop
+LGoony|DE|Cloud Rap,Trap,Hyperpop
+Juicy Gay|DE|Cloud Rap,Trap,Comedy Rap
+Rin|DE|Cloud Rap,Trap,Alternative R&B
+Hustensaft Jüngling|DE|Cloud Rap,Trap,Witch House
+Lugatti & 9ine|DE|Experimental Hip Hop,Cloud Rap,Trap
+Ion Miles|DE|Cloud Rap,Trap,Experimental Hip Hop
+Nugat|DE|Experimental Hip Hop,Trap,Electronic
+Der Täubling|DE|Experimental Hip Hop,Hyperpop,Digicore
+Ilyproxy|DE|Experimental Hip Hop,Hyperpop,Rage
+Ebow|DE|Experimental Hip Hop,Political Hip Hop,Electronic
+Haszcara|DE|Conscious Hip Hop,Alternative Hip Hop
+Lord Folter|DE|Experimental Hip Hop,Horrorcore,Noise
+Yung Kafa & Kücük Efendi|DE|Experimental Hip Hop,Cloud Rap,Electronic
+Mauli|DE|Alternative Hip Hop,Cloud Rap
+Liser|DE|Abstract Hip Hop,Cloud Rap
+Pimf|DE|Conscious Hip Hop,Emo Rap
+Chima Ede|DE|Conscious Hip Hop,Alternative R&B
+Kerosin95|AT|Experimental Hip Hop,Hyperpop,Political Hip Hop
+Yung Hurn|AT|Cloud Rap,Experimental Hip Hop,Neo-Psychedelia
+Crack Ignaz|AT|Cloud Rap,Trap,Alternative R&B
+Money Boy|AT|Cloud Rap,Trap,Comedy Rap
+Mavi Phoenix|AT|Experimental Hip Hop,Electronic,Alternative R&B
+Esrap|AT|Political Hip Hop,Alternative Hip Hop
+Bibiza|AT|Pop Rap,Cloud Rap
+Jugo Ürdens|AT|Alternative Hip Hop,Pop Rap,Trap
+Yasmo & die Klangkantine|AT|Jazz Rap,Spoken Word,Funk
+Brenk Sinatra|AT|Instrumental Hip Hop,Boom Bap
+Spilif|AT|Experimental Hip Hop,Cloud Rap
+Psycho'n'Odds|CH|Abstract Hip Hop,Mundart-Rap,Boom Bap
+Baze|CH|Experimental Hip Hop,Mundart-Rap,Electronic
+Tommy Vercetti|CH|Conscious Hip Hop,Mundart-Rap,Boom Bap
+Nativ|CH|Conscious Hip Hop,Mundart-Rap,Jazz Rap
+Dawill|CH|Experimental Hip Hop,Mundart-Rap
+Steff la Cheffe|CH|Alternative Hip Hop,Mundart-Rap,Beatbox
+Manillio|CH|Alternative Hip Hop,Mundart-Rap,Pop Rap
+Kasimir1441|DE|Cloud Rap,Experimental Hip Hop,Trap
+Kwam.E|DE|Jazz Rap,Alternative Hip Hop,Neo-Soul
+Tamas|DE|Alternative Hip Hop,Emo Rap
